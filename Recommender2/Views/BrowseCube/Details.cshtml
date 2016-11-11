@@ -1,0 +1,47 @@
+﻿@using Recommender2.ViewModels
+@model Recommender2.ViewModels.BrowseCubeViewModel
+
+@{
+    ViewBag.Title = "Details of" + Model.Dataset.Name;
+    var chartDisplay = Model.ShouldChartBeDisplayed ? "block" : "none";
+}
+@Scripts.Render("~/bundles/browsecube")
+<h2>Browse @Model.Dataset.Name</h2>
+
+@using (Html.BeginForm("ShowChart", "BrowseCube", null, FormMethod.Post))
+{
+    @Html.HiddenFor(m => Model.DatasetId)
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group">
+            <table>
+                <tr><td>Measure</td><td>@Html.DropDownListFor(m => m.SelectedMeasureId, Model.Dataset.MeasuresSelectList)</td></tr>
+                <tr><td>X axis dimension</td><td>@Html.DropDownListFor(m => m.XDimensionId, Model.Dataset.DimensionsSelectList)</td></tr>
+                <tr><td>Legend dimension</td><td>@Html.DropDownListFor(m => m.LegendDimensionId, Model.Dataset.DimensionsSelectList)</td></tr>
+            </table>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Show chart" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
+
+<div style="display:@chartDisplay">
+    <script>
+        measureName = @JavaScriptConverter.SerializeObject(Model.MeasureName);
+        //
+        groupedSerializedSeries = @JavaScriptConverter.SerializeObject(Model.GroupedChart?.Series);
+        groupedSerializedCategories = @JavaScriptConverter.SerializeObject(Model.GroupedChart?.Categories);
+        groupedChartTitle = @JavaScriptConverter.SerializeObject(Model.GroupedChart?.ChartTitle);
+        //
+        drilldownSerializedSeries = @JavaScriptConverter.SerializeObject(Model.DrilldownChart?.Series);
+        drilldownSerializedDrilldown = @JavaScriptConverter.SerializeObject(Model.DrilldownChart?.Drilldown);
+        drilldownChartTitle = @JavaScriptConverter.SerializeObject(Model.DrilldownChart?.ChartTitle);
+    </script>
+    <div class="chart-container" id="grouped-chart"></div>
+    <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+</div>
+

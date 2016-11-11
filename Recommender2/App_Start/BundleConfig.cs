@@ -25,7 +25,21 @@ namespace Recommender2
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/bootstrap.css",
-                      "~/Content/site.css"));
+                      "~/Content/site.css",
+                      "~/Content/grouped-categories.css"));
+
+            bundles.Add(new ScriptBundle("~/bundles/createdataset").Include(
+                    "~/Scripts/Custom/create-dataset.js"
+                    ));
+
+            bundles.Add(new ScriptBundle("~/bundles/browsecube").Include(
+                    "~/Scripts/Charts/highcharts.js",
+                    "~/Scripts/Charts/grouped-categories.js",
+                    "~/Scripts/Charts/drilldown.js",
+                    "~/Scripts/Charts/data.js",
+                    "~/Scripts/Custom/column-drilldown.js",
+                    "~/Scripts/Custom/chart-details.js"
+                    ));
         }
     }
 }

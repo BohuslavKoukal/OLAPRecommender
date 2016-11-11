@@ -1,0 +1,27 @@
+﻿using System.Collections.Generic;
+using System.Data.Entity;
+using System.Data.Entity.ModelConfiguration.Conventions;
+using System.Linq;
+using System.Web;
+using Recommender2.Models;
+
+namespace Recommender2.DataAccess
+{
+    [DbConfigurationType(typeof(MySql.Data.Entity.MySqlEFConfiguration))]
+    public class DbContext : System.Data.Entity.DbContext
+    {
+        public DbContext() : base("DbContext")
+        {
+        }
+
+        public DbSet<Attribute> Attributes { get; set; }
+        public DbSet<Dataset> Datasets { get; set; }
+        public DbSet<Dimension> Dimensions { get; set; }
+        public DbSet<Measure> Measures { get; set; }
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            modelBuilder.Conventions.Remove<PluralizingTableNameConvention>();
+        }
+    }
+}
