@@ -7,7 +7,20 @@ using Recommender2.Models;
 
 namespace Recommender2.DataAccess
 {
-    public class DataAccessLayer
+    public interface IDataAccessLayer
+    {
+        void Insert(Dataset dataset);
+        void PopulateDataset(int id, ICollection<Measure> measures, ICollection<Dimension> dimensions);
+        string GetCsvFilePath(int id);
+        List<Dataset> GetAllDatasets();
+        Dataset GetDataset(string name);
+        Dataset GetDataset(int id);
+        List<Dimension> GetChildDimensions(int id);
+        Dimension GetDimension(int id);
+        Measure GetMeasure(int id);
+    }
+
+    public class DataAccessLayer : IDataAccessLayer
     {
         private readonly DbContext _dbContext;
 

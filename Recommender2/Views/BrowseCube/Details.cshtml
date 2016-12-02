@@ -16,11 +16,34 @@
         <div class="form-group">
             <table>
                 <tr><td>Measure</td><td>@Html.DropDownListFor(m => m.SelectedMeasureId, Model.Dataset.MeasuresSelectList)</td></tr>
-                <tr><td>X axis dimension</td><td>@Html.DropDownListFor(m => m.XDimensionId, Model.Dataset.DimensionsSelectList)</td></tr>
-                <tr><td>Legend dimension</td><td>@Html.DropDownListFor(m => m.LegendDimensionId, Model.Dataset.DimensionsSelectList)</td></tr>
+                <tr><td>X axis Dimension</td><td>@Html.DropDownListFor(m => m.XDimensionId, Model.Dataset.DimensionsSelectList)</td></tr>
+                <tr><td>Legend Dimension</td><td>@Html.DropDownListFor(m => m.LegendDimensionId, Model.Dataset.DimensionsSelectList)</td></tr>
             </table>
         </div>
-
+        <div class="form-group">
+            <table>
+                
+                @for (int i = 0; i < Model.Filter.Dimensions.Count; i++)
+                {
+                    var dimension = Model.Filter.Dimensions[i];
+                    <tr>
+                        @Html.Hidden($"dimensions[{i}].Key", dimension.DimensionId)
+                        <td>@Html.DisplayFor(m => Model.Filter.Dimensions[i].DimensionName)</td>
+                        <td>
+                            @for (int j = 0; j < dimension.Values.Count; j++)
+                            {
+                                var value = dimension.Values[j];
+                                @Html.Hidden($"dimensions[{i}].Value[{j}].Key", value.Id)
+                                @Html.CheckBox($"dimensions[{i}].Value[{j}].Value", value.Checked)
+                                @Html.Label(value.Value, " " + value.Value)
+                                @Html.Hidden($"dimensions[{i}].Value[{j}].Value", value.Id, new {value = false})
+                                <br/>
+                            }
+                        </td>
+                    </tr>
+                }
+            </table>
+        </div>
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
                 <input type="submit" value="Show chart" class="btn btn-default" />

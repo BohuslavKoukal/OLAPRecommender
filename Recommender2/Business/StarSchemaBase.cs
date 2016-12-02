@@ -8,14 +8,12 @@ namespace Recommender2.Business
 {
     public class StarSchemaBase 
     {
-        protected readonly QueryBuilder QueryBuilder;
-        protected readonly DbConnection DbConnection;
-        protected readonly DataAccessLayer Data;
+        protected readonly IQueryBuilder QueryBuilder;
+        protected readonly IDataAccessLayer Data;
 
-        public StarSchemaBase(QueryBuilder queryBuilder, DataAccessLayer data, DbConnection dbConnection)
+        public StarSchemaBase(IQueryBuilder queryBuilder, IDataAccessLayer data)
         {
             QueryBuilder = queryBuilder;
-            DbConnection = dbConnection;
             Data = data;
         }
 

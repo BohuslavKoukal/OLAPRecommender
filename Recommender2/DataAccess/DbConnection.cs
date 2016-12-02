@@ -8,15 +8,28 @@ using Recommender2.Business;
 
 namespace Recommender2.DataAccess
 {
-    public class DbConnection
+    public interface IDbConnection
+    {
+        MySqlConnection GetConnection();
+    }
+
+    public class DbConnection : IDbConnection
     {
         private readonly string _connection;
 
-        public DbConnection(Configuration config)
+        public DbConnection(IConfiguration config)
         {
             _connection = config.GetCubeDatabaseConnectionString();
         }
 
-        public MySqlConnection Connection => new MySqlConnection(_connection);
+        public DbConnection()
+        {
+            _connection = string.Empty;
+        }
+
+        public MySqlConnection GetConnection()
+        {
+            return new MySqlConnection(_connection);
+        }
     }
 }

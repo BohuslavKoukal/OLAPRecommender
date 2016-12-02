@@ -10,12 +10,18 @@ using Recommender2.Models;
 
 namespace Recommender2.Business
 {
-    
-    public class StarSchemaBuilder : StarSchemaBase
+    public interface IStarSchemaBuilder
+    {
+        void CreateAndFillDimensionTables(string datasetName, List<Dimension> dimensions, DataTable values);
+        void CreateFactTable(string datasetName, List<Dimension> dimensions, List<Measure> measures);
+        void FillFactTable(string datasetName, List<Dimension> dimensions, List<Measure> measures, DataTable values);
+    }
+
+    public class StarSchemaBuilder : StarSchemaBase, IStarSchemaBuilder
     {
 
-        public StarSchemaBuilder(QueryBuilder queryBuilder, DataAccessLayer data, DbConnection dbConnection) 
-            : base(queryBuilder, data, dbConnection)
+        public StarSchemaBuilder(QueryBuilder queryBuilder, DataAccessLayer data) 
+            : base(queryBuilder, data)
         {
         }
 
@@ -34,12 +40,7 @@ namespace Recommender2.Business
                         !existingDimensions.Contains(dimension.Id))
                     {
                         CreateDimensionTable(datasetName, dimension.Name, ((DataType)dimension.Type).ToSqlType(), childDimensions.Select(d => d.Name).ToList());
-                        using (var conn = DbConnection.Connection)
-                        {
-                            conn.Open();
-                            FillDimensionTable(datasetName, dimension, values, childDimensions, conn);
-                            conn.Close();
-                        }
+                        FillDimensionTable(datasetName, dimension, values, childDimensions);
                         existingDimensions.Add(dimension.Id);
                     }
                 }
@@ -56,36 +57,26 @@ namespace Recommender2.Business
                 KeyName = dimensionName + "Id",
                 Reference = datasetName + dimensionName
             }));
-            using (var conn = DbConnection.Connection)
-            {
-                conn.Open();
-                QueryBuilder.CreateTable(datasetName + "FactTable", measuresColumns, foreignKeys, conn);
-                conn.Close();
-            }
+            QueryBuilder.CreateTable(datasetName + "FactTable", measuresColumns, foreignKeys);
         }        
 
         public void FillFactTable(string datasetName, List<Dimension> dimensions, List<Measure> measures, DataTable values)
         {
-            using (var conn = DbConnection.Connection)
+            foreach (DataRow row in values.Rows)
             {
-                conn.Open();
-                foreach (DataRow row in values.Rows)
+                var measureColumns = measures.Select(measure => new Column
                 {
-                    var measureColumns = measures.Select(measure => new Column
-                    {
-                        Name = measure.Name,
-                        Value = row[measure.Name].ToString()
-                    }).ToList();
-                    // We insert fks only for root dimensions
-                    var dimensionColumns = dimensions.Where(d => d.ParentDimension == null).Select(dimension => new Column
-                    {
-                        Name = dimension.Name + "Id",
-                        Value = GetDimensionId(datasetName + dimension.Name, row[dimension.Name].ToString(dimension.Type)).ToString()
-                    }).ToList();
+                    Name = measure.Name,
+                    Value = row[measure.Name].ToString()
+                }).ToList();
+                // We insert fks only for root dimensions
+                var dimensionColumns = dimensions.Where(d => d.ParentDimension == null).Select(dimension => new Column
+                {
+                    Name = dimension.Name + "Id",
+                    Value = GetDimensionId(datasetName + dimension.Name, row[dimension.Name].ToString(dimension.Type)).ToString()
+                }).ToList();
                 
-                    QueryBuilder.Insert(datasetName + "FactTable", dimensionColumns.Concat(measureColumns), conn);
-                }
-                conn.Close();
+                QueryBuilder.Insert(datasetName + "FactTable", dimensionColumns.Concat(measureColumns));
             }
         }
 
@@ -95,18 +86,15 @@ namespace Recommender2.Business
 
         private int GetDimensionId(string tableName, string value)
         {
-            using (var conn = DbConnection.Connection)
-            {
-                conn.Open();
-                return Convert.ToInt32
-                    (QueryBuilder.Select(tableName, new Column { Name = "Value", Value = value }, conn).Rows.Cast<DataRow>().First()[0]);
-            }
+            return Convert.ToInt32
+                (QueryBuilder.Select(tableName, new Column { Name = "Value", Value = value }).Rows.Cast<DataRow>().First()[0]);
             
         }
 
-        private void FillDimensionTable(string datasetName, Dimension dimension, DataTable values, List<Dimension> children, MySqlConnection conn)
+        private void FillDimensionTable(string datasetName, Dimension dimension, DataTable values, List<Dimension> children)
         {
             var distinctValues = values.GetDistinctTable(dimension.Type, dimension.Name);
+            var allRowsToInsert = new List<List<Column>>();
             foreach (DataRow row in distinctValues.Rows)
             {
                 var dimensionColumns = new List<Column>
@@ -118,8 +106,9 @@ namespace Recommender2.Business
                     Name = child.Name + "Id",
                     Value = GetDimensionId(datasetName + child.Name, row[child.Name].ToString(child.Type)).ToString()
                 }));
-                QueryBuilder.Insert(datasetName + dimension.Name, dimensionColumns, conn);
+                allRowsToInsert.Add(dimensionColumns);
             }
+            QueryBuilder.Insert(datasetName + dimension.Name, allRowsToInsert);
         }
 
         private void CreateDimensionTable(string datasetName, string dimensionName, string datatype, List<string> childrenNames)
@@ -132,12 +121,7 @@ namespace Recommender2.Business
                 KeyName = childName + "Id",
                 Reference = datasetName + childName
             }));
-            using (var conn = DbConnection.Connection)
-            {
-                conn.Open();
-                QueryBuilder.CreateTable(tableName, columns, foreignKeys, conn);
-                conn.Close();
-            }
+            QueryBuilder.CreateTable(tableName, columns, foreignKeys);
         }
 
         #endregion

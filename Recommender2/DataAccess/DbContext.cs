@@ -7,8 +7,16 @@ using Recommender2.Models;
 
 namespace Recommender2.DataAccess
 {
+    public interface IDbContext
+    {
+        DbSet<Attribute> Attributes { get; set; }
+        DbSet<Dataset> Datasets { get; set; }
+        DbSet<Dimension> Dimensions { get; set; }
+        DbSet<Measure> Measures { get; set; }
+    }
+
     [DbConfigurationType(typeof(MySql.Data.Entity.MySqlEFConfiguration))]
-    public class DbContext : System.Data.Entity.DbContext
+    public class DbContext : System.Data.Entity.DbContext, IDbContext
     {
         public DbContext() : base("DbContext")
         {

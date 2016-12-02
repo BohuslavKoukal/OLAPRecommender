@@ -162,7 +162,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Business\Configuration.cs" />
     <Compile Include="Business\CsvHandler.cs" />
-    <Compile Include="Business\DTO\DimensionDto.cs" />
+    <Compile Include="Business\DTO\TreeDimensionDto.cs" />
     <Compile Include="Business\DTO\DimensionTree.cs" />
     <Compile Include="Business\DTO\DimensionValue.cs" />
     <Compile Include="Business\DTO\DrilldownGraphDto.cs" />
@@ -211,6 +211,7 @@
     <Compile Include="ViewModels\AttributeViewModel.cs" />
     <Compile Include="ViewModels\BrowseCubeViewModel.cs" />
     <Compile Include="ViewModels\DrilldownViewModel.cs" />
+    <Compile Include="ViewModels\FilterViewModel.cs" />
     <Compile Include="ViewModels\GroupedCategoryViewModel.cs" />
     <Compile Include="ViewModels\DatasetViewModel.cs" />
     <Compile Include="ViewModels\JavaScriptConverter.cs" />

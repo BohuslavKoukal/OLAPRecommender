@@ -10,12 +10,11 @@ namespace Recommender2.Business.DTO
     {
         public int Id { get; set; }
         public string Value { get; set; }
-        public Dimension Dimension { get; set; }
     }
 
-    public class DimensionIds
+    public class DimensionValueIds
     {
-        public List<int> Ids { get; set; }
-        public Dimension Dimension { get; set; }
+        public int DimensionId { get; set; }
+        public HashSet<int> ValueIds { get; set; }
     }
 }

@@ -1,32 +1,54 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Web.Mvc;
 using Recommender2.Business.DTO;
+using Recommender2.DataAccess;
 using Recommender2.Models;
 
 namespace Recommender2.Business.Helpers
 {
-    public class DimensionTreeBuilder
+    public interface IDimensionTreeBuilder
+    {
+        DimensionTree ConvertToTree(int datasetId, bool populate = false);
+        DimensionTree ConvertToTree(IEnumerable<Dimension> dimensions, bool populate = false);
+        List<SelectListItem> ConvertTreeToSelectList(DimensionTree tree);
+    }
+
+    public class DimensionTreeBuilder : IDimensionTreeBuilder
     {
         public List<SelectListItem> Items;
+        private readonly IDataAccessLayer _data;
+        private readonly IStarSchemaQuerier _starSchemaQuerier;
 
-        public DimensionTreeBuilder()
+        public DimensionTreeBuilder(IDataAccessLayer data, IStarSchemaQuerier querier)
         {
             Items = new List<SelectListItem>();
+            _data = data;
+            _starSchemaQuerier = querier;
         }
 
-        public DimensionTree ConvertToTree(List<Dimension> dimensions)
+        public DimensionTree ConvertToTree(int datasetId, bool populate = false)
         {
-            var dimensionTree = new DimensionTree();
-            while (dimensionTree.Count != dimensions.Count)
+            return ConvertToTree(_data.GetDataset(datasetId).Dimensions.ToList(), populate);
+        }
+
+        public DimensionTree ConvertToTree(IEnumerable<Dimension> dimensions, bool populate = false)
+        {
+            var dimensionList = dimensions.ToList();
+            var dimensionTree = new DimensionTree(dimensionList.First().DataSet.Name);
+            while (dimensionTree.Count != dimensionList.Count)
             {
-                foreach (var dimension in dimensions)
+                foreach (var dimension in dimensionList)
                 {
-                    var dimToAdd = new DimensionDto
+                    var dimToAdd = new TreeDimensionDto
                     {
-                        Children = new List<DimensionDto>(),
+                        Children = new List<TreeDimensionDto>(),
                         Id = dimension.Id,
-                        Name = dimension.Name
+                        Name = dimension.Name,
+                        ParentId = dimension.ParentDimension?.Id,
+                        DatasetName = dimension.DataSet.Name,
+                        Type = dimension.Type
                     };
                     if (!dimensionTree.Contains(dimToAdd))
                     {
@@ -38,12 +60,14 @@ namespace Recommender2.Business.Helpers
                         {
                             if (dimensionTree.Contains(dimension.ParentDimension.Id))
                             {
-                                dimensionTree.Add(dimToAdd, dimension.ParentDimension.Id);
+                                dimensionTree.Add(dimToAdd);
                             }
                         }
                     }
                 }
             }
+            if (populate)
+                Populate(dimensionTree);
             return dimensionTree;
         }
 
@@ -57,7 +81,16 @@ namespace Recommender2.Business.Helpers
             return Items;
         }
 
-        private void AddSelectListItem(DimensionDto dimension, int level)
+        private void Populate(DimensionTree tree)
+        {
+            foreach (var dimensionDto in tree.GetDimensionDtos())
+            {
+                var dimensionValues = _starSchemaQuerier.GetValuesOfDimension(dimensionDto);
+                dimensionDto.Populate(dimensionValues);
+            }
+        }
+
+        private void AddSelectListItem(TreeDimensionDto treeDimension, int level)
         {
             var prefix = string.Empty;
             for (var i = 0; i < level; i++)
@@ -66,11 +99,11 @@ namespace Recommender2.Business.Helpers
             }
             Items.Add(new SelectListItem
             {
-                Value = dimension.Id.ToString(),
-                Text = prefix + dimension.Name
+                Value = treeDimension.Id.ToString(),
+                Text = prefix + treeDimension.Name
             }); 
 
-            foreach (var child in dimension.Children)
+            foreach (var child in treeDimension.Children)
             {
                 AddSelectListItem(child, level + 1); //<-- recursive
             }

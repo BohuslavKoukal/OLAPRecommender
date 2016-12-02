@@ -9,10 +9,16 @@ using Recommender2.Models;
 
 namespace Recommender2.ViewModels.Mappers
 {
-    public class DatasetViewModelMapper
+    public interface IDatasetViewModelMapper
     {
-        private readonly DimensionTreeBuilder _treeBuilder;
-        public DatasetViewModelMapper(DimensionTreeBuilder treeBuilder)
+        DatasetViewModel Map(IEnumerable<Dataset> datasets);
+        SingleDatasetViewModel Map(Dataset dataset);
+    }
+
+    public class DatasetViewModelMapper : IDatasetViewModelMapper
+    {
+        private readonly IDimensionTreeBuilder _treeBuilder;
+        public DatasetViewModelMapper(IDimensionTreeBuilder treeBuilder)
         {
             _treeBuilder = treeBuilder;
         }

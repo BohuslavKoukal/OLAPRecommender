@@ -7,7 +7,13 @@ using System.Web.Configuration;
 
 namespace Recommender2.Business
 {
-    public class Configuration
+    public interface IConfiguration
+    {
+        string GetFilesLocation();
+        string GetCubeDatabaseConnectionString();
+    }
+
+    public class Configuration : IConfiguration
     {
         public string GetFilesLocation()
         {

@@ -13,7 +13,14 @@ using Attribute = Recommender2.Models.Attribute;
 
 namespace Recommender2.Business
 {
-    public class CsvHandler
+    public interface ICsvHandler
+    {
+        CsvFile GetFile(HttpPostedFileBase postedFile);
+        DataTable GetValues(string csvFileName);
+        List<string> GetAttributeErrors(string csvFileName, DataType[] dataTypes);
+    }
+
+    public class CsvHandler : ICsvHandler
     {
         private readonly Configuration _configuration;
         private readonly string[] _dateFormats;

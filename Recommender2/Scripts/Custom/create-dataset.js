@@ -32,12 +32,12 @@
         $(".role[sequence=7]").val(2);
         $(".role[sequence=8]").val(2);
 
-        $(".parent[sequence=0]").val("Root dimension");
+        $(".parent[sequence=0]").val("Root treeDimension");
         $(".parent[sequence=1]").val("Date");
         $(".parent[sequence=2]").val("Date");
-        $(".parent[sequence=3]").val("Root dimension");
+        $(".parent[sequence=3]").val("Root treeDimension");
         $(".parent[sequence=4]").val("Product");
-        $(".parent[sequence=5]").val("Root dimension");
+        $(".parent[sequence=5]").val("Root treeDimension");
         $(".parent[sequence=6]").val("Country");
     });
 

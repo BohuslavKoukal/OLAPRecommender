@@ -35,9 +35,9 @@ namespace Recommender2.Controllers
             return View(dataset);
         }
 
-        public ActionResult ShowChart(int datasetId, int selectedMeasureId, int xDimensionId, int legendDimensionId)
+        public ActionResult ShowChart(int datasetId, int selectedMeasureId, int xDimensionId, int legendDimensionId, Dictionary<int, Dictionary<int, bool>> dimensions)
         {
-            var chart = _engine.ShowChart(datasetId, selectedMeasureId, xDimensionId, legendDimensionId);
+            var chart = _engine.ShowChart(datasetId, selectedMeasureId, xDimensionId, legendDimensionId, dimensions);
             if (chart == null)
             {
                 return HttpNotFound();

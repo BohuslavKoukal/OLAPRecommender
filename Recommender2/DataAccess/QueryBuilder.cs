@@ -10,18 +10,37 @@ using Recommender2.Models;
 
 namespace Recommender2.DataAccess
 {
-    public class QueryBuilder
+    public interface IQueryBuilder
     {
-        
+        void CreateTable(string tableName, IEnumerable<Column> columns, IEnumerable<ForeignKey> keys);
+
+        /// <summary>
+        ///  Insert columns as single row to table
+        /// </summary>
+        void Insert(string tableName, IEnumerable<Column> columns, MySqlConnection connection = null);
+
+        /// <summary>
+        ///  Insert columns as multiple rows to table
+        /// </summary>
+        void Insert(string tableName, IEnumerable<IEnumerable<Column>> columns);
+        DataTable Select(string tableName, Column selector);
+        DataTable Select(string tableName, List<Column> selectors);
+        DataTable Select(string tableName, List<List<Column>> selectors);
+    }
+
+    public class QueryBuilder : IQueryBuilder
+    {
+        private readonly IDbConnection _dbConnection;
         private const string IdAutoIncrement = "Id INT NOT NULL AUTO_INCREMENT,";
         private const string IdPrimary = "PRIMARY KEY (Id));";
         private const string ForeignKey = "FOREIGN KEY ({0}) REFERENCES {1}(Id), ";
 
-        public QueryBuilder()
+        public QueryBuilder(IDbConnection dbConnection)
         {
+            _dbConnection = dbConnection;
         }
 
-        public void CreateTable(string tableName, IEnumerable<Column> columns, IEnumerable<ForeignKey> keys, MySqlConnection connection)
+        public void CreateTable(string tableName, IEnumerable<Column> columns, IEnumerable<ForeignKey> keys)
         {
             var keyList = keys.ToList();
             var columnsString = string.Empty;
@@ -42,14 +61,16 @@ namespace Recommender2.DataAccess
                 {fkReferences}
                 {IdPrimary}";
             
-            using (var command = new MySqlCommand(query, connection))
+            using (var conn = _dbConnection.GetConnection())
             {
+                conn.Open();
+                var command = new MySqlCommand(query, conn);
                 command.ExecuteNonQuery();
+                conn.Close();
             }
-                
         }
 
-        public void Insert(string tableName, IEnumerable<Column> columns, MySqlConnection connection)
+        public void Insert(string tableName, IEnumerable<Column> columns, MySqlConnection conn = null)
         {
             var columnList = columns.ToList();
             var columnsString = string.Empty;
@@ -60,37 +81,65 @@ namespace Recommender2.DataAccess
                 .Aggregate(valuesString, (current, column) => current + $"'{column.Value}', ");
             columnsString = RemoveLastComma(columnsString);
             valuesString = RemoveLastComma(valuesString);
-            var tCommand = new MySqlCommand
+            if (conn == null)
             {
-                Connection = connection,
-                CommandText = $@"INSERT INTO {tableName}
+                using (conn = _dbConnection.GetConnection())
+                {
+                    conn.Open();
+                    var command = new MySqlCommand
+                    {
+                        Connection = conn,
+                        CommandText = $@"INSERT INTO {tableName}
+                    ({columnsString})
+                    VALUES ({valuesString});"
+                    };
+                    command.ExecuteNonQuery();
+                    conn.Close();
+                }
+            }
+            else
+            {
+                var command = new MySqlCommand
+                {
+                    Connection = conn,
+                    CommandText = $@"INSERT INTO {tableName}
                 ({columnsString})
                 VALUES ({valuesString});"
-            };
-            tCommand.ExecuteNonQuery();
+                };
+                command.ExecuteNonQuery();
+            }
+            
         }
 
-        //public DataTable Select(string tableName, MySqlConnection connection)
-        //{
-        //    return Select(tableName, new List<Column>(), connection);
-        //}
-
-        public DataTable Select(string tableName, Column selector, MySqlConnection connection)
+        public void Insert(string tableName, IEnumerable<IEnumerable<Column>> rows)
         {
-            return Select(tableName, new List<Column> {selector}, connection);
+            using (var conn = _dbConnection.GetConnection())
+            {
+                conn.Open();
+                foreach (var row in rows)
+                {
+                    Insert(tableName, row, conn);
+                }
+                conn.Close();
+            }
+        }
+
+        public DataTable Select(string tableName, Column selector)
+        {
+            return Select(tableName, new List<Column> {selector});
         }
 
         // All AND selectors
-        public DataTable Select(string tableName, List<Column> selectors, MySqlConnection connection)
+        public DataTable Select(string tableName, List<Column> selectors)
         {
             string selectorsString = 
                 selectors.Aggregate("42=42", (current, selector) => current + $" AND {selector.Name} = '{selector.Value}'");
             var query = $"SELECT * FROM {tableName} WHERE {selectorsString}";
-            return Select(query, connection);
+            return Select(query);
         }
 
         // Inner selectors are OR, they are joined as AND
-        public DataTable Select(string tableName, List<List<Column>> selectors, MySqlConnection connection)
+        public DataTable Select(string tableName, List<List<Column>> selectors)
         {
             var selectorsString = "42=42";
             foreach (var andSelectors in selectors)
@@ -100,15 +149,18 @@ namespace Recommender2.DataAccess
                 selectorsString += ")";
             }
             var query = $"SELECT * FROM {tableName} WHERE {selectorsString}";
-            return Select(query, connection);
+            return Select(query);
         }
 
-        private static DataTable Select(string query, MySqlConnection connection)
+        private DataTable Select(string query)
         {
             var results = new DataTable();
-            using (var command = new MySqlCommand(query, connection))
-            using (var dataAdapter = new MySqlDataAdapter(command))
-                dataAdapter.Fill(results);
+            using (var conn = _dbConnection.GetConnection())
+            {
+                var command = new MySqlCommand(query, conn);
+                using (var dataAdapter = new MySqlDataAdapter(command))
+                    dataAdapter.Fill(results);
+            }
             return results;
         }
 

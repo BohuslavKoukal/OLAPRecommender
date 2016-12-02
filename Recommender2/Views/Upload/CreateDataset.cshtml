@@ -14,7 +14,7 @@
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
         <div class="form-group">
             <table>
-                <tr><th>Attribute</th><th>Data Type</th><th>Role</th><th>Parent dimension</th></tr>
+                <tr><th>Attribute</th><th>Data Type</th><th>Role</th><th>Parent treeDimension</th></tr>
                 @for (int i = 0; i < Model.Attributes.Count; i++)
                 {
                     <tr>
@@ -22,7 +22,7 @@
                         <td>@Html.DisplayFor(m => Model.Attributes[i].Name)</td>
                         <td>@Html.DropDownListFor(m => m.Attributes[i].SelectedAttributeTypeId, EnumHelper.GetSelectList(typeof(DataType)), "Select data type", new {@class = "form-control, type", sequence = i})</td>
                         <td>@Html.DropDownListFor(m => m.Attributes[i].SelectedAttributeRoleId, EnumHelper.GetSelectList(typeof(AttributeRole)), "Select attribute role", new {@class = "form-control, role", sequence = i})</td>
-                        <td>@Html.DropDownListFor(m => m.Attributes[i].SelectedAttributeParentName, Model.AttributesSelectList, "Root dimension", new {@class = "form-control, parent", sequence = i })</td>
+                        <td>@Html.DropDownListFor(m => m.Attributes[i].SelectedAttributeParentName, Model.AttributesSelectList, "Root treeDimension", new {@class = "form-control, parent", sequence = i })</td>
                     </tr>
                 }
             </table>

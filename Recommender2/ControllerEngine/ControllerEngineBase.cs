@@ -10,17 +10,12 @@ namespace Recommender2.ControllerEngine
 {
     public class ControllerEngineBase
     {
-        protected readonly DataAccessLayer Data;
-        protected readonly CsvHandler CsvHandler;
-        protected readonly StarSchemaBuilder StarSchemaBuilder;
-        protected readonly StarSchemaQuerier StarSchemaQuerier;
+        protected readonly IDataAccessLayer Data;
+        protected readonly IStarSchemaQuerier StarSchemaQuerier;
 
-        public ControllerEngineBase(DataAccessLayer data, CsvHandler csvHandler,
-            StarSchemaBuilder starSchemaBuilder, StarSchemaQuerier starSchemaQuerier)
+        public ControllerEngineBase(IDataAccessLayer data, IStarSchemaQuerier starSchemaQuerier)
         {
             Data = data;
-            CsvHandler = csvHandler;
-            StarSchemaBuilder = starSchemaBuilder;
             StarSchemaQuerier = starSchemaQuerier;
         }
 

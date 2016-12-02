@@ -14,19 +14,23 @@ namespace Recommender2.ControllerEngine
     {
         private readonly DatasetViewModelMapper _datasetMapper;
         private readonly AttributeViewModelMapper _attributeMapper;
+        private readonly StarSchemaBuilder _starSchemaBuilder;
+        private readonly CsvHandler _csvHandler;
 
         public UploadControllerEngine(DataAccessLayer data, DatasetViewModelMapper datasetMapper,
             AttributeViewModelMapper attributeMapper, CsvHandler csvHandler,
             StarSchemaBuilder starSchemaBuilder, StarSchemaQuerier starSchemaQuerier) 
-            : base(data, csvHandler, starSchemaBuilder, starSchemaQuerier)
+            : base(data, starSchemaQuerier)
         {
             _datasetMapper = datasetMapper;
             _attributeMapper = attributeMapper;
+            _starSchemaBuilder = starSchemaBuilder;
+            _csvHandler = csvHandler;
         }
 
         public SingleDatasetViewModel UploadFile(string datasetName, HttpPostedFileBase fileBase)
         {
-            var file = CsvHandler.GetFile(fileBase);
+            var file = _csvHandler.GetFile(fileBase);
             var dataset = new Dataset
             {
                 Name = datasetName,
@@ -43,10 +47,10 @@ namespace Recommender2.ControllerEngine
             var dimensions = _attributeMapper.MapToDimensions(attributes.ToList()).ToList();
             Data.PopulateDataset(id, measures, dimensions);
             var dataset = Data.GetDataset(id);
-            var data = CsvHandler.GetValues(dataset.CsvFilePath);
-            StarSchemaBuilder.CreateAndFillDimensionTables(dataset.Name, dimensions, data);
-            StarSchemaBuilder.CreateFactTable(dataset.Name, dataset.Dimensions.ToList(), dataset.Measures.ToList());
-            StarSchemaBuilder.FillFactTable(dataset.Name, dimensions, measures, data);
+            var data = _csvHandler.GetValues(dataset.CsvFilePath);
+            _starSchemaBuilder.CreateAndFillDimensionTables(dataset.Name, dimensions, data);
+            _starSchemaBuilder.CreateFactTable(dataset.Name, dataset.Dimensions.ToList(), dataset.Measures.ToList());
+            _starSchemaBuilder.FillFactTable(dataset.Name, dimensions, measures, data);
         }
 
 

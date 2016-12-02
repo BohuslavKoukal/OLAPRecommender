@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -8,41 +9,50 @@ using Recommender2.Models;
 
 namespace Recommender2.Business.Service
 {
-    public class GraphService
+    public interface IGraphService
     {
-        private readonly StarSchemaQuerier _querier;
+        GroupedGraphDto GetGroupedGraph(DimensionTree allDimensionsTree, TreeDimensionDto xDimension,
+            DimensionDto legendDimension, Measure measure, List<FlatDimensionDto> filterDimensions);
 
-        public GraphService(StarSchemaQuerier querier)
+        DrilldownGraphDto GetDrilldownGraph(DimensionTree allDimensionsTree, TreeDimensionDto xDimension, Measure measure, List<FlatDimensionDto> filters);
+    }
+
+    public class GraphService : IGraphService
+    {
+        private readonly IStarSchemaQuerier _querier;
+
+        public GraphService(IStarSchemaQuerier querier)
         {
             _querier = querier;
         }
 
-        public GroupedGraphDto GetGroupedGraph(Dimension xDimension, Dimension legendDimension, Measure measure)
+        public GroupedGraphDto GetGroupedGraph(DimensionTree allDimensionsTree, TreeDimensionDto xDimension,
+            DimensionDto legendDimension, Measure measure, List<FlatDimensionDto> filterDimensions)
         {
             var graph = new GroupedGraphDto
             {
                 Name = $"Grouped graph of {measure.Name} by {xDimension.Name} and {legendDimension.Name}",
                 Roots = new List<GraphXAxisRootDto>()
             };
-            
+            var xDimIsRoot = allDimensionsTree.IsRoot(xDimension.Id);
+            var filteredXValues = GetFilteredValues(allDimensionsTree, xDimension, filterDimensions);
             // if x-dimension is root dimension, its values will be leaves
-            if (xDimension.ParentDimension == null)
+            if (xDimIsRoot)
             {
-                graph.Roots.Add(GetRoot(xDimension, measure, null, legendDimension));
+                graph.Roots.Add(GetRoot(allDimensionsTree, xDimension, measure, filteredXValues, filterDimensions, null, legendDimension));
             }
             // otherwise its values will be root and its parents values will be leaves
             else
             {
-                var xDimValues = _querier.GetValuesOfDimension(xDimension);
-                foreach (var xValue in xDimValues)
+                foreach (var xValue in filteredXValues)
                 {
-                    graph.Roots.Add(GetParentRoot(xDimension, measure, xValue, legendDimension));
+                    graph.Roots.Add(GetParentRoot(allDimensionsTree, xDimension, measure, xValue, filterDimensions, legendDimension));
                 }
             }
             return graph;
         }
 
-        public DrilldownGraphDto GetDrilldownGraph(Dimension xDimension, Measure measure)
+        public DrilldownGraphDto GetDrilldownGraph(DimensionTree allDimensionsTree, TreeDimensionDto xDimension, Measure measure, List<FlatDimensionDto> filters)
         {
             var graph = new DrilldownGraphDto
             {
@@ -50,24 +60,27 @@ namespace Recommender2.Business.Service
                 Name = $"Drilldown graph of {measure.Name} by {xDimension.Name}",
                 Roots = new List<GraphXAxisRootDto>()
             };
+            var xDimIsRoot = allDimensionsTree.IsRoot(xDimension.Id);
             // if x-dimension is root dimension, there is no point for showing drilldown graph
-            if (xDimension.ParentDimension == null)
+            if (xDimIsRoot)
             {
                 return null;
             }
             // otherwise values of x dimension will be root and its parents values will be leaves
             else
             {
-                var xDimValues = _querier.GetValuesOfDimension(xDimension);
-                foreach (var xValue in xDimValues)
+                var filteredXValues = GetFilteredValues(allDimensionsTree, xDimension, filters);
+                foreach (var xValue in filteredXValues)
                 {
-                    graph.Roots.Add(GetParentRoot(xDimension, measure, xValue));
+                    graph.Roots.Add(GetParentRoot(allDimensionsTree, xDimension, measure, xValue, filters));
                 }
             }
             return graph;
         }
 
-        private GroupedGraphXAxisRootDto GetRoot(Dimension xDimension, Measure measure, DimensionValue xValue = null, Dimension legendDimension = null)
+        private GroupedGraphXAxisRootDto GetRoot(DimensionTree allDimensionsTree, DimensionDto xDimension, Measure measure,
+            IEnumerable<DimensionValue> filteredXValues, List<FlatDimensionDto> filters,
+            DimensionValue xValue = null, DimensionDto legendDimension = null)
         {
             var xAxisRoot = new GroupedGraphXAxisRootDto
             {
@@ -75,75 +88,91 @@ namespace Recommender2.Business.Service
                 Name = xValue?.Value ?? string.Empty,
                 XAxisLeaves = new List<GraphXAxisLeafDto>()
             };
-            var xDimValues = _querier.GetValuesOfDimension(xDimension);
-            foreach (var dimValue in xDimValues)
+            foreach (var dimValue in filteredXValues)
             {
-                var leaf = GetLeaf(xDimension, dimValue, measure, legendDimension);
+                var leaf = GetLeaf(allDimensionsTree, xDimension, dimValue, measure, filters, legendDimension);
                 xAxisRoot.XAxisLeaves.Add(leaf);
             }
             return xAxisRoot;
         }
 
-        private GroupedGraphXAxisRootDto GetParentRoot(Dimension childDimension, Measure measure, DimensionValue xValue, Dimension legendDimension)
+        private GraphXAxisRootDto GetParentRoot(DimensionTree allDimensionsTree, TreeDimensionDto childDimension,
+            Measure measure, DimensionValue xValue, List<FlatDimensionDto> filters, DimensionDto legendDimension = null)
         {
-            var xAxisRoot = new GroupedGraphXAxisRootDto
+            GraphXAxisRootDto xAxisRoot;
+            if (legendDimension == null)
             {
-                Id = xValue.Id,
-                Name = xValue.Value,
-                XAxisLeaves = new List<GraphXAxisLeafDto>()
-            };
-            var xDimValues = _querier.GetValuesOfDimension(childDimension.ParentDimension,
-                new Column { Name = childDimension.IdName, Value = xValue.Id.ToString()});
-            foreach (var dimValue in xDimValues)
+                xAxisRoot = new DrilldownGraphXAxisRootDto
+                {
+                    Id = xValue.Id,
+                    Name = xValue.Value,
+                    XAxisLeaves = new List<GraphXAxisLeafDto>()
+                };
+            }
+            else
             {
-                var leaf = GetLeaf(childDimension.ParentDimension, dimValue, measure, legendDimension);
+                xAxisRoot = new GroupedGraphXAxisRootDto
+                {
+                    Id = xValue.Id,
+                    Name = xValue.Value,
+                    XAxisLeaves = new List<GraphXAxisLeafDto>()
+                };
+            }
+            var parentDimension = allDimensionsTree.GetDimensionDto((int) childDimension.ParentId);
+            var xDimValues = _querier.GetValuesOfDimension(
+                parentDimension, new Column { Name = childDimension.IdName, Value = xValue.Id.ToString()});
+            var filteredValues = GetFilteredValues(allDimensionsTree, parentDimension, filters, xDimValues);
+            foreach (var dimValue in filteredValues)
+            {
+                var leaf = GetLeaf(allDimensionsTree, allDimensionsTree.GetDimensionDto((int)childDimension.ParentId), dimValue, measure, filters, legendDimension);
                 xAxisRoot.XAxisLeaves.Add(leaf);
             }
             return xAxisRoot;
         }
 
-        private DrilldownGraphXAxisRootDto GetParentRoot(Dimension childDimension, Measure measure, DimensionValue xValue)
-        {
-            var xAxisRoot = new DrilldownGraphXAxisRootDto
-            {
-                Id = xValue.Id,
-                Name = xValue.Value,
-                XAxisLeaves = new List<GraphXAxisLeafDto>()
-            };
-            var xDimValues = _querier.GetValuesOfDimension(childDimension.ParentDimension,
-                new Column { Name = childDimension.IdName, Value = xValue.Id.ToString() });
-            foreach (var dimValue in xDimValues)
-            {
-                var leaf = GetLeaf(childDimension.ParentDimension, dimValue, measure);
-                xAxisRoot.XAxisLeaves.Add(leaf);
-            }
-            return xAxisRoot;
-        }
-
-        private GraphXAxisLeafDto GetLeaf(Dimension xDimension, DimensionValue xValue, Measure measure, Dimension legendDimension = null)
+        private GraphXAxisLeafDto GetLeaf(DimensionTree allDimensionsTree, DimensionDto xDimension, DimensionValue xValue, Measure measure, 
+            List<FlatDimensionDto> filters, DimensionDto legendDimension = null)
         {
             if (legendDimension == null)
             {
+                var conditionDto = new FlatDimensionDto
+                {
+                    Id = xDimension.Id,
+                    DatasetName = xDimension.DatasetName,
+                    Name = xDimension.Name,
+                    DimensionValues = new List<DimensionValue> { new DimensionValue { Id = xValue.Id } }
+                };
                 return new DrilldownGraphXAxisLeafDto
                 {
                     Id = xValue.Id,
                     Name = xValue.Value,
-                    Value = _querier.GetFactTableSum(new DimensionValue { Dimension = xDimension, Id = xValue.Id }, measure)
+                    Value = _querier.GetFactTableSum(allDimensionsTree,
+                        filters, new[] {conditionDto}.ToList(), measure)
                 };
             }
-            var legendValues = _querier.GetValuesOfDimension(legendDimension);
+            //var legendValues = _querier.GetValuesOfDimension(legendDimension);
             var leaf = new GroupedGraphXAxisLeafDto
             {
                 Id = xValue.Id,
                 Name = xValue.Value,
                 LegendValues = new List<GraphLegendValueDto>()
             };
-            foreach (var legendValue in legendValues)
+            var legendFilteredValues = GetFilteredValues(allDimensionsTree, legendDimension, filters, legendDimension.DimensionValues);
+            foreach (var legendValue in legendFilteredValues)
             {
-                var dimensionValues = new List<DimensionValue>
+                var xDimensionDto = new FlatDimensionDto
                 {
-                    new DimensionValue {Dimension = xDimension, Id = xValue.Id},
-                    new DimensionValue {Dimension = legendDimension, Id = legendValue.Id}
+                    Id = xDimension.Id,
+                    DatasetName = xDimension.DatasetName,
+                    Name = xDimension.Name,
+                    DimensionValues = new[] { new DimensionValue { Id = xValue.Id } }.ToList()
+                };
+                var legendDimensionDto = new FlatDimensionDto
+                {
+                    Id = legendDimension.Id,
+                    DatasetName = legendDimension.DatasetName,
+                    Name = legendDimension.Name,
+                    DimensionValues = new[] { new DimensionValue {Id = legendValue.Id}}.ToList()
                 };
                 leaf.LegendValues.Add(new GraphLegendValueDto
                 {
@@ -152,15 +181,57 @@ namespace Recommender2.Business.Service
                         Id = legendValue.Id,
                         Name = legendValue.Value
                     },
-                    Value = _querier.GetFactTableSum(dimensionValues, measure)
+                    Value = _querier.GetFactTableSum(allDimensionsTree, filters, new[]{ xDimensionDto, legendDimensionDto }.ToList(), measure)
                 });
             }
             return leaf;
         }
 
-
-
-
+        private IEnumerable<DimensionValue> GetFilteredValues(DimensionTree allDimensionsTree, DimensionDto dimension,
+            List<FlatDimensionDto> filterDimensions, List<DimensionValue> dimensionValues = null)
+        {
+            var dimensionFilter = filterDimensions.SingleOrDefault(fd => fd.Id == dimension.Id);
+            if(dimensionValues == null)
+                dimensionValues = _querier.GetValuesOfDimension(dimension);
+            var childrenInFilters = filterDimensions.Where(fd => allDimensionsTree.GetDimensionDto(dimension.Id).GetSubtreeIds().Contains(fd.Id)).ToList();
+            var valuesFromFilter = new List<DimensionValue>();
+            var valuesFromAncestors = new List<DimensionValue>();
+            if (dimensionFilter != null)
+            {
+                valuesFromFilter =
+                    dimensionFilter.DimensionValues
+                        .Select(filterValue => dimensionValues.SingleOrDefault(v => v.Id == filterValue.Id))
+                        .Where(v => v != null).ToList();
+            }
+            if (childrenInFilters.Any())
+            {
+                foreach (var child in childrenInFilters)
+                {
+                    var dimensionCorrespondingValues = _querier.GetCorrespondingValues(allDimensionsTree, dimension.Id, child);
+                    foreach (var correspondingValue in dimensionCorrespondingValues)
+                    {
+                        if(dimensionValues.Select(dv => dv.Id).Contains(correspondingValue.Id))
+                            valuesFromAncestors.Add(correspondingValue);
+                    }
+                }
+            }
+            if (valuesFromFilter.Any() && valuesFromAncestors.Any())
+            {
+                var filteredValues = valuesFromFilter.Select(v1 => v1.Id)
+                    .Where(v => valuesFromAncestors.Select(v2 => v2.Id)
+                    .Contains(v)).ToList();
+                return filteredValues.Any() ? dimensionValues.Where(xdv => filteredValues.Contains(xdv.Id)) : dimensionValues;
+            }
+            else if (valuesFromFilter.Any())
+            {
+                return valuesFromFilter;
+            }
+            else if (valuesFromAncestors.Any())
+            {
+                return valuesFromAncestors;
+            }
+            return dimensionValues;
+        }
 
     }
 }

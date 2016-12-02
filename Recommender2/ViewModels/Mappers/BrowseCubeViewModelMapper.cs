@@ -7,7 +7,15 @@ using Recommender2.Models;
 
 namespace Recommender2.ViewModels.Mappers
 {
-    public class BrowseCubeViewModelMapper
+    public interface IBrowseCubeViewModelMapper
+    {
+        BrowseCubeViewModel Map(Dataset dataset, FilterViewModel filter);
+        GroupedChartViewModel Map(GroupedGraphDto graph);
+        DrilldownChartViewModel Map(DrilldownGraphDto graph);
+        FilterViewModel Map(DimensionTree tree);
+    }
+
+    public class BrowseCubeViewModelMapper : IBrowseCubeViewModelMapper
     {
         private readonly DatasetViewModelMapper _datasetMapper;
 
@@ -16,11 +24,12 @@ namespace Recommender2.ViewModels.Mappers
             _datasetMapper = datasetMapper;
         }
 
-        public BrowseCubeViewModel Map(Dataset dataset)
+        public BrowseCubeViewModel Map(Dataset dataset, FilterViewModel filter)
         {
             return new BrowseCubeViewModel
             {
-                Dataset = _datasetMapper.Map(dataset)
+                Dataset = _datasetMapper.Map(dataset),
+                Filter = filter
             };
         }
 
@@ -48,6 +57,25 @@ namespace Recommender2.ViewModels.Mappers
             };
         }
 
+        public FilterViewModel Map(DimensionTree tree)
+        {
+            var viewModel = new FilterViewModel { Dimensions = new List<FilterDimensionViewModel>() };
+            var dimensionDtos = tree.GetDimensionDtos().ToList();
+            foreach (var dimensionDto in dimensionDtos)
+            {
+                var dimensionViewModel = new FilterDimensionViewModel
+                {
+                    DimensionId = dimensionDto.Id,
+                    DimensionName = dimensionDto.Name,
+                    Values = new List<DimensionValueViewModel>()
+                };
+                dimensionViewModel.Values.AddRange(dimensionDto.DimensionValues
+                    .Select(v => new DimensionValueViewModel {Id = v.Id, Value = v.Value, Checked = true}));
+                viewModel.Dimensions.Add(dimensionViewModel);
+            }
+            return viewModel;
+        }
+
         private DrilldownSeriesViewModel GetSeries(DrilldownGraphDto graph)
         {
             var graphRoots = graph.Roots.ToList();
@@ -68,7 +96,7 @@ namespace Recommender2.ViewModels.Mappers
             }
             return series;
         }
-
+        
         private DrilldownSeriesViewModel GetSeries(DrilldownGraphXAxisRootDto root)
         {
             var rootXAxisLeaves = root.XAxisLeaves.Cast<DrilldownGraphXAxisLeafDto>().ToList();
