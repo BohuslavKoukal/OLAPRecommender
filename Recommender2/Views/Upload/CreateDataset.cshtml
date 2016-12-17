@@ -7,14 +7,14 @@
 @Scripts.Render("~/bundles/createdataset")
 <h2>Create Dataset @Model.Name</h2>
 <a id="prefill">Prefill data</a>
-@using (Html.BeginForm("CreateDataset", "Upload", null, FormMethod.Post))
+@using (Html.BeginForm("CreateDataset", "Upload", null, FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
     @Html.HiddenFor(m => Model.Id);
     <div class="form-horizontal">
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
         <div class="form-group">
             <table>
-                <tr><th>Attribute</th><th>Data Type</th><th>Role</th><th>Parent treeDimension</th></tr>
+                <tr><th>Attribute</th><th>Data Type</th><th>Role</th><th>Parent dimension</th></tr>
                 @for (int i = 0; i < Model.Attributes.Count; i++)
                 {
                     <tr>
@@ -27,7 +27,25 @@
                 }
             </table>
         </div>
-
+        <div class="form-group">
+            @Html.Label("Column separator", new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(m => m.Separator, Model.SeparatorSelectList, "", new { @class = "form-control" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.Label("Column separator", new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(m => m.DateFormat, Model.DateFormatSelectList, "Date format used in uploaded file", new { @class = "form-control" })
+            </div>
+        </div>
+        <div class="form-group">
+            Or you can define dimensions and measures by uploading a .ttl data structure definition file:
+            @Html.Label("Data structure definition file", new {@class = "control-label col-md-2"})
+            <div class="col-md-10">
+                <input type="file" id="DsdFile" name="upload"/>
+            </div>
+        </div>
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
                 <input type="submit" value="Create cube" class="btn btn-default" />

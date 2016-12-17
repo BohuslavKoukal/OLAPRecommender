@@ -36,7 +36,7 @@ namespace Recommender2.ViewModels.Mappers
         public SingleDatasetViewModel Map(Dataset dataset)
         {
             List<SelectListItem> dimensionSelectList;
-            if (dataset.Dimensions != null)
+            if (dataset.State >= State.DimensionsAndMeasuresSet)
             {
                 var dimensionTree = _treeBuilder.ConvertToTree(dataset.Dimensions?.ToList());
                 dimensionSelectList = _treeBuilder.ConvertTreeToSelectList(dimensionTree);
@@ -66,7 +66,8 @@ namespace Recommender2.ViewModels.Mappers
                     Type = ((DataType)dimension.Type).ToString()
                 }).ToList(),
                 DimensionsSelectList = dimensionSelectList,
-                CsvFilePath = dataset.CsvFilePath
+                CsvFilePath = dataset.CsvFilePath,
+                State = dataset.State
             };
         }
 

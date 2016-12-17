@@ -1,4 +1,5 @@
-﻿@model Recommender2.ViewModels.DatasetViewModel
+﻿@using Recommender2.Business.Enums
+@model Recommender2.ViewModels.DatasetViewModel
 
 @{
     ViewBag.Title = "Index";
@@ -7,11 +8,12 @@
 <h2>Data sets</h2>
 
 <table class="table, table-bordered">
-    <tr><th>Name</th><th>File</th><th>Dimensions</th><th>Measures</th></tr>
-    @foreach (var dataset in Model.Datasets)
+    <tr><th>Name</th><th>State</th><th>File</th><th>Dimensions</th><th>Measures</th></tr>
+    @foreach (var dataset in Model.Datasets.Where(d => d.State >= State.DimensionsAndMeasuresSet))
     {
         <tr>
             <td class="col-md-3">@Html.ActionLink(dataset.Name, "Details", new { id = dataset.Id })</td>
+            <td>Dimensions and measures defined</td>
             <td class="col-md-3">@Html.ActionLink(dataset.CsvFileName, "Download", new { file = dataset.CsvFilePath })</td>
             <td class="col-md-3">
                 <ul>
@@ -28,6 +30,18 @@
                         <li>@measure.Name ( @measure.Type )</li>
                     }
                 </ul>
+            </td>
+        </tr>
+    }
+    @foreach (var dataset in Model.Datasets.Where(d => d.State < State.DimensionsAndMeasuresSet))
+    {
+        <tr>
+            <td class="col-md-3">@dataset.Name</td>
+            <td>@Html.ActionLink("Define dimensions and measures", "DefineDimensions", "Upload", new { id = dataset.Id }, null)</td>
+            <td class="col-md-3">@Html.ActionLink(dataset.CsvFileName, "Download", new { file = dataset.CsvFilePath })</td>
+            <td class="col-md-3">
+            </td>
+            <td class="col-md-3">
             </td>
         </tr>
     }

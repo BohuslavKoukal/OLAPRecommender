@@ -36,11 +36,11 @@ namespace Recommender2.Business.Validations
             }
         }
 
-        public void  DatatypesAreValid(AttributeViewModel[] attributes, int id)
+        public void  DatatypesAreValid(AttributeViewModel[] attributes, int id, string separator, string dateFormat)
         {
             var csvFile = _data.GetCsvFilePath(id);
             var errors = _csvHandler.GetAttributeErrors
-                (csvFile, attributes.Select(a =>(DataType) a.SelectedAttributeTypeId).ToArray());
+                (csvFile, attributes.Select(a =>(DataType) a.SelectedAttributeTypeId).ToArray(), separator, dateFormat);
             if (errors.Any())
             {
                 throw new ValidationException(errors.Aggregate(string.Empty, (current, error) => current + (current + error)));

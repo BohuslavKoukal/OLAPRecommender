@@ -22,10 +22,10 @@ namespace Recommender2.Controllers
 
         public ActionResult Index()
         {
-            return View();
+            return View(_controllerEngine.GetDataset());
         }
 
-        public ActionResult UploadFile(string name, HttpPostedFileBase upload)
+        public ActionResult UploadFile(string name, HttpPostedFileBase upload, string separator)
         {
             try
             {
@@ -37,17 +37,23 @@ namespace Recommender2.Controllers
                 ModelState.AddModelError("Name", e.Message);
                 return View("Index");
             }
-            return View("CreateDataset", _controllerEngine.UploadFile(name, upload));
+            return View("CreateDataset", _controllerEngine.UploadFile(name, upload, separator));
         }
 
+        public ActionResult DefineDimensions(int id)
+        {
+            return View("CreateDataset", _controllerEngine.GetDataset(id));
+        }
+
+
         [HttpPost]
-        public ActionResult CreateDataset(int id, AttributeViewModel[] attributes)
+        public ActionResult CreateDataset(int id, AttributeViewModel[] attributes, string separator, string dateFormat)
         {
             // check if attributes are valid - what does it mean?
             // validovat datatypes - kdyz nejsou validni, vratit viewcko
             try
             {
-                _validations.DatatypesAreValid(attributes, id);
+                _validations.DatatypesAreValid(attributes, id, separator, dateFormat);
                 _controllerEngine.CreateDataset(id, attributes);
             }
             catch (ValidationException e)

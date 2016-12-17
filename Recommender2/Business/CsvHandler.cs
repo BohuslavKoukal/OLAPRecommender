@@ -15,26 +15,26 @@ namespace Recommender2.Business
 {
     public interface ICsvHandler
     {
-        CsvFile GetFile(HttpPostedFileBase postedFile);
+        CsvFile GetFile(HttpPostedFileBase postedFile, string separator);
         DataTable GetValues(string csvFileName);
-        List<string> GetAttributeErrors(string csvFileName, DataType[] dataTypes);
+        List<string> GetAttributeErrors(string csvFileName, DataType[] dataTypes, string separator, string dateFormat);
     }
 
     public class CsvHandler : ICsvHandler
     {
         private readonly Configuration _configuration;
-        private readonly string[] _dateFormats;
+        //private readonly string[] _dateFormats;
 
         public CsvHandler(Configuration configuration)
         {
             _configuration = configuration;
-            _dateFormats = new[] {"MM.dd.yyyy", "MM.d.yyyy", "M.d.yyyy", "M.dd.yyyy"};
+            //_dateFormats = new[] {"MM.dd.yyyy", "MM.d.yyyy", "M.d.yyyy", "M.dd.yyyy"};
         }
 
-        public CsvFile GetFile(HttpPostedFileBase postedFile)
+        public CsvFile GetFile(HttpPostedFileBase postedFile, string separator)
         {
             var filePath = SavePostedFile(postedFile);
-            var attributes = GetAttributes(filePath);
+            var attributes = GetAttributes(filePath, separator.Single());
             var file = new CsvFile
             {
                 FilePath = filePath,
@@ -64,13 +64,13 @@ namespace Recommender2.Business
             }
         }
 
-        public List<string> GetAttributeErrors(string csvFileName, DataType[] dataTypes)
+        public List<string> GetAttributeErrors(string csvFileName, DataType[] dataTypes, string separator, string dateFormat)
         {
             var errors = new List<string>();
             using (TextFieldParser parser = new TextFieldParser(csvFileName))
             {
                 parser.TextFieldType = FieldType.Delimited;
-                parser.SetDelimiters(",");
+                parser.SetDelimiters(separator);
                 // Do not validate first row
                 parser.ReadFields();
                 while (!parser.EndOfData)
@@ -84,7 +84,7 @@ namespace Recommender2.Business
                         {
                             case DataType.DateTime:
                                 DateTime dateTime;
-                                var isDateTime = DateTime.TryParseExact(fields[i], _dateFormats, CultureInfo.InvariantCulture,
+                                var isDateTime = DateTime.TryParseExact(fields[i], dateFormat, CultureInfo.InvariantCulture,
                                       DateTimeStyles.None, out dateTime);
                                 if(!isDateTime) errors.Add($"Value {fields[i]} is not datetime.");
                                 break;
@@ -123,12 +123,12 @@ namespace Recommender2.Business
             return filePathToSave;
         }
 
-        private List<Attribute> GetAttributes(string filePath)
+        private List<Attribute> GetAttributes(string filePath, char separator)
         {
             using (var reader = new StreamReader(File.OpenRead(filePath)))
             {
                 var firstLine = reader.ReadLine();
-                var columns = firstLine.Split(',');
+                var columns = firstLine.Split(separator);
                 List<Tuple<string, DataType>> attributeList = columns.Select(value => Tuple.Create(value, DataType.Integer)).ToList();
                 return attributeList.Select(al => new Attribute { Name = al.Item1 }).ToList();
             }

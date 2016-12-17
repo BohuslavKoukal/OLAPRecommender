@@ -19,5 +19,11 @@ namespace Recommender2.Business.Enums
         DateTime = 3
     }
 
+    public enum State
+    {
+        Initial = 0,
+        FileUploaded = 1,
+        DimensionsAndMeasuresSet = 2
+    }
 
 }

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using Recommender2.Business.DTO;
+using Recommender2.Business.Enums;
 
 namespace Recommender2.ViewModels
 {
@@ -39,6 +40,8 @@ namespace Recommender2.ViewModels
         [Display(Name = "CSV FileName")]
         public string CsvFilePath { get; set; }
 
+        public State State { get; set; }
+
         public List<AttributeViewModel> Attributes { get; set; }
         public List<DimensionViewModel> Dimensions { get; set; }
         public List<MeasureViewModel> Measures { get; set; }
@@ -68,5 +71,32 @@ namespace Recommender2.ViewModels
         }
 
         public List<SelectListItem> DimensionsSelectList { get; set; }
+
+        [Required]
+        [Display(Name = "Column separator")]
+        public List<SelectListItem> SeparatorSelectList => new List<SelectListItem>
+        {
+            new SelectListItem { Text = ";", Value = ";"},
+            new SelectListItem { Text = ",", Value = ","},
+            new SelectListItem { Text = ".", Value = "."},
+        };
+
+        public string Separator { get; set; }
+
+        [Required]
+        [Display(Name = "Date format used in uploaded file")]
+        public List<SelectListItem> DateFormatSelectList => new List<SelectListItem>
+        {
+            new SelectListItem { Text = DateTime.Today.Date.ToString("dd.MM.yyyy"), Value = "dd.MM.yyyy"},
+            new SelectListItem { Text = DateTime.Today.Date.ToString("MM.dd.yyyy"), Value = "MM.dd.yyyy"},
+            new SelectListItem { Text = DateTime.Today.Date.ToString("dd/MM/yyyy"), Value = "dd/MM/yyyy"},
+            new SelectListItem { Text = DateTime.Today.Date.ToString("MM/dd/yyyy"), Value = "MM/dd/yyyy"},
+            new SelectListItem { Text = DateTime.Today.Date.ToString("dd-MM-yyyy"), Value = "dd-MM-yyyy"},
+            new SelectListItem { Text = DateTime.Today.Date.ToString("MM-dd-yyyy"), Value = "MM-dd-yyyy"},
+            new SelectListItem { Text = DateTime.Today.Date.ToString("ddMMyyyy"), Value = "ddMMyyyy"},
+            new SelectListItem { Text = DateTime.Today.Date.ToString("MMddyyyy"), Value = "MMddyyyy"}
+        };
+
+        public string DateFormat { get; set; }
     }
 }

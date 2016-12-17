@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using Recommender2.Business.DTO;
+using Recommender2.Business.Enums;
 using Recommender2.Models;
 
 namespace Recommender2.DataAccess
@@ -10,7 +11,7 @@ namespace Recommender2.DataAccess
     public interface IDataAccessLayer
     {
         void Insert(Dataset dataset);
-        void PopulateDataset(int id, ICollection<Measure> measures, ICollection<Dimension> dimensions);
+        void PopulateDataset(int id, ICollection<Measure> measures, ICollection<Dimension> dimensions, State state);
         string GetCsvFilePath(int id);
         List<Dataset> GetAllDatasets();
         Dataset GetDataset(string name);
@@ -35,9 +36,10 @@ namespace Recommender2.DataAccess
             _dbContext.SaveChanges();
         }
 
-        public void PopulateDataset(int id, ICollection<Measure> measures, ICollection<Dimension> dimensions)
+        public void PopulateDataset(int id, ICollection<Measure> measures, ICollection<Dimension> dimensions, State state)
         {
             var dataset = _dbContext.Datasets.Single(d => d.Id == id);
+            dataset.State = state;
             foreach (var measure in measures)
             {
                 measure.DataSet = dataset;

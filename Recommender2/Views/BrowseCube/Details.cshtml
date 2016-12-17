@@ -12,47 +12,67 @@
 {
     @Html.HiddenFor(m => Model.DatasetId)
     <div class="form-horizontal">
-        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @Html.ValidationSummary(true, "", new {@class = "text-danger"})
         <div class="form-group">
             <table>
-                <tr><td>Measure</td><td>@Html.DropDownListFor(m => m.SelectedMeasureId, Model.Dataset.MeasuresSelectList)</td></tr>
-                <tr><td>X axis Dimension</td><td>@Html.DropDownListFor(m => m.XDimensionId, Model.Dataset.DimensionsSelectList)</td></tr>
-                <tr><td>Legend Dimension</td><td>@Html.DropDownListFor(m => m.LegendDimensionId, Model.Dataset.DimensionsSelectList)</td></tr>
+                <tr>
+                    <td>Measure</td><td>@Html.DropDownListFor(m => m.SelectedMeasureId, Model.Dataset.MeasuresSelectList)</td>
+                </tr>
+                <tr>
+                    <td>X axis Dimension</td><td>@Html.DropDownListFor(m => m.XDimensionId, Model.Dataset.DimensionsSelectList)</td>
+                </tr>
+                <tr>
+                    <td>Legend Dimension</td><td>@Html.DropDownListFor(m => m.LegendDimensionId, Model.Dataset.DimensionsSelectList)</td>
+                </tr>
+                <tr>
+                    <td>Filters</td>
+                    <td><a href="#" id="modalOpen">Apply filters</a></td>
+                </tr>
             </table>
         </div>
-        <div class="form-group">
-            <table>
-                
-                @for (int i = 0; i < Model.Filter.Dimensions.Count; i++)
-                {
-                    var dimension = Model.Filter.Dimensions[i];
-                    <tr>
-                        @Html.Hidden($"dimensions[{i}].Key", dimension.DimensionId)
-                        <td>@Html.DisplayFor(m => Model.Filter.Dimensions[i].DimensionName)</td>
-                        <td>
-                            @for (int j = 0; j < dimension.Values.Count; j++)
+        
+        <div id="myModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Apply filters</h2>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        
+                            @for (var i = 0; i < Model.Filter.Dimensions.Count; i++)
                             {
-                                var value = dimension.Values[j];
-                                @Html.Hidden($"dimensions[{i}].Value[{j}].Key", value.Id)
-                                @Html.CheckBox($"dimensions[{i}].Value[{j}].Value", value.Checked)
-                                @Html.Label(value.Value, " " + value.Value)
-                                @Html.Hidden($"dimensions[{i}].Value[{j}].Value", value.Id, new {value = false})
-                                <br/>
+                                var dimension = Model.Filter.Dimensions[i];
+                                <div class="floating-box"><strong>@Html.DisplayFor(m => Model.Filter.Dimensions[i].DimensionName)</strong><br />
+                                    @Html.Hidden($"dimensions[{i}].Key", dimension.DimensionId)
+                                        @for (var j = 0; j < dimension.Values.Count; j++)
+                                        {
+                                            var value = dimension.Values[j];
+                                            @Html.Hidden($"dimensions[{i}].Value[{j}].Key", value.Id)
+                                            @Html.CheckBox($"dimensions[{i}].Value[{j}].Value", value.Checked)
+                                            @Html.Label(value.Value, " " + value.Value)
+                                            @Html.Hidden($"dimensions[{i}].Value[{j}].Value", value.Id, new {value = false})
+                                            <br/>
+                                        }
+                                </div>
                             }
-                        </td>
-                    </tr>
-                }
-            </table>
+                        
+                        <p><span class="close btn btn-default">Apply filters</span></p>
+                    </div>
+                    <p></p>
+                </div>
+            </div>
+
         </div>
+
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Show chart" class="btn btn-default" />
+                <input type="submit" value="Show chart" class="btn btn-default"/>
             </div>
         </div>
     </div>
 }
 
-<div style="display:@chartDisplay">
+<div style="display: @chartDisplay">
     <script>
         measureName = @JavaScriptConverter.SerializeObject(Model.MeasureName);
         //
@@ -65,6 +85,5 @@
         drilldownChartTitle = @JavaScriptConverter.SerializeObject(Model.DrilldownChart?.ChartTitle);
     </script>
     <div class="chart-container" id="grouped-chart"></div>
-    <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+    <div id="container" style="height: 400px; margin: 0 auto; min-width: 310px;"></div>
 </div>
-

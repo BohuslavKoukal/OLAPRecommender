@@ -26,7 +26,8 @@ namespace Recommender2
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/bootstrap.css",
                       "~/Content/site.css",
-                      "~/Content/grouped-categories.css"));
+                      "~/Content/grouped-categories.css",
+                      "~/Content/modal-dialog.css"));
 
             bundles.Add(new ScriptBundle("~/bundles/createdataset").Include(
                     "~/Scripts/Custom/create-dataset.js"
@@ -38,7 +39,8 @@ namespace Recommender2
                     "~/Scripts/Charts/drilldown.js",
                     "~/Scripts/Charts/data.js",
                     "~/Scripts/Custom/column-drilldown.js",
-                    "~/Scripts/Custom/chart-details.js"
+                    "~/Scripts/Custom/chart-details.js",
+                    "~/Scripts/Custom/modal-dialog.js"
                     ));
         }
     }

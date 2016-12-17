@@ -1,7 +1,41 @@
-﻿
+﻿@using Recommender2.Business.Enums
+@model Recommender2.ViewModels.DatasetViewModel
 @{
     ViewBag.Title = "Mined rules";
 }
 
-<h2>Mined rules</h2>
+<h2>Data sets</h2>
+
+<table class="table, table-bordered">
+    <tr><th>Name</th><th>Dimensions</th><th>Measures</th></tr>
+    @foreach (var dataset in Model.Datasets)
+    {
+        <tr>
+            <td class="col-md-3">@Html.ActionLink(dataset.Name, "Mine", new { id = dataset.Id })</td>
+            <td class="col-md-3">
+                <ul>
+                    @foreach (var dimension in dataset.Dimensions)
+                    {
+                        <li>@dimension.Name ( @dimension.Type )</li>
+                    }
+                </ul>
+            </td>
+            <td class="col-md-3">
+                <ul>
+                    @foreach (var measure in dataset.Measures)
+                    {
+                        <li>@measure.Name ( @measure.Type )</li>
+                    }
+                </ul>
+            </td>
+        </tr>
+    }
+</table>
+
+
+
+
+
+
+
 

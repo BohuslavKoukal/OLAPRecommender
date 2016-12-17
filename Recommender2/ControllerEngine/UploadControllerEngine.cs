@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Web;
 using Recommender2.Business;
+using Recommender2.Business.Enums;
 using Recommender2.DataAccess;
 using Recommender2.Models;
 using Recommender2.ViewModels;
@@ -28,11 +30,17 @@ namespace Recommender2.ControllerEngine
             _csvHandler = csvHandler;
         }
 
-        public SingleDatasetViewModel UploadFile(string datasetName, HttpPostedFileBase fileBase)
+        public SingleDatasetViewModel GetDataset(int id = 0)
         {
-            var file = _csvHandler.GetFile(fileBase);
+            return id == 0 ? new SingleDatasetViewModel() : _datasetMapper.Map(Data.GetDataset(id));
+        }
+
+        public SingleDatasetViewModel UploadFile(string datasetName, HttpPostedFileBase fileBase, string separator)
+        {
+            var file = _csvHandler.GetFile(fileBase, separator);
             var dataset = new Dataset
             {
+                State = State.FileUploaded,
                 Name = datasetName,
                 CsvFilePath = file.FilePath,
                 Attributes = file.Attributes
@@ -45,7 +53,7 @@ namespace Recommender2.ControllerEngine
         {
             var measures = _attributeMapper.MapToMeasures(attributes).ToList();
             var dimensions = _attributeMapper.MapToDimensions(attributes.ToList()).ToList();
-            Data.PopulateDataset(id, measures, dimensions);
+            Data.PopulateDataset(id, measures, dimensions, State.DimensionsAndMeasuresSet);
             var dataset = Data.GetDataset(id);
             var data = _csvHandler.GetValues(dataset.CsvFilePath);
             _starSchemaBuilder.CreateAndFillDimensionTables(dataset.Name, dimensions, data);

@@ -201,6 +201,10 @@
     <Compile Include="Migrations\201610211620312_Migration1.Designer.cs">
       <DependentUpon>201610211620312_Migration1.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201612171949099_DatasetState.cs" />
+    <Compile Include="Migrations\201612171949099_DatasetState.Designer.cs">
+      <DependentUpon>201612171949099_DatasetState.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Attribute.cs" />
     <Compile Include="Models\CsvFile.cs" />
@@ -225,12 +229,16 @@
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\grouped-categories.css" />
+    <Content Include="Content\modal-dialog.css" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
+    <None Include="Properties\PublishProfiles\OLAPRecommender - Web Deploy %282%29.pubxml" />
+    <None Include="Properties\PublishProfiles\OLAPRecommender - Web Deploy.pubxml" />
+    <None Include="Properties\PublishProfiles\TestPublishProfile.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\Charts\data.js" />
     <Content Include="Scripts\Charts\drilldown.js" />
@@ -238,6 +246,7 @@
     <Content Include="Scripts\Charts\highcharts.js" />
     <Content Include="Scripts\Custom\chart-details.js" />
     <Content Include="Scripts\Custom\column-drilldown.js" />
+    <Content Include="Scripts\Custom\modal-dialog.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />
     <Content Include="Scripts\jquery-1.10.2.min.js" />
     <None Include="Scripts\jquery.validate-vsdoc.js" />
@@ -270,6 +279,7 @@
     <Content Include="Views\BrowseCube\Details.cshtml" />
     <Content Include="Views\Upload\CreateDataset.cshtml" />
     <Compile Include="ViewModels\DimensionViewModel.cs" />
+    <Content Include="Views\MinedResults\Mine.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -285,6 +295,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201610211620312_Migration1.resx">
       <DependentUpon>201610211620312_Migration1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201612171949099_DatasetState.resx">
+      <DependentUpon>201612171949099_DatasetState.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Web;
+using Recommender2.Business.Enums;
 
 namespace Recommender2.Models
 {
@@ -23,6 +24,7 @@ namespace Recommender2.Models
         public int Id { get; set; }
         public string Name { get; set; }
         public string CsvFilePath { get; set; }
+        public State State { get; set; }
 
         public virtual ICollection<Attribute> Attributes { get; set; }
         public virtual ICollection<Dimension> Dimensions { get; set; }
