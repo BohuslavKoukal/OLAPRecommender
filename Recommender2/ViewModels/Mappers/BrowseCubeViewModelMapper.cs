@@ -2,14 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using Recommender2.Business.DTO;
-using Recommender2.Models;
+using Recommender.Business.DTO;
 
 namespace Recommender2.ViewModels.Mappers
 {
     public interface IBrowseCubeViewModelMapper
     {
-        BrowseCubeViewModel Map(Dataset dataset, FilterViewModel filter);
+        BrowseCubeViewModel Map(DatasetDto dataset, FilterViewModel filter);
         GroupedChartViewModel Map(GroupedGraphDto graph);
         DrilldownChartViewModel Map(DrilldownGraphDto graph);
         FilterViewModel Map(DimensionTree tree);
@@ -24,7 +23,7 @@ namespace Recommender2.ViewModels.Mappers
             _datasetMapper = datasetMapper;
         }
 
-        public BrowseCubeViewModel Map(Dataset dataset, FilterViewModel filter)
+        public BrowseCubeViewModel Map(DatasetDto dataset, FilterViewModel filter)
         {
             return new BrowseCubeViewModel
             {

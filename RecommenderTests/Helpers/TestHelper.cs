@@ -4,7 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Recommender2.Business.DTO;
+using Recommender.Business.DTO;
 
 namespace RecommenderTests.Helpers
 {
@@ -13,27 +13,27 @@ namespace RecommenderTests.Helpers
         public static DimensionTree CreateDimensionTree(string datasetName)
         {
             var tree = new DimensionTree(datasetName);
-            var placeValues = new List<DimensionValue>
+            var placeValues = new List<DimensionValueDto>
             {
-                new DimensionValue {Id = 1, Value = "Czech republic"},
-                new DimensionValue {Id = 2, Value = "Slovakia"},
-                new DimensionValue {Id = 3, Value = "Russia"},
+                new DimensionValueDto {Id = 1, Value = "Czech republic"},
+                new DimensionValueDto {Id = 2, Value = "Slovakia"},
+                new DimensionValueDto {Id = 3, Value = "Russia"},
             };
-            var regionValues = new List<DimensionValue>
+            var regionValues = new List<DimensionValueDto>
             {
-                new DimensionValue {Id = 1, Value = "Europe"},
-                new DimensionValue {Id = 2, Value = "Asia"}
+                new DimensionValueDto {Id = 1, Value = "Europe"},
+                new DimensionValueDto {Id = 2, Value = "Asia"}
             };
-            var productValues = new List<DimensionValue>
+            var productValues = new List<DimensionValueDto>
             {
-                new DimensionValue {Id = 1, Value = "Bread"},
-                new DimensionValue {Id = 2, Value = "Bun"},
-                new DimensionValue {Id = 3, Value = "Milk"},
+                new DimensionValueDto {Id = 1, Value = "Bread"},
+                new DimensionValueDto {Id = 2, Value = "Bun"},
+                new DimensionValueDto {Id = 3, Value = "Milk"},
             };
-            var categoryValues = new List<DimensionValue>
+            var categoryValues = new List<DimensionValueDto>
             {
-                new DimensionValue {Id = 1, Value = "Bakery"},
-                new DimensionValue {Id = 2, Value = "Dairy"}
+                new DimensionValueDto {Id = 1, Value = "Bakery"},
+                new DimensionValueDto {Id = 2, Value = "Dairy"}
             };
             tree.Add(CreateDimensionDto(datasetName, 1, "Place", null, placeValues));
             tree.Add(CreateDimensionDto(datasetName, 2, "Region", 1, regionValues));
@@ -89,8 +89,8 @@ namespace RecommenderTests.Helpers
                     DatasetName = "TestDataset",
                     DimensionValues = new[]
                     {
-                        new DimensionValue {Id = 1, Value = "Bread"},
-                        new DimensionValue {Id = 3, Value = "Milk"}
+                        new DimensionValueDto {Id = 1, Value = "Bread"},
+                        new DimensionValueDto {Id = 3, Value = "Milk"}
                     }.ToList()
                 },
                 new FlatDimensionDto
@@ -100,7 +100,7 @@ namespace RecommenderTests.Helpers
                     DatasetName = "TestDataset",
                     DimensionValues = new[]
                     {
-                        new DimensionValue {Id = 1, Value = "Europe"}
+                        new DimensionValueDto {Id = 1, Value = "Europe"}
                     }.ToList()
                 },
             };
@@ -119,7 +119,7 @@ namespace RecommenderTests.Helpers
             };
         }
 
-        private static TreeDimensionDto CreateDimensionDto(string datasetName, int id, string name, int? parentId, List<DimensionValue> values)
+        private static TreeDimensionDto CreateDimensionDto(string datasetName, int id, string name, int? parentId, List<DimensionValueDto> values)
         {
             return new TreeDimensionDto
             {

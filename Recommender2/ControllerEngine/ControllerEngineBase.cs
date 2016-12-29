@@ -3,17 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Recommender2.Business;
-using Recommender2.DataAccess;
+using Recommender.Business;
 
 namespace Recommender2.ControllerEngine
 {
     public class ControllerEngineBase
     {
-        protected readonly IDataAccessLayer Data;
+        protected readonly IDataDecorator Data;
         protected readonly IStarSchemaQuerier StarSchemaQuerier;
 
-        public ControllerEngineBase(IDataAccessLayer data, IStarSchemaQuerier starSchemaQuerier)
+        public ControllerEngineBase(IDataDecorator data, IStarSchemaQuerier starSchemaQuerier)
         {
             Data = data;
             StarSchemaQuerier = starSchemaQuerier;

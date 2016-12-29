@@ -1,13 +1,15 @@
 using System;
+using System.Data;
+using System.Data.Common;
 using System.Web;
 using Microsoft.Web.Infrastructure.DynamicModuleHelper;
 using Ninject;
 using Ninject.Web.Common;
+using Recommender.Business;
+using Recommender.Business.Service;
+using Recommender.Common;
+using Recommender.Common.Helpers;
 using Recommender2;
-using Recommender2.Business;
-using Recommender2.Business.Helpers;
-using Recommender2.Business.Service;
-using Recommender2.DataAccess;
 using Recommender2.ViewModels;
 using Recommender2.ViewModels.Mappers;
 
@@ -66,13 +68,14 @@ namespace Recommender2
         /// <param name="kernel">The kernel.</param>
         private static void RegisterServices(IKernel kernel)
         {
-            kernel.Bind<IDataAccessLayer>().To<DataAccessLayer>();
+            //kernel.Bind<IDataAccessLayer>().To<DataAccessLayer>();
             kernel.Bind<IDatasetViewModelMapper>().To<DatasetViewModelMapper>();
             kernel.Bind<IBrowseCubeViewModelMapper>().To<BrowseCubeViewModelMapper>();
             kernel.Bind<IStarSchemaQuerier>().To<StarSchemaQuerier>();
             kernel.Bind<IGraphService>().To<GraphService>();
             kernel.Bind<IDimensionTreeBuilder>().To<DimensionTreeBuilder>();
-            kernel.Bind<IQueryBuilder>().To<QueryBuilder>();
+            //kernel.Bind<IQueryBuilder>().To<QueryBuilder>();
+            kernel.Bind<IDataDecorator>().To<DataDecorator>();
             kernel.Bind<IDbConnection>().To<DbConnection>();
             kernel.Bind<IConfiguration>().To<Configuration>();
         }        

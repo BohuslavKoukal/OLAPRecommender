@@ -6,11 +6,11 @@ using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MySql.Data.MySqlClient;
-using Recommender2.Business;
-using Recommender2.Business.DTO;
-using Recommender2.Business.Enums;
-using Recommender2.DataAccess;
-using Recommender2.Models;
+using Recommender.Business;
+using Recommender.Business.DTO;
+using Recommender.Common.Enums;
+using Recommender.Data.DataAccess;
+using Recommender.Data.Models;
 using RecommenderTests.Helpers;
 
 namespace RecommenderTests.BusinessLayerTests.StarSchemaTests
@@ -19,7 +19,7 @@ namespace RecommenderTests.BusinessLayerTests.StarSchemaTests
     public class StarSchemaQuerierTest
     {
         private Mock<IQueryBuilder> _queryBuilder;
-        private Mock<IDataAccessLayer> _data;
+        private Mock<IDataDecorator> _data;
         private readonly StarSchemaQuerier _querier;
 
         public StarSchemaQuerierTest()
@@ -31,7 +31,7 @@ namespace RecommenderTests.BusinessLayerTests.StarSchemaTests
         private void Setup()
         {
             _queryBuilder = new Mock<IQueryBuilder>();
-            _data = new Mock<IDataAccessLayer>();
+            _data = new Mock<IDataDecorator>();
         }
 
         private void Reset()
@@ -89,13 +89,13 @@ namespace RecommenderTests.BusinessLayerTests.StarSchemaTests
         {
             // Arrange
             Reset();
-            var measure = new Measure { Name = "Units" };
+            var measure = new MeasureDto { Name = "Units" };
             var datasetName = "TestDataset";
             var factTableValues = new List<double> {1, 7.45, 58.12};
             var factDataTable = StarSchemaQuerierTestHelper.CreateSampleFactDataTable(measure.Name, factTableValues);
             var placeDataTable = TestHelper.CreatePlaceDimensionDataTable(1);
             var dimensionTree = TestHelper.CreateDimensionTree(datasetName);
-            var europeDimensionValue = new DimensionValue {Id = 1, Value = "Europe"};
+            var europeDimensionValue = new DimensionValueDto {Id = 1, Value = "Europe"};
             var conditions = new[] { StarSchemaQuerierTestHelper.CreateFilter(datasetName, "Region", 2, new[] {europeDimensionValue}.ToList()) }.ToList();
             _queryBuilder.Setup(c => c.Select(It.Is<string>(s => s == datasetName + "FactTable"),
                 It.Is<List<List<Column>>>(lc => lc[0][0].Name.Equals("PlaceId") && lc[0][0].Value.Equals("1") &&
@@ -115,12 +115,12 @@ namespace RecommenderTests.BusinessLayerTests.StarSchemaTests
         {
             // Arrange
             Reset();
-            var measure = new Measure { Name = "Units" };
+            var measure = new MeasureDto { Name = "Units" };
             var datasetName = "TestDataset";
             var factTableValues = new List<double> { 1, 7.45, 58.12 };
             var factDataTable = StarSchemaQuerierTestHelper.CreateSampleFactDataTable(measure.Name, factTableValues);
             var dimensionTree = TestHelper.CreateDimensionTree(datasetName);
-            var slovakiaDimensionValue = new DimensionValue { Id = 2, Value = "Slovakia" };
+            var slovakiaDimensionValue = new DimensionValueDto { Id = 2, Value = "Slovakia" };
             var conditions = new[] { StarSchemaQuerierTestHelper.CreateFilter(datasetName, "Place", 1, new[] { slovakiaDimensionValue }.ToList()) }.ToList();
             _queryBuilder.Setup(c => c.Select(It.Is<string>(s => s == datasetName + "FactTable"),
                 It.Is<List<List<Column>>>(lc => lc[0][0].Name.Equals("PlaceId") && lc[0][0].Value.Equals("2"))))
@@ -136,15 +136,15 @@ namespace RecommenderTests.BusinessLayerTests.StarSchemaTests
         {
             // Arrange
             Reset();
-            var measure = new Measure { Name = "Units" };
+            var measure = new MeasureDto { Name = "Units" };
             var datasetName = "TestDataset";
             var factTableValues = new List<double> { 1, 7.45, 58.12 };
             var factDataTable = StarSchemaQuerierTestHelper.CreateSampleFactDataTable(measure.Name, factTableValues);
             var placeDataTable = TestHelper.CreatePlaceDimensionDataTable(1);
             var productDataTable = TestHelper.CreateProductDimensionDataTable(1);
             var dimensionTree = TestHelper.CreateDimensionTree(datasetName);
-            var europeDimensionValue = new DimensionValue { Id = 1, Value = "Europe" };
-            var bakeryDimensionValue = new DimensionValue { Id = 1, Value = "Bakery" };
+            var europeDimensionValue = new DimensionValueDto { Id = 1, Value = "Europe" };
+            var bakeryDimensionValue = new DimensionValueDto { Id = 1, Value = "Bakery" };
             var conditions = new[]
             {
                 StarSchemaQuerierTestHelper.CreateFilter(datasetName, "Region", 2, new[] { europeDimensionValue }.ToList())
@@ -186,14 +186,14 @@ namespace RecommenderTests.BusinessLayerTests.StarSchemaTests
         {
             // Arrange
             Reset();
-            var measure = new Measure { Name = "Units" };
+            var measure = new MeasureDto { Name = "Units" };
             var datasetName = "TestDataset";
             var factTableValues = new List<double> { 1, 7.45, 58.12 };
             var factDataTable = StarSchemaQuerierTestHelper.CreateSampleFactDataTable(measure.Name, factTableValues);
             var placeDataTable = TestHelper.CreatePlaceDimensionDataTable(1);
             var dimensionTree = TestHelper.CreateDimensionTree(datasetName);
-            var europeDimensionValue = new DimensionValue { Id = 1, Value = "Europe" };
-            var russiaDimensionValue = new DimensionValue { Id = 3, Value = "Russia" };
+            var europeDimensionValue = new DimensionValueDto { Id = 1, Value = "Europe" };
+            var russiaDimensionValue = new DimensionValueDto { Id = 3, Value = "Russia" };
             var conditions = new[]
             {
                 StarSchemaQuerierTestHelper.CreateFilter(datasetName, "Region", 2, new[] { europeDimensionValue }.ToList())

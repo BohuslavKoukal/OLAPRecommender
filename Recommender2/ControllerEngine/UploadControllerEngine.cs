@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Web;
-using Recommender2.Business;
-using Recommender2.Business.Enums;
-using Recommender2.DataAccess;
-using Recommender2.Models;
+using Recommender.Business;
+using Recommender.Business.DTO;
+using Recommender.Common.Enums;
 using Recommender2.ViewModels;
 using Recommender2.ViewModels.Mappers;
 
@@ -19,7 +18,7 @@ namespace Recommender2.ControllerEngine
         private readonly StarSchemaBuilder _starSchemaBuilder;
         private readonly CsvHandler _csvHandler;
 
-        public UploadControllerEngine(DataAccessLayer data, DatasetViewModelMapper datasetMapper,
+        public UploadControllerEngine(IDataDecorator data, DatasetViewModelMapper datasetMapper,
             AttributeViewModelMapper attributeMapper, CsvHandler csvHandler,
             StarSchemaBuilder starSchemaBuilder, StarSchemaQuerier starSchemaQuerier) 
             : base(data, starSchemaQuerier)
@@ -38,7 +37,7 @@ namespace Recommender2.ControllerEngine
         public SingleDatasetViewModel UploadFile(string datasetName, HttpPostedFileBase fileBase, string separator)
         {
             var file = _csvHandler.GetFile(fileBase, separator);
-            var dataset = new Dataset
+            var dataset = new DatasetDto
             {
                 State = State.FileUploaded,
                 Name = datasetName,

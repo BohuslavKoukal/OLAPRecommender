@@ -3,16 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
-using Recommender2.Business.Enums;
-using Recommender2.Business.Helpers;
-using Recommender2.Models;
+using Recommender.Business;
+using Recommender.Business.DTO;
+using Recommender.Common.Enums;
+using Recommender.Common.Helpers;
 
 namespace Recommender2.ViewModels.Mappers
 {
     public interface IDatasetViewModelMapper
     {
-        DatasetViewModel Map(IEnumerable<Dataset> datasets);
-        SingleDatasetViewModel Map(Dataset dataset);
+        DatasetViewModel Map(IEnumerable<DatasetDto> datasets);
+        SingleDatasetViewModel Map(DatasetDto dataset);
     }
 
     public class DatasetViewModelMapper : IDatasetViewModelMapper
@@ -23,7 +24,7 @@ namespace Recommender2.ViewModels.Mappers
             _treeBuilder = treeBuilder;
         }
 
-        public DatasetViewModel Map(IEnumerable<Dataset> datasets)
+        public DatasetViewModel Map(IEnumerable<DatasetDto> datasets)
         {
             var datasetViewModel = new DatasetViewModel();
             foreach (var dataset in datasets)
@@ -33,7 +34,7 @@ namespace Recommender2.ViewModels.Mappers
             return datasetViewModel;
         }
 
-        public SingleDatasetViewModel Map(Dataset dataset)
+        public SingleDatasetViewModel Map(DatasetDto dataset)
         {
             List<SelectListItem> dimensionSelectList;
             if (dataset.State >= State.DimensionsAndMeasuresSet)

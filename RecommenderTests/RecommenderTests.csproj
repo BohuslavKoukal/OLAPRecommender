@@ -89,6 +89,18 @@
     <Folder Include="DataAccessTests\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Recommender.Business\Recommender.Business.csproj">
+      <Project>{f3ad954b-5cae-4a8f-811d-583f6555e750}</Project>
+      <Name>Recommender.Business</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Recommender.Common\Recommender.Common.csproj">
+      <Project>{381121FA-165B-4909-995B-E45248BE301B}</Project>
+      <Name>Recommender.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Recommender.Data\Recommender.Data.csproj">
+      <Project>{431B1A94-235E-41CB-862F-296A83481DE5}</Project>
+      <Name>Recommender.Data</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Recommender2\Recommender2.csproj">
       <Project>{4179D4FC-ACC5-4AD6-80DC-20A84015C6DD}</Project>
       <Name>Recommender2</Name>

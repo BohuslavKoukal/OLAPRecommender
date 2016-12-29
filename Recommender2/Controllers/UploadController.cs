@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Web;
 using System.Web.Mvc;
-using Recommender2.Business.Validations;
 using Recommender2.ControllerEngine;
+using Recommender2.Validations;
 using Recommender2.ViewModels;
 
 namespace Recommender2.Controllers

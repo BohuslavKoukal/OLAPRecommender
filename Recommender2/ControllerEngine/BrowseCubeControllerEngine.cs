@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Recommender2.Business;
-using Recommender2.Business.DTO;
-using Recommender2.Business.Helpers;
-using Recommender2.Business.Service;
-using Recommender2.DataAccess;
-using Recommender2.Models;
+using Recommender.Business;
+using Recommender.Business.DTO;
+using Recommender.Business.Service;
+using Recommender.Common.Helpers;
 using Recommender2.ViewModels;
 using Recommender2.ViewModels.Mappers;
 
@@ -19,7 +17,7 @@ namespace Recommender2.ControllerEngine
         private readonly IGraphService _graphService;
         private readonly IDimensionTreeBuilder _treeBuilder;
 
-        public BrowseCubeControllerEngine(IDataAccessLayer data, IDatasetViewModelMapper datasetMapper,
+        public BrowseCubeControllerEngine(IDataDecorator data, IDatasetViewModelMapper datasetMapper,
             IBrowseCubeViewModelMapper browseCubeMapper,
             IStarSchemaQuerier starSchemaQuerier, IGraphService graphService,
             IDimensionTreeBuilder treeBuilder) 
@@ -89,14 +87,14 @@ namespace Recommender2.ControllerEngine
                     {
                         Id = dimension.Id,
                         Name = dimension.Name,
-                        DimensionValues = new List<DimensionValue>()
+                        DimensionValues = new List<DimensionValueDto>()
                     };
                 // do not include dimensions with all values checked
                 if (!fd.Value.Select(v => v.Value).Contains(false)) continue;
                 foreach (var value in fd.Value)
                 {
                     if (value.Value)
-                        dimensionDto.DimensionValues.Add(new DimensionValue { Id = value.Key });
+                        dimensionDto.DimensionValues.Add(new DimensionValueDto { Id = value.Key });
                 }
                 ret.Add(dimensionDto);
             }
@@ -104,13 +102,13 @@ namespace Recommender2.ControllerEngine
         }
 
         private GroupedChartViewModel GetGroupedChart(DimensionTree tree, TreeDimensionDto xDimension, DimensionDto legendDimension,
-            Measure measure, List<FlatDimensionDto> filters)
+            MeasureDto measure, List<FlatDimensionDto> filters)
         {
             var groupedGraphDto = _graphService.GetGroupedGraph(tree, xDimension, legendDimension, measure, filters);
             return _browseCubeMapper.Map(groupedGraphDto);
         }
 
-        private DrilldownChartViewModel GetDrilldownChart(DimensionTree tree, TreeDimensionDto xDimension, Measure measure, List<FlatDimensionDto> filters)
+        private DrilldownChartViewModel GetDrilldownChart(DimensionTree tree, TreeDimensionDto xDimension, MeasureDto measure, List<FlatDimensionDto> filters)
         {
             var drilldownGraphDto = _graphService.GetDrilldownGraph(tree, xDimension, measure, filters);
             return _browseCubeMapper.Map(drilldownGraphDto);

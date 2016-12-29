@@ -6,11 +6,10 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Recommender2.Business;
-using Recommender2.Business.DTO;
-using Recommender2.Business.Service;
-using Recommender2.DataAccess;
-using Recommender2.Models;
+using Recommender.Business;
+using Recommender.Business.DTO;
+using Recommender.Business.Service;
+using Recommender.Data.DataAccess;
 using RecommenderTests.Helpers;
 
 namespace RecommenderTests.BusinessLayerTests
@@ -45,7 +44,7 @@ namespace RecommenderTests.BusinessLayerTests
             var tree = TestHelper.CreateDimensionTree("TestDataset");
             var xDimension = tree.GetDimensionDto(4);
             var legendDimension = tree.GetDimensionDto(2);
-            var measure = new Measure { Name = "Units" };
+            var measure = new MeasureDto { Name = "Units" };
             SetupQuerierValuesOfDimensions(tree);
             SetupQuerierFactTableSum(measure);
             // Act
@@ -83,7 +82,7 @@ namespace RecommenderTests.BusinessLayerTests
             var xDimension = tree.GetDimensionDto(4);
             // Region
             var legendDimension = tree.GetDimensionDto(2);
-            var measure = new Measure { Name = "Units" };
+            var measure = new MeasureDto { Name = "Units" };
             // Show only bakery
             var filters = new List<FlatDimensionDto>
             {
@@ -92,7 +91,7 @@ namespace RecommenderTests.BusinessLayerTests
                     Id = 4,
                     Name = "Category",
                     DatasetName = "TestDataset",
-                    DimensionValues = new[] {new DimensionValue {Id = 1, Value = "Bakery"}}.ToList()
+                    DimensionValues = new[] {new DimensionValueDto {Id = 1, Value = "Bakery"}}.ToList()
                 }
             };
             SetupQuerierValuesOfDimensions(tree);
@@ -126,7 +125,7 @@ namespace RecommenderTests.BusinessLayerTests
             var xDimension = tree.GetDimensionDto(4);
             // Region
             var legendDimension = tree.GetDimensionDto(2);
-            var measure = new Measure { Name = "Units" };
+            var measure = new MeasureDto { Name = "Units" };
             // Show only bread and milk in Europe
             var filters = TestHelper.GetBreadMilkEuropeFilters();
             SetupQuerierValuesOfDimensions(tree);
@@ -160,7 +159,7 @@ namespace RecommenderTests.BusinessLayerTests
             var tree = TestHelper.CreateDimensionTree("TestDataset");
             // Category
             var xDimension = tree.GetDimensionDto(4);
-            var measure = new Measure { Name = "Units" };
+            var measure = new MeasureDto { Name = "Units" };
             // Show only bread and milk in Europe
             var filters = TestHelper.GetBreadMilkEuropeFilters();
             SetupQuerierValuesOfDimensions(tree);
@@ -190,7 +189,7 @@ namespace RecommenderTests.BusinessLayerTests
             Reset();
             var tree = TestHelper.CreateDimensionTree("TestDataset");
             var xDimension = tree.GetDimensionDto(4);
-            var measure = new Measure { Name = "Units" };
+            var measure = new MeasureDto { Name = "Units" };
             SetupQuerierValuesOfDimensions(tree);
             SetupQuerierFactTableSum(measure);
             // Act
@@ -235,16 +234,16 @@ namespace RecommenderTests.BusinessLayerTests
                 .Returns(tree.GetDimensionDto(4).DimensionValues);
         }
 
-        private void SetupQuerierFactTableSum(Measure measure)
+        private void SetupQuerierFactTableSum(MeasureDto measure)
         {
             _querier.Setup(c => c.GetFactTableSum(It.IsAny<DimensionTree>(),
-                It.IsAny<List<FlatDimensionDto>>(), It.Is<List<FlatDimensionDto>>(l => l[0].DimensionValues[0].Id == 1), It.Is<Measure>(m => m.Name == measure.Name)))
+                It.IsAny<List<FlatDimensionDto>>(), It.Is<List<FlatDimensionDto>>(l => l[0].DimensionValues[0].Id == 1), It.Is<MeasureDto>(m => m.Name == measure.Name)))
                 .Returns(10);
             _querier.Setup(c => c.GetFactTableSum(It.IsAny<DimensionTree>(),
-                It.IsAny<List<FlatDimensionDto>>(), It.Is<List<FlatDimensionDto>>(l => l[0].DimensionValues[0].Id == 2), It.Is<Measure>(m => m.Name == measure.Name)))
+                It.IsAny<List<FlatDimensionDto>>(), It.Is<List<FlatDimensionDto>>(l => l[0].DimensionValues[0].Id == 2), It.Is<MeasureDto>(m => m.Name == measure.Name)))
                 .Returns(20);
             _querier.Setup(c => c.GetFactTableSum(It.IsAny<DimensionTree>(),
-                It.IsAny<List<FlatDimensionDto>>(), It.Is<List<FlatDimensionDto>>(l => l[0].DimensionValues[0].Id == 3), It.Is<Measure>(m => m.Name == measure.Name)))
+                It.IsAny<List<FlatDimensionDto>>(), It.Is<List<FlatDimensionDto>>(l => l[0].DimensionValues[0].Id == 3), It.Is<MeasureDto>(m => m.Name == measure.Name)))
                 .Returns(30);
         }
 

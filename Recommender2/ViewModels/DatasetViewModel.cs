@@ -5,8 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
-using Recommender2.Business.DTO;
-using Recommender2.Business.Enums;
+using Recommender.Common.Enums;
 
 namespace Recommender2.ViewModels
 {

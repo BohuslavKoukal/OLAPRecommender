@@ -4,9 +4,9 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Recommender2.Business.DTO;
-using Recommender2.Business.Enums;
-using Recommender2.DataAccess;
+using Recommender.Business.DTO;
+using Recommender.Common.Enums;
+using Recommender.Data.DataAccess;
 
 namespace RecommenderTests.BusinessLayerTests.StarSchemaTests
 {
@@ -45,7 +45,7 @@ namespace RecommenderTests.BusinessLayerTests.StarSchemaTests
             return table;
         }
 
-        public static FlatDimensionDto CreateFilter(string datasetName, string name, int id, List<DimensionValue> dimensionValues)
+        public static FlatDimensionDto CreateFilter(string datasetName, string name, int id, List<DimensionValueDto> dimensionValues)
         {
             return new FlatDimensionDto
             {

@@ -160,24 +160,6 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\NinjectWebCommon.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
-    <Compile Include="Business\Configuration.cs" />
-    <Compile Include="Business\CsvHandler.cs" />
-    <Compile Include="Business\DTO\TreeDimensionDto.cs" />
-    <Compile Include="Business\DTO\DimensionTree.cs" />
-    <Compile Include="Business\DTO\DimensionValue.cs" />
-    <Compile Include="Business\DTO\DrilldownGraphDto.cs" />
-    <Compile Include="Business\DTO\GraphDto.cs" />
-    <Compile Include="Business\DTO\GroupedGraphDto.cs" />
-    <Compile Include="Business\Enums\Enums.cs" />
-    <Compile Include="Business\Enums\Extensions.cs" />
-    <Compile Include="Business\Helpers\DataTableExtension.cs" />
-    <Compile Include="Business\Helpers\DimensionTreeBuilder.cs" />
-    <Compile Include="Business\Helpers\StringExtensions.cs" />
-    <Compile Include="Business\Service\GraphService.cs" />
-    <Compile Include="Business\StarSchemaBase.cs" />
-    <Compile Include="Business\StarSchemaBuilder.cs" />
-    <Compile Include="Business\StarSchemaQuerier.cs" />
-    <Compile Include="Business\Validations\InputValidations.cs" />
     <Compile Include="ControllerEngine\BrowseCubeControllerEngine.cs" />
     <Compile Include="ControllerEngine\HomeControllerEngine.cs" />
     <Compile Include="ControllerEngine\ControllerEngineBase.cs" />
@@ -187,31 +169,11 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\MinedResultsController.cs" />
     <Compile Include="Controllers\UploadController.cs" />
-    <Compile Include="DataAccess\Column.cs" />
-    <Compile Include="DataAccess\DataAccessLayer.cs" />
-    <Compile Include="DataAccess\DbConnection.cs" />
-    <Compile Include="DataAccess\DbContext.cs" />
-    <Compile Include="DataAccess\DbInitializer.cs" />
-    <Compile Include="DataAccess\ForeignKey.cs" />
-    <Compile Include="DataAccess\QueryBuilder.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201610211620312_Migration1.cs" />
-    <Compile Include="Migrations\201610211620312_Migration1.Designer.cs">
-      <DependentUpon>201610211620312_Migration1.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201612171949099_DatasetState.cs" />
-    <Compile Include="Migrations\201612171949099_DatasetState.Designer.cs">
-      <DependentUpon>201612171949099_DatasetState.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\Configuration.cs" />
-    <Compile Include="Models\Attribute.cs" />
-    <Compile Include="Models\CsvFile.cs" />
-    <Compile Include="Models\Dataset.cs" />
-    <Compile Include="Models\Dimension.cs" />
-    <Compile Include="Models\Measure.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Validations\InputValidations.cs" />
     <Compile Include="ViewModels\AttributeViewModel.cs" />
     <Compile Include="ViewModels\BrowseCubeViewModel.cs" />
     <Compile Include="ViewModels\DrilldownViewModel.cs" />
@@ -293,12 +255,14 @@
     <Content Include="Scripts\jquery-1.10.2.min.map" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201610211620312_Migration1.resx">
-      <DependentUpon>201610211620312_Migration1.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201612171949099_DatasetState.resx">
-      <DependentUpon>201612171949099_DatasetState.cs</DependentUpon>
-    </EmbeddedResource>
+    <ProjectReference Include="..\Recommender.Business\Recommender.Business.csproj">
+      <Project>{f3ad954b-5cae-4a8f-811d-583f6555e750}</Project>
+      <Name>Recommender.Business</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Recommender.Common\Recommender.Common.csproj">
+      <Project>{381121fa-165b-4909-995b-e45248be301b}</Project>
+      <Name>Recommender.Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

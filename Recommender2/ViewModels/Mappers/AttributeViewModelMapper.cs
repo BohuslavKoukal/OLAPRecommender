@@ -2,25 +2,25 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using Recommender2.Business.Enums;
-using Recommender2.Models;
+using Recommender.Business.DTO;
+using Recommender.Common.Enums;
 
 namespace Recommender2.ViewModels.Mappers
 {
     public class AttributeViewModelMapper
     {
-        public IEnumerable<Measure> MapToMeasures(IEnumerable<AttributeViewModel> attributes)
+        public IEnumerable<MeasureDto> MapToMeasures(IEnumerable<AttributeViewModel> attributes)
         {
-            return attributes.Where(a => a.SelectedAttributeRoleId == (int)AttributeRole.Measure).Select(attribute => new Measure
+            return attributes.Where(a => a.SelectedAttributeRoleId == (int)AttributeRole.Measure).Select(attribute => new MeasureDto
             {
                 Name = attribute.Name,
                 Type = attribute.SelectedAttributeTypeId
             }).ToList();
         }
 
-        public IEnumerable<Dimension> MapToDimensions(List<AttributeViewModel> attributes)
+        public IEnumerable<DimensionDto> MapToDimensions(List<AttributeViewModel> attributes)
         {
-            var dimensions = attributes.Where(a => a.SelectedAttributeRoleId == (int)AttributeRole.Dimension).Select(attribute => new Dimension
+            var dimensions = attributes.Where(a => a.SelectedAttributeRoleId == (int)AttributeRole.Dimension).Select(attribute => new FlatDimensionDto
             {
                 Name = attribute.Name,
                 Type = attribute.SelectedAttributeTypeId

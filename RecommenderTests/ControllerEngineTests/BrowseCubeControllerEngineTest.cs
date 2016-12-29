@@ -5,13 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Recommender2.Business;
-using Recommender2.Business.DTO;
-using Recommender2.Business.Helpers;
-using Recommender2.Business.Service;
+using Recommender.Business;
+using Recommender.Business.DTO;
+using Recommender.Business.Service;
+using Recommender.Data.DataAccess;
+using Recommender.Data.Models;
 using Recommender2.ControllerEngine;
-using Recommender2.DataAccess;
-using Recommender2.Models;
 using Recommender2.ViewModels;
 using Recommender2.ViewModels.Mappers;
 using RecommenderTests.Helpers;
@@ -21,7 +20,7 @@ namespace RecommenderTests.ControllerEngineTests
     [TestClass]
     public class BrowseCubeControllerEngineTest
     {
-        private Mock<IDataAccessLayer> _dataMock;
+        private Mock<IDataDecorator> _dataMock;
         private Mock<IDatasetViewModelMapper> _datasetMapperMock;
         private Mock<IBrowseCubeViewModelMapper> _browseCubeMock;
         private Mock<IStarSchemaQuerier> _starSchemaQuerierMock;
@@ -39,7 +38,7 @@ namespace RecommenderTests.ControllerEngineTests
 
         private void Setup()
         {
-            _dataMock = new Mock<IDataAccessLayer>();
+            _dataMock = new Mock<IDataDecorator>();
             _datasetMapperMock = new Mock<IDatasetViewModelMapper>();
             _browseCubeMock = new Mock<IBrowseCubeViewModelMapper>();
             _starSchemaQuerierMock = new Mock<IStarSchemaQuerier>();
@@ -66,7 +65,7 @@ namespace RecommenderTests.ControllerEngineTests
             _testee.GetDatasets();
             // Assert
             _dataMock.Verify(dm => dm.GetAllDatasets());
-            _datasetMapperMock.Verify(dmm => dmm.Map(It.IsAny<IEnumerable<Dataset>>()));
+            _datasetMapperMock.Verify(dmm => dmm.Map(It.IsAny<IEnumerable<DatasetDto>>()));
         }
 
         [TestMethod]
@@ -78,7 +77,7 @@ namespace RecommenderTests.ControllerEngineTests
             _testee.GetDataset(1);
             // Assert
             _dataMock.Verify(dm => dm.GetDataset(1));
-            _datasetMapperMock.Verify(dmm => dmm.Map(It.IsAny<Dataset>()));
+            _datasetMapperMock.Verify(dmm => dmm.Map(It.IsAny<DatasetDto>()));
         }
 
         [TestMethod]
@@ -94,7 +93,7 @@ namespace RecommenderTests.ControllerEngineTests
             _testee.BrowseCube(1);
             // Assert
             _dataMock.Verify(dm => dm.GetDataset(1));
-            _browseCubeMock.Verify(bcm => bcm.Map(It.IsAny<Dataset>(), It.IsAny<FilterViewModel>()));
+            _browseCubeMock.Verify(bcm => bcm.Map(It.IsAny<DatasetDto>(), It.IsAny<FilterViewModel>()));
             _browseCubeMock.Verify(bcm => bcm.Map(It.IsAny<DimensionTree>()));
         }
 
@@ -107,8 +106,8 @@ namespace RecommenderTests.ControllerEngineTests
             var tree = TestHelper.CreateDimensionTree("TestDataset");
             _treeBuilderMock.Setup(c => c.ConvertToTree(1, It.IsAny<bool>())).Returns(tree);
             _dataMock.Setup(c => c.GetDimension(It.IsAny<int>()))
-                .Returns((int id) => new Dimension { Name = tree.GetDimensionDto(id).Name, Id = id });
-            _dataMock.Setup(c => c.GetMeasure(1)).Returns(new Measure { Id = 1 });
+                .Returns((int id) => new TreeDimensionDto { Name = tree.GetDimensionDto(id).Name, Id = id });
+            _dataMock.Setup(c => c.GetMeasure(1)).Returns(new MeasureDto { Id = 1 });
             _starSchemaQuerierMock.Setup(c => c.GetValuesOfDimension(It.IsAny<DimensionDto>(), It.IsAny<Column>()))
                 .Returns((DimensionDto dd, Column col) => tree.GetDimensionDto(dd.Id).DimensionValues);
             // Act
@@ -126,12 +125,12 @@ namespace RecommenderTests.ControllerEngineTests
 
             _graphServiceMock.Verify(gs => gs.GetGroupedGraph(tree,
                 It.Is<TreeDimensionDto>(td => td.Id == 1), It.Is<DimensionDto>(d => d.Id == 2),
-                It.Is<Measure>(m => m.Id == 1),
+                It.Is<MeasureDto>(m => m.Id == 1),
                 It.Is<List<FlatDimensionDto>>(f => hasTwoMembers(f) && breadMilkFilterIsOk(f[0]) && europeFilterIsOk(f[1]))));
 
             _graphServiceMock.Verify(gs => gs.GetDrilldownGraph(tree,
                 It.Is<TreeDimensionDto>(td => td.Id == 1),
-                It.Is<Measure>(m => m.Id == 1),
+                It.Is<MeasureDto>(m => m.Id == 1),
                 It.Is<List<FlatDimensionDto>>(f => hasTwoMembers(f) && breadMilkFilterIsOk(f[0]) && europeFilterIsOk(f[1]))));
 
             _browseCubeMock.Verify(bcm => bcm.Map(It.IsAny<GroupedGraphDto>()));
