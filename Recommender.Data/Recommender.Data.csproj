@@ -79,13 +79,9 @@
     <Compile Include="DataAccess\DbInitializer.cs" />
     <Compile Include="DataAccess\ForeignKey.cs" />
     <Compile Include="DataAccess\QueryBuilder.cs" />
-    <Compile Include="Migrations\201610211620312_Migration1.cs" />
-    <Compile Include="Migrations\201610211620312_Migration1.Designer.cs">
-      <DependentUpon>201610211620312_Migration1.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201612171949099_DatasetState.cs" />
-    <Compile Include="Migrations\201612171949099_DatasetState.Designer.cs">
-      <DependentUpon>201612171949099_DatasetState.cs</DependentUpon>
+    <Compile Include="Migrations\201612302152534_Initial.cs" />
+    <Compile Include="Migrations\201612302152534_Initial.Designer.cs">
+      <DependentUpon>201612302152534_Initial.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Attribute.cs" />
@@ -96,14 +92,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201610211620312_Migration1.resx">
-      <DependentUpon>201610211620312_Migration1.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201612171949099_DatasetState.resx">
-      <DependentUpon>201612171949099_DatasetState.cs</DependentUpon>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
@@ -112,6 +100,11 @@
       <Project>{381121fa-165b-4909-995b-e45248be301b}</Project>
       <Name>Recommender.Common</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201612302152534_Initial.resx">
+      <DependentUpon>201612302152534_Initial.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

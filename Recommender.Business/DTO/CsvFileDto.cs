@@ -9,6 +9,6 @@ namespace Recommender.Business.DTO
     public class CsvFileDto
     {
         public string FilePath { get; set; }
-        public virtual ICollection<AttributeDto> Attributes { get; set; }
+        public virtual ICollection<Attribute> Attributes { get; set; }
     }
 }

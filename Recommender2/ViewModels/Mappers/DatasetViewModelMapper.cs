@@ -7,13 +7,14 @@ using Recommender.Business;
 using Recommender.Business.DTO;
 using Recommender.Common.Enums;
 using Recommender.Common.Helpers;
+using Recommender.Data.Models;
 
 namespace Recommender2.ViewModels.Mappers
 {
     public interface IDatasetViewModelMapper
     {
-        DatasetViewModel Map(IEnumerable<DatasetDto> datasets);
-        SingleDatasetViewModel Map(DatasetDto dataset);
+        DatasetViewModel Map(IEnumerable<Dataset> datasets);
+        SingleDatasetViewModel Map(Dataset dataset);
     }
 
     public class DatasetViewModelMapper : IDatasetViewModelMapper
@@ -24,7 +25,7 @@ namespace Recommender2.ViewModels.Mappers
             _treeBuilder = treeBuilder;
         }
 
-        public DatasetViewModel Map(IEnumerable<DatasetDto> datasets)
+        public DatasetViewModel Map(IEnumerable<Dataset> datasets)
         {
             var datasetViewModel = new DatasetViewModel();
             foreach (var dataset in datasets)
@@ -34,7 +35,7 @@ namespace Recommender2.ViewModels.Mappers
             return datasetViewModel;
         }
 
-        public SingleDatasetViewModel Map(DatasetDto dataset)
+        public SingleDatasetViewModel Map(Dataset dataset)
         {
             List<SelectListItem> dimensionSelectList;
             if (dataset.State >= State.DimensionsAndMeasuresSet)
@@ -58,16 +59,16 @@ namespace Recommender2.ViewModels.Mappers
                 {
                     Id = measure.Id,
                     Name = measure.Name,
-                    Type = ((DataType)measure.Type).ToString()
+                    Type = measure.Type.ToString()
                 }).ToList(),
                 Dimensions = dataset.Dimensions?.Select(dimension => new DimensionViewModel
                 {
                     Id = dimension.Id,
                     Name = dimension.Name,
-                    Type = ((DataType)dimension.Type).ToString()
+                    Type = dimension.Type.ToString()
                 }).ToList(),
                 DimensionsSelectList = dimensionSelectList,
-                CsvFilePath = dataset.CsvFilePath,
+                FilePath = dataset.CsvFilePath,
                 State = dataset.State
             };
         }

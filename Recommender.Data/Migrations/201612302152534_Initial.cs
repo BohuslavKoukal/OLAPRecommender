@@ -1,8 +1,9 @@
-using System.Data.Entity.Migrations;
-
 namespace Recommender.Data.Migrations
 {
-    public partial class Migration1 : DbMigration
+    using System;
+    using System.Data.Entity.Migrations;
+    
+    public partial class Initial : DbMigration
     {
         public override void Up()
         {
@@ -25,6 +26,7 @@ namespace Recommender.Data.Migrations
                         Id = c.Int(nullable: false, identity: true),
                         Name = c.String(unicode: false),
                         CsvFilePath = c.String(unicode: false),
+                        State = c.Int(nullable: false),
                     })
                 .PrimaryKey(t => t.Id);
             

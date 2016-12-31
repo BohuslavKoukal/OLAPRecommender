@@ -72,22 +72,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CsvHandler.cs" />
-    <Compile Include="DataDecorator.cs" />
+    <Compile Include="FileHandling\Csv\CsvHandler.cs" />
     <Compile Include="DimensionTreeBuilder.cs" />
-    <Compile Include="DTO\AttributeDto.cs" />
     <Compile Include="DTO\ColumnDto.cs" />
     <Compile Include="DTO\CsvFileDto.cs" />
-    <Compile Include="DTO\DatasetDto.cs" />
     <Compile Include="DTO\DimensionDto.cs" />
+    <Compile Include="DTO\DimensionOrMeasureDto.cs" />
     <Compile Include="DTO\DimensionTree.cs" />
     <Compile Include="DTO\DimensionValueDto.cs" />
     <Compile Include="DTO\DrilldownGraphDto.cs" />
     <Compile Include="DTO\GraphDto.cs" />
     <Compile Include="DTO\GroupedGraphDto.cs" />
-    <Compile Include="DTO\MeasureDto.cs" />
     <Compile Include="DTO\TreeDimensionDto.cs" />
-    <Compile Include="Helpers\DtoConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Service\GraphService.cs" />
     <Compile Include="StarSchemaBase.cs" />
@@ -108,7 +104,9 @@
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="FileHandling\Rdf\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

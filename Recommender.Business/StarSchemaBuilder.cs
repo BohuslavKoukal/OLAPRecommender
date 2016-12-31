@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.Linq;
 using Recommender.Business.DTO;
 using Recommender.Common.Enums;
@@ -12,22 +13,22 @@ namespace Recommender.Business
 {
     public interface IStarSchemaBuilder
     {
-        void CreateAndFillDimensionTables(string datasetName, List<DimensionDto> dimensions, DataTable values);
-        void CreateFactTable(string datasetName, List<DimensionDto> dimensions, List<MeasureDto> measures);
-        void FillFactTable(string datasetName, List<DimensionDto> dimensions, List<MeasureDto> measures, DataTable values);
+        void CreateAndFillDimensionTables(string datasetName, List<Dimension> dimensions, DataTable values);
+        void CreateFactTable(string datasetName, List<Dimension> dimensions, List<Measure> measures);
+        void FillFactTable(string datasetName, List<Dimension> dimensions, List<Measure> measures, DataTable values);
     }
 
     public class StarSchemaBuilder : StarSchemaBase, IStarSchemaBuilder
     {
 
-        public StarSchemaBuilder(QueryBuilder queryBuilder, IDataDecorator data) 
+        public StarSchemaBuilder(QueryBuilder queryBuilder, IDataAccessLayer data) 
             : base(queryBuilder, data)
         {
         }
 
         #region public
 
-        public void CreateAndFillDimensionTables(string datasetName, List<DimensionDto> dimensions, DataTable values)
+        public void CreateAndFillDimensionTables(string datasetName, List<Dimension> dimensions, DataTable values)
         {
             var existingDimensions = new List<int>();
             while (existingDimensions.Count != dimensions.Count)
@@ -39,7 +40,7 @@ namespace Recommender.Business
                     if (!childDimensions.Select(d => d.Id).Except(existingDimensions).Any() &&
                         !existingDimensions.Contains(dimension.Id))
                     {
-                        CreateDimensionTable(datasetName, dimension.Name, ((DataType)dimension.Type).ToSqlType(), childDimensions.Select(d => d.Name).ToList());
+                        CreateDimensionTable(datasetName, dimension.Name, dimension.Type.ToType().ToSqlType(), childDimensions.Select(d => d.Name).ToList());
                         FillDimensionTable(datasetName, dimension, values, childDimensions);
                         existingDimensions.Add(dimension.Id);
                     }
@@ -47,10 +48,10 @@ namespace Recommender.Business
             }
         }
 
-        public void CreateFactTable(string datasetName, List<DimensionDto> dimensions, List<MeasureDto> measures)
+        public void CreateFactTable(string datasetName, List<Dimension> dimensions, List<Measure> measures)
         {
             var rootDimensionNames = dimensions.Where(d => d.ParentDimension == null).Select(d => d.Name).ToList<string>();
-            var measuresColumns = measures.Select(m => new Column {Name = m.Name, Type = ((DataType)m.Type).ToSqlType() });
+            var measuresColumns = measures.Select(m => new Column {Name = m.Name, Type = m.Type.ToType().ToSqlType() });
             var foreignKeys = new List<ForeignKey>();
             foreignKeys.AddRange(rootDimensionNames.Select(dimensionName => new ForeignKey
             {
@@ -60,7 +61,7 @@ namespace Recommender.Business
             QueryBuilder.CreateTable(datasetName + "FactTable", measuresColumns, foreignKeys);
         }        
 
-        public void FillFactTable(string datasetName, List<DimensionDto> dimensions, List<MeasureDto> measures, DataTable values)
+        public void FillFactTable(string datasetName, List<Dimension> dimensions, List<Measure> measures, DataTable values)
         {
             foreach (DataRow row in values.Rows)
             {
@@ -73,7 +74,7 @@ namespace Recommender.Business
                 var dimensionColumns = dimensions.Where(d => d.ParentDimension == null).Select(dimension => new Column
                 {
                     Name = dimension.Name + "Id",
-                    Value = GetDimensionId(datasetName + dimension.Name, row[(string) dimension.Name].ToString(dimension.Type)).ToString()
+                    Value = GetDimensionId(datasetName + dimension.Name, row[dimension.Name].ToString(dimension.Type.ToType())).ToString()
                 }).ToList();
                 
                 QueryBuilder.Insert(datasetName + "FactTable", dimensionColumns.Concat(measureColumns));
@@ -91,20 +92,24 @@ namespace Recommender.Business
             
         }
 
-        private void FillDimensionTable(string datasetName, DimensionDto dimension, DataTable values, List<DimensionDto> children)
+        private void FillDimensionTable(string datasetName, Dimension dimension, DataTable values, List<Dimension> children)
         {
-            var distinctValues = values.GetDistinctTable(dimension.Type, dimension.Name);
+            var distinctValues = values.GetDistinctTable(dimension.Type.ToType(), dimension.Name);
             var allRowsToInsert = new List<List<Column>>();
             foreach (DataRow row in distinctValues.Rows)
             {
                 var dimensionColumns = new List<Column>
                 {
-                    new Column { Name = "Value", Value = row[(string) dimension.Name].ToString(dimension.Type) }
+                    new Column
+                    {
+                        Name = "Value",
+                        Value = row[dimension.Name].ToString(dimension.Type.ToType())
+                    }
                 };
                 dimensionColumns.AddRange(children.Select(child => new Column
                 {
                     Name = child.Name + "Id",
-                    Value = GetDimensionId(datasetName + child.Name, row[(string) child.Name].ToString(child.Type)).ToString()
+                    Value = GetDimensionId(datasetName + child.Name, row[child.Name].ToString()).ToString()
                 }));
                 allRowsToInsert.Add(dimensionColumns);
             }

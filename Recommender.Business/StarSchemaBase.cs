@@ -5,9 +5,9 @@ namespace Recommender.Business
     public class StarSchemaBase 
     {
         protected readonly IQueryBuilder QueryBuilder;
-        protected readonly IDataDecorator Data;
+        protected readonly IDataAccessLayer Data;
 
-        public StarSchemaBase(IQueryBuilder queryBuilder, IDataDecorator data)
+        public StarSchemaBase(IQueryBuilder queryBuilder, IDataAccessLayer data)
         {
             QueryBuilder = queryBuilder;
             Data = data;

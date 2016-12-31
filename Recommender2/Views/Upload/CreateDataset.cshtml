@@ -20,7 +20,7 @@
                     <tr>
                         @Html.HiddenFor(m => Model.Attributes[i].Name)
                         <td>@Html.DisplayFor(m => Model.Attributes[i].Name)</td>
-                        <td>@Html.DropDownListFor(m => m.Attributes[i].SelectedAttributeTypeId, EnumHelper.GetSelectList(typeof(DataType)), "Select data type", new {@class = "form-control, type", sequence = i})</td>
+                        <td>@Html.DropDownListFor(m => m.Attributes[i].SelectedAttributeType, Model.DataTypes, "Select data type", new {@class = "form-control, type", sequence = i})</td>
                         <td>@Html.DropDownListFor(m => m.Attributes[i].SelectedAttributeRoleId, EnumHelper.GetSelectList(typeof(AttributeRole)), "Select attribute role", new {@class = "form-control, role", sequence = i})</td>
                         <td>@Html.DropDownListFor(m => m.Attributes[i].SelectedAttributeParentName, Model.AttributesSelectList, "Root treeDimension", new {@class = "form-control, parent", sequence = i })</td>
                     </tr>
@@ -34,7 +34,7 @@
             </div>
         </div>
         <div class="form-group">
-            @Html.Label("Column separator", new { @class = "control-label col-md-2" })
+            @Html.Label("Date format", new { @class = "control-label col-md-2" })
             <div class="col-md-10">
                 @Html.DropDownListFor(m => m.DateFormat, Model.DateFormatSelectList, "Date format used in uploaded file", new { @class = "form-control" })
             </div>

@@ -186,6 +186,7 @@
     <Compile Include="ViewModels\Mappers\DatasetViewModelMapper.cs" />
     <Compile Include="ViewModels\MeasureViewModel.cs" />
     <Compile Include="ViewModels\GroupedSeriesViewModel.cs" />
+    <Compile Include="WebModule.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.css" />
@@ -262,6 +263,14 @@
     <ProjectReference Include="..\Recommender.Common\Recommender.Common.csproj">
       <Project>{381121fa-165b-4909-995b-e45248be301b}</Project>
       <Name>Recommender.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Recommender.Data\Recommender.Data.csproj">
+      <Project>{431b1a94-235e-41cb-862f-296a83481de5}</Project>
+      <Name>Recommender.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Recommender.DependencyResolver\Recommender.DependencyResolver.csproj">
+      <Project>{a9ac1ae6-2fec-46a5-9fe8-7f679c8be1dc}</Project>
+      <Name>Recommender.DependencyResolver</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

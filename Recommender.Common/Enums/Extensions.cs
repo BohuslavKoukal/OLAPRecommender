@@ -1,4 +1,6 @@
-﻿namespace Recommender.Common.Enums
+﻿using System;
+
+namespace Recommender.Common.Enums
 {
     
     public static class AttributeRoleExtensions
@@ -19,38 +21,25 @@
 
     public static class DataTypeExtensions
     {
-        public static string ToString(this DataType dataType)
+        public static string ToSqlType(this Type dataType)
         {
-            switch (dataType)
+            if (dataType == typeof(int) )
             {
-                case DataType.Integer:
-                    return "Integer";
-                case DataType.Double:
-                    return "Double";
-                case DataType.DateTime:
-                    return "DateTime";
-                case DataType.String:
-                    return "String";
-                default:
-                    return "Unknown type";
+                return "INT";
             }
-        }
-
-        public static string ToSqlType(this DataType dataType)
-        {
-            switch (dataType)
+            else if (dataType == typeof(double))
             {
-                case DataType.Integer:
-                    return "INT";
-                case DataType.Double:
-                    return "FLOAT";
-                case DataType.DateTime:
-                    return "DATE";
-                case DataType.String:
-                    return "VARCHAR(1024)";
-                default:
-                    return "Unknown type";
+                return "FLOAT";
             }
+            else if (dataType == typeof(DateTime))
+            {
+                return "DATE";
+            }
+            else if (dataType == typeof(string))
+            {
+                return "VARCHAR(1024)";
+            }
+            return "Unknown type";
         }
 
     }

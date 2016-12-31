@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Web.Mvc;
 using Recommender.Business.DTO;
+using Recommender.Common.Helpers;
 using Recommender.Data.DataAccess;
 using Recommender.Data.Models;
 
@@ -10,17 +11,17 @@ namespace Recommender.Business
     public interface IDimensionTreeBuilder
     {
         DimensionTree ConvertToTree(int datasetId, bool populate = false);
-        DimensionTree ConvertToTree(IEnumerable<DimensionDto> dimensions, bool populate = false);
+        DimensionTree ConvertToTree(IEnumerable<Dimension> dimensions, bool populate = false);
         List<SelectListItem> ConvertTreeToSelectList(DimensionTree tree);
     }
 
     public class DimensionTreeBuilder : IDimensionTreeBuilder
     {
         public List<SelectListItem> Items;
-        private readonly IDataDecorator _data;
+        private readonly IDataAccessLayer _data;
         private readonly IStarSchemaQuerier _starSchemaQuerier;
 
-        public DimensionTreeBuilder(IDataDecorator data, IStarSchemaQuerier querier)
+        public DimensionTreeBuilder(IDataAccessLayer data, IStarSchemaQuerier querier)
         {
             Items = new List<SelectListItem>();
             _data = data;
@@ -32,7 +33,7 @@ namespace Recommender.Business
             return ConvertToTree(_data.GetDataset(datasetId).Dimensions.ToList(), populate);
         }
 
-        public DimensionTree ConvertToTree(IEnumerable<DimensionDto> dimensions, bool populate = false)
+        public DimensionTree ConvertToTree(IEnumerable<Dimension> dimensions, bool populate = false)
         {
             var dimensionList = dimensions.ToList();
             var dimensionTree = new DimensionTree(dimensionList.First().DataSet.Name);
@@ -47,7 +48,7 @@ namespace Recommender.Business
                         Name = dimension.Name,
                         ParentId = dimension.ParentDimension?.Id,
                         DatasetName = dimension.DataSet.Name,
-                        Type = dimension.Type
+                        Type = dimension.Type.ToType()
                     };
                     if (!dimensionTree.Contains(dimToAdd))
                     {

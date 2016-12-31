@@ -20,7 +20,7 @@ namespace RecommenderTests.ControllerEngineTests
     [TestClass]
     public class BrowseCubeControllerEngineTest
     {
-        private Mock<IDataDecorator> _dataMock;
+        private Mock<IDataAccessLayer> _dataMock;
         private Mock<IDatasetViewModelMapper> _datasetMapperMock;
         private Mock<IBrowseCubeViewModelMapper> _browseCubeMock;
         private Mock<IStarSchemaQuerier> _starSchemaQuerierMock;
@@ -38,7 +38,7 @@ namespace RecommenderTests.ControllerEngineTests
 
         private void Setup()
         {
-            _dataMock = new Mock<IDataDecorator>();
+            _dataMock = new Mock<IDataAccessLayer>();
             _datasetMapperMock = new Mock<IDatasetViewModelMapper>();
             _browseCubeMock = new Mock<IBrowseCubeViewModelMapper>();
             _starSchemaQuerierMock = new Mock<IStarSchemaQuerier>();

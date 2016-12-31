@@ -6,27 +6,29 @@ namespace Recommender.Common.Helpers
 {
     public static class DataTableExtension
     {
-        public static DataTable GetDistinctTable(this DataTable table, int columnType, string columnName)
+        public static DataTable GetDistinctTable(this DataTable table, Type columnType, string columnName)
         {
-            switch (columnType)
+            if (columnType == typeof(int))
             {
-                case 0:
-                    return table.AsEnumerable()
-                        .GroupBy(row => DataRowExtensions.Field<int>(row, columnName))
-                        .Select(group => group.First()).CopyToDataTable();
-                case 1:
-                    return table.AsEnumerable()
-                        .GroupBy(row => row.Field<double>(columnName))
-                        .Select(group => group.First()).CopyToDataTable();
-                case 2:
-                    return table.AsEnumerable()
-                        .GroupBy(row => row.Field<string>(columnName))
-                        .Select(group => group.First()).CopyToDataTable();
-                default:
-                    return table.AsEnumerable()
-                        .GroupBy(row => row.Field<DateTime>(columnName))
+                return table.AsEnumerable()
+                        .GroupBy(row => row.Field<int>(columnName))
                         .Select(group => group.First()).CopyToDataTable();
             }
+            if (columnType == typeof(double))
+            {
+                return table.AsEnumerable()
+                        .GroupBy(row => row.Field<double>(columnName))
+                        .Select(group => group.First()).CopyToDataTable();
+            }
+            if (columnType == typeof(string))
+            {
+                return table.AsEnumerable()
+                        .GroupBy(row => row.Field<string>(columnName))
+                        .Select(group => group.First()).CopyToDataTable();
+            }
+            return table.AsEnumerable()
+                        .GroupBy(row => row.Field<DateTime?>(columnName))
+                        .Select(group => group.First()).CopyToDataTable();
         }
     }
 }

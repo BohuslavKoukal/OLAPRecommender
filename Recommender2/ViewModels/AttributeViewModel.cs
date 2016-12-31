@@ -11,7 +11,7 @@ namespace Recommender2.ViewModels
         public string Name { get; set; }
 
         [Display(Name = "Attribute Type")]
-        public int SelectedAttributeTypeId { get; set; }
+        public string SelectedAttributeType { get; set; }
 
         [Display(Name = "Attribute Role")]
         public int SelectedAttributeRoleId { get; set; }

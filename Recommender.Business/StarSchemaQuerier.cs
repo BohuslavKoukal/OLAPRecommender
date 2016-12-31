@@ -14,14 +14,14 @@ namespace Recommender.Business
         List<DimensionValueDto> GetValuesOfDimension(DimensionDto dimension, Column selector = null);
 
         double GetFactTableSum(DimensionTree allValues, List<FlatDimensionDto> filters,
-            List<FlatDimensionDto> conditions, MeasureDto measure);
+            List<FlatDimensionDto> conditions, Measure measure);
 
         IEnumerable<DimensionValueDto> GetCorrespondingValues (DimensionTree tree, int dimensionId, DimensionDto child);
     }
 
     public class StarSchemaQuerier : StarSchemaBase, IStarSchemaQuerier
     {
-        public StarSchemaQuerier(IQueryBuilder queryBuilder, IDataDecorator data) 
+        public StarSchemaQuerier(IQueryBuilder queryBuilder, IDataAccessLayer data) 
             : base(queryBuilder, data)
         {
         }
@@ -36,7 +36,7 @@ namespace Recommender.Business
                     select new DimensionValueDto
                     {
                         Id = Convert.ToInt32(row["Id"]),
-                        Value = dimension.Type == (int)DataType.DateTime 
+                        Value = dimension.Type == typeof(DateTime)
                         ? ((DateTime)row["Value"]).ToString("dd.MM.yyyy") 
                         : row["Value"].ToString()
                     })
@@ -45,7 +45,7 @@ namespace Recommender.Business
         }
 
         public double GetFactTableSum(DimensionTree allValues, List<FlatDimensionDto> filters,
-            List<FlatDimensionDto> conditions, MeasureDto measure)
+            List<FlatDimensionDto> conditions, Measure measure)
         {
             var factTableName = allValues.FactTableName;
             var filterRootValueIds = new List<List<DimensionValueIds>>();

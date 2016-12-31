@@ -35,7 +35,7 @@ namespace Recommender2.Controllers
             catch (ValidationException e)
             {
                 ModelState.AddModelError("Name", e.Message);
-                return View("Index");
+                return View("Index", _controllerEngine.GetDataset());
             }
             return View("CreateDataset", _controllerEngine.UploadFile(name, upload, separator));
         }
@@ -54,7 +54,7 @@ namespace Recommender2.Controllers
             try
             {
                 _validations.DatatypesAreValid(attributes, id, separator, dateFormat);
-                _controllerEngine.CreateDataset(id, attributes);
+                _controllerEngine.CreateDataset(attributes, id, separator, dateFormat);
             }
             catch (ValidationException e)
             {

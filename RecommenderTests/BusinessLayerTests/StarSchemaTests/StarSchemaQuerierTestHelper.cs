@@ -12,11 +12,11 @@ namespace RecommenderTests.BusinessLayerTests.StarSchemaTests
 {
     public static class StarSchemaQuerierTestHelper
     {
-        public static DataTable CreateSampleDimensionDataTable(DataType dataType)
+        public static DataTable CreateSampleDimensionDataTable(Type dataType)
         {
             DataTable table = new DataTable();
             table.Columns.Add("Id", typeof(int));
-            if (dataType == DataType.DateTime)
+            if (dataType == typeof(DateTime))
             {
                 table.Columns.Add("Value", typeof(DateTime));
                 table.Rows.Add(1, new DateTime(2016, 12, 24, 10, 59, 59));

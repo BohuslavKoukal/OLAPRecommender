@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{381121FA-165B-4909-995B-E45248BE301B}</ProjectGuid>
+    <ProjectGuid>{A9AC1AE6-2FEC-46A5-9FE8-7F679C8BE1DC}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Recommender.Common</RootNamespace>
-    <AssemblyName>Recommender.Common</AssemblyName>
+    <RootNamespace>Recommender.DependencyResolver</RootNamespace>
+    <AssemblyName>Recommender.DependencyResolver</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -30,10 +30,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Ninject, Version=3.2.0.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ninject.3.2.2.0\lib\net45-full\Ninject.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -42,13 +44,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Configuration.cs" />
-    <Compile Include="Enums\Enums.cs" />
-    <Compile Include="Enums\Extensions.cs" />
-    <Compile Include="Helpers\Constants.cs" />
-    <Compile Include="Helpers\DataTableExtension.cs" />
-    <Compile Include="Helpers\TypeExtensions.cs" />
+    <Compile Include="BusinessModule.cs" />
+    <Compile Include="DataModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Recommender.Business\Recommender.Business.csproj">
+      <Project>{f3ad954b-5cae-4a8f-811d-583f6555e750}</Project>
+      <Name>Recommender.Business</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Recommender.Data\Recommender.Data.csproj">
+      <Project>{431b1a94-235e-41cb-862f-296a83481de5}</Project>
+      <Name>Recommender.Data</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

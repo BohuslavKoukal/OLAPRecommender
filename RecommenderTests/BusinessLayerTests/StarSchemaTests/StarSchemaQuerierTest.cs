@@ -19,7 +19,7 @@ namespace RecommenderTests.BusinessLayerTests.StarSchemaTests
     public class StarSchemaQuerierTest
     {
         private Mock<IQueryBuilder> _queryBuilder;
-        private Mock<IDataDecorator> _data;
+        private Mock<IDataAccessLayer> _data;
         private readonly StarSchemaQuerier _querier;
 
         public StarSchemaQuerierTest()
@@ -31,7 +31,7 @@ namespace RecommenderTests.BusinessLayerTests.StarSchemaTests
         private void Setup()
         {
             _queryBuilder = new Mock<IQueryBuilder>();
-            _data = new Mock<IDataDecorator>();
+            _data = new Mock<IDataAccessLayer>();
         }
 
         private void Reset()
@@ -45,14 +45,14 @@ namespace RecommenderTests.BusinessLayerTests.StarSchemaTests
         {
             // Arrange
             Reset();
-            var dataTable = StarSchemaQuerierTestHelper.CreateSampleDimensionDataTable(DataType.String);
+            var dataTable = StarSchemaQuerierTestHelper.CreateSampleDimensionDataTable(typeof(string));
             _queryBuilder.Setup(c => c.Select(It.Is<string>(s => s == "TestDatasetTestDimension"), It.IsAny<List<Column>>()))
             .Returns(dataTable);
             var dimension = new FlatDimensionDto
             {
                 DatasetName = "TestDataset",
                 Name = "TestDimension",
-                Type = (int)DataType.String
+                Type = typeof(string)
             };
             // Act
             var result = _querier.GetValuesOfDimension(dimension);
@@ -67,14 +67,14 @@ namespace RecommenderTests.BusinessLayerTests.StarSchemaTests
         {
             // Arrange
             Reset();
-            var dataTable = StarSchemaQuerierTestHelper.CreateSampleDimensionDataTable(DataType.DateTime);
+            var dataTable = StarSchemaQuerierTestHelper.CreateSampleDimensionDataTable(typeof(DateTime));
             _queryBuilder.Setup(c => c.Select(It.Is<string>(s => s == "TestDatasetTestDimension"), It.IsAny<List<Column>>()))
             .Returns(dataTable);
             var dimension = new FlatDimensionDto
             {
                 DatasetName = "TestDataset",
                 Name = "TestDimension",
-                Type = (int)DataType.DateTime
+                Type = typeof(DateTime)
             };
             // Act
             var result = _querier.GetValuesOfDimension(dimension);

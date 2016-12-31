@@ -2,17 +2,19 @@
 using System.Linq;
 using System.Web;
 using Recommender.Business;
+using Recommender.Business.FileHandling.Csv;
+using Recommender.Common.Helpers;
+using Recommender.Data.DataAccess;
 using Recommender2.ViewModels;
-using DataType = Recommender.Common.Enums.DataType;
 
 namespace Recommender2.Validations
 {
     public class InputValidations
     {
-        private readonly IDataDecorator _data;
+        private readonly IDataAccessLayer _data;
         private readonly CsvHandler _csvHandler;
 
-        public InputValidations(IDataDecorator data, CsvHandler handler)
+        public InputValidations(IDataAccessLayer data, CsvHandler handler)
         {
             _data = data;
             _csvHandler = handler;
@@ -38,10 +40,10 @@ namespace Recommender2.Validations
         {
             var csvFile = _data.GetCsvFilePath(id);
             var errors = _csvHandler.GetAttributeErrors
-                (csvFile, attributes.Select(a =>(DataType) a.SelectedAttributeTypeId).ToArray(), separator, dateFormat);
-            if (Enumerable.Any<string>(errors))
+                (csvFile, attributes.Select(a => a.SelectedAttributeType.ToType()).ToArray(), separator, dateFormat);
+            if (errors.Any())
             {
-                throw new ValidationException(Enumerable.Aggregate<string, string>(errors, string.Empty, (current, error) => current + (current + error)));
+                throw new ValidationException(errors.Aggregate(string.Empty, (current, error) => current + (current + error)));
             }
         }
     }

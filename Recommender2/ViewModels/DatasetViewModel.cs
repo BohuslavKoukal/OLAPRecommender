@@ -32,12 +32,14 @@ namespace Recommender2.ViewModels
         public string Name { get; set; }
 
         [Required]
-        [Display(Name = "CSV FileName")]
-        public string CsvFileName => Path.GetFileName(CsvFilePath);
+        [Display(Name = "FileName")]
+        public string FileName => Path.GetFileName(FilePath);
 
         [Required]
-        [Display(Name = "CSV FileName")]
-        public string CsvFilePath { get; set; }
+        [Display(Name = "FileName")]
+        public string FilePath { get; set; }
+
+
 
         public State State { get; set; }
 
@@ -57,6 +59,8 @@ namespace Recommender2.ViewModels
             }
         }
 
+        
+
         public List<SelectListItem> MeasuresSelectList
         {
             get
@@ -70,6 +74,17 @@ namespace Recommender2.ViewModels
         }
 
         public List<SelectListItem> DimensionsSelectList { get; set; }
+
+        [Required]
+        public List<SelectListItem> DataTypes => new List<SelectListItem>
+        {
+            new SelectListItem { Text = typeof(string).Name, Value = typeof(string).Name},
+            new SelectListItem { Text = typeof(int).Name, Value = typeof(int).Name},
+            new SelectListItem { Text = typeof(double).Name, Value = typeof(double).Name},
+            new SelectListItem { Text = typeof(DateTime).Name, Value = typeof(DateTime).Name},
+        };
+
+        public string DataType { get; set; }
 
         [Required]
         [Display(Name = "Column separator")]
@@ -87,13 +102,13 @@ namespace Recommender2.ViewModels
         public List<SelectListItem> DateFormatSelectList => new List<SelectListItem>
         {
             new SelectListItem { Text = DateTime.Today.Date.ToString("dd.MM.yyyy"), Value = "dd.MM.yyyy"},
-            new SelectListItem { Text = DateTime.Today.Date.ToString("MM.dd.yyyy"), Value = "MM.dd.yyyy"},
+            new SelectListItem { Text = DateTime.Today.Date.ToString("yyyy.MM.dd"), Value = "yyyy.MM.dd"},
             new SelectListItem { Text = DateTime.Today.Date.ToString("dd/MM/yyyy"), Value = "dd/MM/yyyy"},
-            new SelectListItem { Text = DateTime.Today.Date.ToString("MM/dd/yyyy"), Value = "MM/dd/yyyy"},
+            new SelectListItem { Text = DateTime.Today.Date.ToString("yyyy/MM/dd"), Value = "yyyy/MM/dd"},
             new SelectListItem { Text = DateTime.Today.Date.ToString("dd-MM-yyyy"), Value = "dd-MM-yyyy"},
-            new SelectListItem { Text = DateTime.Today.Date.ToString("MM-dd-yyyy"), Value = "MM-dd-yyyy"},
+            new SelectListItem { Text = DateTime.Today.Date.ToString("yyyy-MM-dd"), Value = "yyyy-MM-dd"},
             new SelectListItem { Text = DateTime.Today.Date.ToString("ddMMyyyy"), Value = "ddMMyyyy"},
-            new SelectListItem { Text = DateTime.Today.Date.ToString("MMddyyyy"), Value = "MMddyyyy"}
+            new SelectListItem { Text = DateTime.Today.Date.ToString("yyyyMMdd"), Value = "yyyyMMdd"}
         };
 
         public string DateFormat { get; set; }

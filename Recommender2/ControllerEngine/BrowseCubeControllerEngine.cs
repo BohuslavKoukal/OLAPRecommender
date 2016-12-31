@@ -5,6 +5,8 @@ using Recommender.Business;
 using Recommender.Business.DTO;
 using Recommender.Business.Service;
 using Recommender.Common.Helpers;
+using Recommender.Data.DataAccess;
+using Recommender.Data.Models;
 using Recommender2.ViewModels;
 using Recommender2.ViewModels.Mappers;
 
@@ -17,7 +19,7 @@ namespace Recommender2.ControllerEngine
         private readonly IGraphService _graphService;
         private readonly IDimensionTreeBuilder _treeBuilder;
 
-        public BrowseCubeControllerEngine(IDataDecorator data, IDatasetViewModelMapper datasetMapper,
+        public BrowseCubeControllerEngine(IDataAccessLayer data, IDatasetViewModelMapper datasetMapper,
             IBrowseCubeViewModelMapper browseCubeMapper,
             IStarSchemaQuerier starSchemaQuerier, IGraphService graphService,
             IDimensionTreeBuilder treeBuilder) 
@@ -102,13 +104,13 @@ namespace Recommender2.ControllerEngine
         }
 
         private GroupedChartViewModel GetGroupedChart(DimensionTree tree, TreeDimensionDto xDimension, DimensionDto legendDimension,
-            MeasureDto measure, List<FlatDimensionDto> filters)
+            Measure measure, List<FlatDimensionDto> filters)
         {
             var groupedGraphDto = _graphService.GetGroupedGraph(tree, xDimension, legendDimension, measure, filters);
             return _browseCubeMapper.Map(groupedGraphDto);
         }
 
-        private DrilldownChartViewModel GetDrilldownChart(DimensionTree tree, TreeDimensionDto xDimension, MeasureDto measure, List<FlatDimensionDto> filters)
+        private DrilldownChartViewModel GetDrilldownChart(DimensionTree tree, TreeDimensionDto xDimension, Measure measure, List<FlatDimensionDto> filters)
         {
             var drilldownGraphDto = _graphService.GetDrilldownGraph(tree, xDimension, measure, filters);
             return _browseCubeMapper.Map(drilldownGraphDto);

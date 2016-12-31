@@ -9,9 +9,9 @@ namespace Recommender.Business.Service
     public interface IGraphService
     {
         GroupedGraphDto GetGroupedGraph(DimensionTree allDimensionsTree, TreeDimensionDto xDimension,
-            DimensionDto legendDimension, MeasureDto measure, List<FlatDimensionDto> filterDimensions);
+            DimensionDto legendDimension, Measure measure, List<FlatDimensionDto> filterDimensions);
 
-        DrilldownGraphDto GetDrilldownGraph(DimensionTree allDimensionsTree, TreeDimensionDto xDimension, MeasureDto measure, List<FlatDimensionDto> filters);
+        DrilldownGraphDto GetDrilldownGraph(DimensionTree allDimensionsTree, TreeDimensionDto xDimension, Measure measure, List<FlatDimensionDto> filters);
     }
 
     public class GraphService : IGraphService
@@ -24,7 +24,7 @@ namespace Recommender.Business.Service
         }
 
         public GroupedGraphDto GetGroupedGraph(DimensionTree allDimensionsTree, TreeDimensionDto xDimension,
-            DimensionDto legendDimension, MeasureDto measure, List<FlatDimensionDto> filterDimensions)
+            DimensionDto legendDimension, Measure measure, List<FlatDimensionDto> filterDimensions)
         {
             var graph = new GroupedGraphDto
             {
@@ -49,7 +49,7 @@ namespace Recommender.Business.Service
             return graph;
         }
 
-        public DrilldownGraphDto GetDrilldownGraph(DimensionTree allDimensionsTree, TreeDimensionDto xDimension, MeasureDto measure, List<FlatDimensionDto> filters)
+        public DrilldownGraphDto GetDrilldownGraph(DimensionTree allDimensionsTree, TreeDimensionDto xDimension, Measure measure, List<FlatDimensionDto> filters)
         {
             var graph = new DrilldownGraphDto
             {
@@ -75,7 +75,7 @@ namespace Recommender.Business.Service
             return graph;
         }
 
-        private GroupedGraphXAxisRootDto GetRoot(DimensionTree allDimensionsTree, DimensionDto xDimension, MeasureDto measure,
+        private GroupedGraphXAxisRootDto GetRoot(DimensionTree allDimensionsTree, DimensionDto xDimension, Measure measure,
             IEnumerable<DimensionValueDto> filteredXValues, List<FlatDimensionDto> filters,
             DimensionValueDto xValue = null, DimensionDto legendDimension = null)
         {
@@ -94,7 +94,7 @@ namespace Recommender.Business.Service
         }
 
         private GraphXAxisRootDto GetParentRoot(DimensionTree allDimensionsTree, TreeDimensionDto childDimension,
-            MeasureDto measure, DimensionValueDto xValue, List<FlatDimensionDto> filters, DimensionDto legendDimension = null)
+            Measure measure, DimensionValueDto xValue, List<FlatDimensionDto> filters, DimensionDto legendDimension = null)
         {
             GraphXAxisRootDto xAxisRoot;
             if (legendDimension == null)
@@ -127,7 +127,7 @@ namespace Recommender.Business.Service
             return xAxisRoot;
         }
 
-        private GraphXAxisLeafDto GetLeaf(DimensionTree allDimensionsTree, DimensionDto xDimension, DimensionValueDto xValue, MeasureDto measure, 
+        private GraphXAxisLeafDto GetLeaf(DimensionTree allDimensionsTree, DimensionDto xDimension, DimensionValueDto xValue, Measure measure, 
             List<FlatDimensionDto> filters, DimensionDto legendDimension = null)
         {
             if (legendDimension == null)
