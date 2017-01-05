@@ -9,39 +9,17 @@ using Microsoft.VisualBasic.FileIO;
 using Recommender.Business.DTO;
 using Recommender.Common;
 using Recommender.Data.Models;
-using Attribute = Recommender.Data.Models.Attribute;
 
 namespace Recommender.Business.FileHandling.Csv
 {
     public interface ICsvHandler
     {
-        CsvFile GetFile(HttpPostedFileBase postedFile, string separator);
         List<string> GetAttributeErrors(string csvFileName, Type[] dataTypes, string separator, string dateFormat);
         DataTable GetValues(string csvFileName, List<DimensionOrMeasureDto> columns, string separator, string dateFormat);
     }
 
     public class CsvHandler : ICsvHandler
     {
-        private readonly Configuration _configuration;
-
-        public CsvHandler(Configuration configuration)
-        {
-            _configuration = configuration;
-        }
-
-        public CsvFile GetFile(HttpPostedFileBase postedFile, string separator)
-        {
-            var filePath = SavePostedFile(postedFile);
-            var attributes = GetAttributes(filePath, separator.Single());
-            var file = new CsvFile
-            {
-                FilePath = filePath,
-                Attributes = attributes.ToList()
-            };
-
-            return file;
-        }
-
 
         public DataTable GetValues(string csvFileName, List<DimensionOrMeasureDto> columns, string separator, string dateFormat)
         {
@@ -132,33 +110,8 @@ namespace Recommender.Business.FileHandling.Csv
             return errors;
         }
 
-        private string SavePostedFile(HttpPostedFileBase postedFile)
-        {
-            string filePathToSave = _configuration.GetFilesLocation() + new FileInfo(postedFile.FileName).Name;
-            if (File.Exists(filePathToSave))
-            {
-                var oldName = Path.GetFileNameWithoutExtension(postedFile.FileName);
-                var guid = Guid.NewGuid().ToString().Remove(7);
-                filePathToSave = _configuration.GetFilesLocation() + oldName + guid + ".csv";
-            }
-            byte[] content;
-            using (var reader = new BinaryReader(postedFile.InputStream))
-            {
-                content = reader.ReadBytes(postedFile.ContentLength);
-            }
-            File.WriteAllBytes(filePathToSave, content);
-            return filePathToSave;
-        }
+        
 
-        private List<Attribute> GetAttributes(string filePath, char separator)
-        {
-            using (var reader = new StreamReader(File.OpenRead(filePath)))
-            {
-                var firstLine = reader.ReadLine();
-                var columns = firstLine.Split(separator);
-                List<Tuple<string, Type>> attributeList = columns.Select(value => Tuple.Create(value, typeof(int))).ToList();
-                return attributeList.Select(al => new Attribute { Name = al.Item1 }).ToList();
-            }
-        }
+
     }
 }

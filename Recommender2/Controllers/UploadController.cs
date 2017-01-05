@@ -47,10 +47,9 @@ namespace Recommender2.Controllers
 
 
         [HttpPost]
-        public ActionResult CreateDataset(int id, AttributeViewModel[] attributes, string separator, string dateFormat)
+        public ActionResult CreateDatasetManually(int id, AttributeViewModel[] attributes, string separator, string dateFormat)
         {
-            // check if attributes are valid - what does it mean?
-            // validovat datatypes - kdyz nejsou validni, vratit viewcko
+            // check if attributes are valid
             try
             {
                 _validations.DatatypesAreValid(attributes, id, separator, dateFormat);
@@ -59,7 +58,25 @@ namespace Recommender2.Controllers
             catch (ValidationException e)
             {
                 ModelState.AddModelError("DataType", e.Message);
-                return View();
+                return DefineDimensions(id);
+            }
+            return RedirectToAction("Index", "BrowseCube");
+        }
+
+        [HttpPost]
+        public ActionResult CreateDatasetFromDsd(int id, HttpPostedFileBase upload)
+        {
+            // check if attributes are valid - what does it mean?
+            // validovat datatypes - kdyz nejsou validni, vratit viewcko
+            try
+            {
+                _validations.DsdIsValid(upload);
+                _controllerEngine.CreateDataset(id, upload);
+            }
+            catch (ValidationException e)
+            {
+                ModelState.AddModelError("DataType", e.Message);
+                return DefineDimensions(id);
             }
             return RedirectToAction("Index", "BrowseCube");
         }

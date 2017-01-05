@@ -11,6 +11,13 @@
         }
     });
 
+    $(".uploadLink").click(function () {
+        var elementToClose = $("#manualDefinition");
+        var elementToOpen = $("#dsdUpload");
+        elementToClose.css("display", "none");
+        elementToOpen.css("display", "block");
+    });
+
     $("#prefill").click(function () {
         $(".type[sequence=0]").val("DateTime");
         $(".type[sequence=1]").val("String");

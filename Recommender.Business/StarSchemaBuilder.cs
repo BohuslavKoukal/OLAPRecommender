@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Globalization;
 using System.Linq;
-using Recommender.Business.DTO;
 using Recommender.Common.Enums;
 using Recommender.Common.Helpers;
 using Recommender.Data.DataAccess;

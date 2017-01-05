@@ -4,9 +4,11 @@ using System.Data;
 using System.Linq;
 using System.Web;
 using Recommender.Business;
-using Recommender.Business.DTO;
-using Recommender.Business.FileHandling.Csv;
+using Recommender.Business.DTO.Mappers;
+using Recommender.Business.FileHandling;
+using Recommender.Business.FileHandling.Rdf;
 using Recommender.Common.Enums;
+using Recommender.Common.Helpers;
 using Recommender.Data.DataAccess;
 using Recommender.Data.Models;
 using Recommender2.ViewModels;
@@ -19,17 +21,17 @@ namespace Recommender2.ControllerEngine
         private readonly DatasetViewModelMapper _datasetMapper;
         private readonly AttributeViewModelMapper _attributeMapper;
         private readonly StarSchemaBuilder _starSchemaBuilder;
-        private readonly CsvHandler _csvHandler;
+        private readonly IFileHandler _fileHandler;
 
         public UploadControllerEngine(IDataAccessLayer data, DatasetViewModelMapper datasetMapper,
-            AttributeViewModelMapper attributeMapper, CsvHandler csvHandler,
+            AttributeViewModelMapper attributeMapper, IFileHandler fileHandler,
             StarSchemaBuilder starSchemaBuilder, StarSchemaQuerier starSchemaQuerier) 
             : base(data, starSchemaQuerier)
         {
             _datasetMapper = datasetMapper;
             _attributeMapper = attributeMapper;
             _starSchemaBuilder = starSchemaBuilder;
-            _csvHandler = csvHandler;
+            _fileHandler = fileHandler;
         }
 
         public SingleDatasetViewModel GetDataset(int id = 0)
@@ -39,13 +41,13 @@ namespace Recommender2.ControllerEngine
 
         public SingleDatasetViewModel UploadFile(string datasetName, HttpPostedFileBase fileBase, string separator)
         {
-            var file = _csvHandler.GetFile(fileBase, separator);
+            var file = _fileHandler.SaveFile(fileBase, separator);
             var dataset = new Dataset
             {
                 State = State.FileUploaded,
                 Name = datasetName,
                 CsvFilePath = file.FilePath,
-                Attributes = file.Attributes.ToList()
+                Attributes = file.Attributes?.ToList()
             };
             Data.Insert(dataset);
             return _datasetMapper.Map(dataset);
@@ -58,7 +60,24 @@ namespace Recommender2.ControllerEngine
             Data.PopulateDataset(id, measures, dimensions, State.DimensionsAndMeasuresSet);
             var dataset = Data.GetDataset(id);
             var columns = _attributeMapper.MapToDimensionsAndMeasures(attributes.ToList());
-            var data = _csvHandler.GetValues(dataset.CsvFilePath, columns.ToList(), separator, dateFormat);
+            var data = _fileHandler.GetValues(dataset.CsvFilePath, columns.ToList(), separator, dateFormat);
+            _starSchemaBuilder.CreateAndFillDimensionTables(dataset.Name, dataset.Dimensions.ToList(), data);
+            _starSchemaBuilder.CreateFactTable(dataset.Name, dataset.Dimensions.ToList(), dataset.Measures.ToList());
+            _starSchemaBuilder.FillFactTable(dataset.Name, dimensions, measures, data);
+        }
+
+        public void CreateDataset(int id, HttpPostedFileBase dsdFile)
+        {
+            var file = _fileHandler.SaveFile(dsdFile, string.Empty);
+            var rdfLoader = new RdfLoader(file.FilePath, Data.GetCsvFilePath(id));
+            // Check names for Sql safety
+            var dimensionDtos = rdfLoader.GetDimensions().ToList();
+            var measureDtos = rdfLoader.GetMeasures().ToList();
+            var dimensions = DimensionMapper.ConvertToDimensions(dimensionDtos);
+            var measures = measureDtos.Select(d => d.ConvertToMeasure()).ToList();
+            var data = rdfLoader.ConvertObservationsToDataTable(dimensionDtos, measureDtos);
+            Data.PopulateDataset(id, measures, dimensions, State.DimensionsAndMeasuresSet);
+            var dataset = Data.GetDataset(id);
             _starSchemaBuilder.CreateAndFillDimensionTables(dataset.Name, dataset.Dimensions.ToList(), data);
             _starSchemaBuilder.CreateFactTable(dataset.Name, dataset.Dimensions.ToList(), dataset.Measures.ToList());
             _starSchemaBuilder.FillFactTable(dataset.Name, dimensions, measures, data);

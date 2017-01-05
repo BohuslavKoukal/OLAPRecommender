@@ -46,5 +46,13 @@ namespace Recommender2.Validations
                 throw new ValidationException(errors.Aggregate(string.Empty, (current, error) => current + (current + error)));
             }
         }
+
+        public void DsdIsValid(HttpPostedFileBase file)
+        {
+            if (file == null || file.ContentLength == 0)
+            {
+                throw new ValidationException("Uploaded file is empty.");
+            }
+        }
     }
 }

@@ -44,10 +44,8 @@ namespace Recommender.Data.DataAccess
             var fkReferences = string.Empty;
             columnsString = columns
                 .Aggregate(columnsString, (current, name) => current + $"{name.Name} {name.Type}, ");
-            //RemoveLastComma(columnsString);
             fkColumns = keyList
                 .Aggregate(fkColumns, (current, name) => current + $"{name.KeyName} INT, ");
-            //RemoveLastComma(fkColumns);
             fkReferences = keyList
                 .Aggregate(fkReferences, (current, name) => current + string.Format(ForeignKey, name.KeyName, name.Reference));
             var query = $@"CREATE TABLE {tableName} (

@@ -3,56 +3,75 @@
 @model Recommender2.ViewModels.SingleDatasetViewModel
 @{
     ViewBag.Title = "Create Dataset " + Model.Name;
+    var manualDefinitionDisplay = Model.FileType == FileType.Csv ? "block" : "none";
+    var dsdUploadDisplay = Model.FileType == FileType.Ttl ? "block" : "none";
 }
 @Scripts.Render("~/bundles/createdataset")
 <h2>Create Dataset @Model.Name</h2>
 <a id="prefill">Prefill data</a>
-@using (Html.BeginForm("CreateDataset", "Upload", null, FormMethod.Post, new { enctype = "multipart/form-data" }))
+@using (Html.BeginForm("CreateDatasetManually", "Upload", null, FormMethod.Post, new { id = "manualDefinition", style = "display: " + @manualDefinitionDisplay }))
 {
     @Html.HiddenFor(m => Model.Id);
     <div class="form-horizontal">
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-        <div class="form-group">
-            <table>
-                <tr><th>Attribute</th><th>Data Type</th><th>Role</th><th>Parent dimension</th></tr>
-                @for (int i = 0; i < Model.Attributes.Count; i++)
+            <div class="form-group">
+                <table>
+                    <tr><th>Attribute</th><th>Data Type</th><th>Role</th><th>Parent dimension</th></tr>
+                    @for (int i = 0; i < Model.Attributes?.Count; i++)
                 {
-                    <tr>
-                        @Html.HiddenFor(m => Model.Attributes[i].Name)
-                        <td>@Html.DisplayFor(m => Model.Attributes[i].Name)</td>
-                        <td>@Html.DropDownListFor(m => m.Attributes[i].SelectedAttributeType, Model.DataTypes, "Select data type", new {@class = "form-control, type", sequence = i})</td>
-                        <td>@Html.DropDownListFor(m => m.Attributes[i].SelectedAttributeRoleId, EnumHelper.GetSelectList(typeof(AttributeRole)), "Select attribute role", new {@class = "form-control, role", sequence = i})</td>
-                        <td>@Html.DropDownListFor(m => m.Attributes[i].SelectedAttributeParentName, Model.AttributesSelectList, "Root treeDimension", new {@class = "form-control, parent", sequence = i })</td>
-                    </tr>
-                }
-            </table>
-        </div>
-        <div class="form-group">
-            @Html.Label("Column separator", new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.DropDownListFor(m => m.Separator, Model.SeparatorSelectList, "", new { @class = "form-control" })
+                        <tr>
+                            @Html.HiddenFor(m => Model.Attributes[i].Name)
+                            <td>@Html.DisplayFor(m => Model.Attributes[i].Name)</td>
+                            <td>@Html.DropDownListFor(m => m.Attributes[i].SelectedAttributeType, Model.DataTypes, "Select data type", new { @class = "form-control, type", sequence = i })</td>
+                            <td>@Html.DropDownListFor(m => m.Attributes[i].SelectedAttributeRoleId, EnumHelper.GetSelectList(typeof(AttributeRole)), "Select attribute role", new { @class = "form-control, role", sequence = i })</td>
+                            <td>@Html.DropDownListFor(m => m.Attributes[i].SelectedAttributeParentName, Model.AttributesSelectList, "Root dimension", new { @class = "form-control, parent", sequence = i })</td>
+                        </tr>
+                    }
+                </table>
+                <p>Or define dimensions by <a href="#" class="uploadLink">uploading .ttl file</a> with data structure definition.</p>
             </div>
-        </div>
-        <div class="form-group">
-            @Html.Label("Date format", new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.DropDownListFor(m => m.DateFormat, Model.DateFormatSelectList, "Date format used in uploaded file", new { @class = "form-control" })
+            <div class="form-group">
+                @Html.Label("Column separator", new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.DropDownListFor(m => m.Separator, Model.SeparatorSelectList, "", new { @class = "form-control" })
+                </div>
             </div>
-        </div>
-        <div class="form-group">
-            Or you can define dimensions and measures by uploading a .ttl data structure definition file:
-            @Html.Label("Data structure definition file", new {@class = "control-label col-md-2"})
-            <div class="col-md-10">
-                <input type="file" id="DsdFile" name="upload"/>
+            <div class="form-group">
+                @Html.Label("Date format", new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.DropDownListFor(m => m.DateFormat, Model.DateFormatSelectList, "Date format used in uploaded file", new { @class = "form-control" })
+                </div>
             </div>
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <input type="submit" value="Create cube" class="btn btn-default" />
+                </div>
+            </div>
+    </div>
+}
+
+@using (Html.BeginForm("CreateDatasetFromDsd", "Upload", null, FormMethod.Post, new { enctype = "multipart/form-data", id = "dsdUpload", style = "display: " + @dsdUploadDisplay }))
+{
+    @Html.HiddenFor(m => Model.Id);
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        Define dimensions and measures by uploading a .ttl data structure definition file (what is it?):
+        @Html.Label("Data structure definition file", new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            <input type="file" id="DsdFile" name="upload" />
         </div>
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Create cube" class="btn btn-default" />
+                <input type="submit" value="Upload dsd file" class="btn btn-default" />
             </div>
         </div>
     </div>
 }
+
+            
+        
+
+
 
 
 

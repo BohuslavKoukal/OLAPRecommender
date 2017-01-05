@@ -52,6 +52,7 @@ namespace Recommender.Data.Migrations
                     {
                         Id = c.Int(nullable: false, identity: true),
                         Name = c.String(unicode: false),
+                        RdfUri = c.String(unicode: false),
                         Type = c.Int(nullable: false),
                         DataSet_Id = c.Int(),
                     })

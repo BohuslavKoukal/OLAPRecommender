@@ -13,10 +13,17 @@ namespace Recommender.Business.DTO
         public string IdName => Name + "Id";
         public List<DimensionValueDto> DimensionValues { get; set; }
         public DimensionDto ParentDimension { get; set; }
+        public FilledFrom FilledFrom { get; set; }
 
         public void Populate(IEnumerable<DimensionValueDto> dimensionValues)
         {
             DimensionValues = dimensionValues.ToList();
         }
+    }
+
+    public enum FilledFrom
+    {
+        Dsd = 1,
+        Data = 2
     }
 }

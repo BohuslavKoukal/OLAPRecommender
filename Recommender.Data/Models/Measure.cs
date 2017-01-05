@@ -10,6 +10,7 @@ namespace Recommender.Data.Models
         [Key]
         public int Id { get; set; }
         public string Name { get; set; }
+        public string RdfUri { get; set; }
         public int Type { get; set; }
         public virtual Dataset DataSet { get; set; }
     }

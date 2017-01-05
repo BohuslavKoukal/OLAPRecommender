@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Ninject.Modules;
 using Recommender.Business;
+using Recommender.Business.FileHandling;
 using Recommender.Business.Service;
 using Recommender.Data.DataAccess;
 using DbConnection = System.Data.Common.DbConnection;
@@ -19,6 +20,7 @@ namespace Recommender.DependencyResolver
             Bind<IStarSchemaQuerier>().To<StarSchemaQuerier>();
             Bind<IGraphService>().To<GraphService>();
             Bind<IDimensionTreeBuilder>().To<DimensionTreeBuilder>();
+            Bind<IFileHandler>().To<FileHandler>();
         }
     }
 }

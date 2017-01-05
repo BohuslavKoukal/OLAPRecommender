@@ -6,6 +6,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using Recommender.Common.Enums;
+using Recommender.Common.Helpers;
 
 namespace Recommender2.ViewModels
 {
@@ -39,7 +40,7 @@ namespace Recommender2.ViewModels
         [Display(Name = "FileName")]
         public string FilePath { get; set; }
 
-
+        public FileType FileType => FileName.GetFileType();
 
         public State State { get; set; }
 
