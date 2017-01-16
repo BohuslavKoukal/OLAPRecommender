@@ -78,6 +78,11 @@ namespace Recommender2.Controllers
                 ModelState.AddModelError("DataType", e.Message);
                 return DefineDimensions(id);
             }
+            catch (Exception e)
+            {
+                ModelState.AddModelError(string.Empty, "Uploaded file not correct: " + e.Message);
+                return DefineDimensions(id);
+            }
             return RedirectToAction("Index", "BrowseCube");
         }
 

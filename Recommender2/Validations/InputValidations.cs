@@ -34,6 +34,11 @@ namespace Recommender2.Validations
             {
                 throw new ValidationException("Uploaded file is empty.");
             }
+            var extension = file.FileName.Split('.').Last();
+            if (extension != "csv" && extension != "ttl")
+            {
+                throw new ValidationException("Uploaded file must be .csv or .ttl.");
+            }
         }
 
         public void  DatatypesAreValid(AttributeViewModel[] attributes, int id, string separator, string dateFormat)

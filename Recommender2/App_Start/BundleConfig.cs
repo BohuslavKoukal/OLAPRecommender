@@ -30,7 +30,11 @@ namespace Recommender2
                       "~/Content/modal-dialog.css"));
 
             bundles.Add(new ScriptBundle("~/bundles/createdataset").Include(
-                    "~/Scripts/Custom/create-dataset.js"
+                    "~/Scripts/Custom/create-dataset.js",
+                    "~/Scripts/Custom/modal-dialog.js"
+                    ));
+            bundles.Add(new ScriptBundle("~/bundles/uploaddata").Include(
+                    "~/Scripts/Custom/upload-data.js"
                     ));
 
             bundles.Add(new ScriptBundle("~/bundles/browsecube").Include(

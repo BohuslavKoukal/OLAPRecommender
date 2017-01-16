@@ -131,7 +131,7 @@ namespace Recommender.Business
 
         private double AggregateData(DataTable table, string columnName)
         {
-            return table.Rows.Cast<DataRow>().Sum(row => Convert.ToDouble(row[columnName]));
+            return Math.Round(table.Rows.Cast<DataRow>().Sum(row => Convert.ToDouble(row[columnName])), 4);
         }
 
         // Returns root dimension and list of its ids for concrete non-root dimension

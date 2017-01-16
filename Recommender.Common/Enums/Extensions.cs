@@ -29,7 +29,7 @@ namespace Recommender.Common.Enums
             }
             else if (dataType == typeof(double))
             {
-                return "FLOAT";
+                return "DECIMAL (32,4)";
             }
             else if (dataType == typeof(DateTime))
             {
