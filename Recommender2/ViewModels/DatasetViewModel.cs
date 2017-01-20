@@ -102,6 +102,7 @@ namespace Recommender2.ViewModels
         [Display(Name = "Date format used in uploaded file")]
         public List<SelectListItem> DateFormatSelectList => new List<SelectListItem>
         {
+            new SelectListItem { Text = DateTime.Today.Date.ToString("M/d/yyyy"), Value = "M/d/yyyy"},
             new SelectListItem { Text = DateTime.Today.Date.ToString("dd.MM.yyyy"), Value = "dd.MM.yyyy"},
             new SelectListItem { Text = DateTime.Today.Date.ToString("yyyy.MM.dd"), Value = "yyyy.MM.dd"},
             new SelectListItem { Text = DateTime.Today.Date.ToString("dd/MM/yyyy"), Value = "dd/MM/yyyy"},

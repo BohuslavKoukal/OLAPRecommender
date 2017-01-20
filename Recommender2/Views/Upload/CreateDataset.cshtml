@@ -8,7 +8,8 @@
 }
 @Scripts.Render("~/bundles/createdataset")
 <h2>Create Dataset @Model.Name</h2>
-<a id="prefill">Prefill data</a>
+<a id="prefill">Prefill retail</a>
+<a id="prefillTesco">Prefill Tesco</a>
 @using (Html.BeginForm("CreateDatasetManually", "Upload", null, FormMethod.Post, new { id = "manualDefinition", style = "display: " + @manualDefinitionDisplay }))
 {
     @Html.HiddenFor(m => Model.Id);

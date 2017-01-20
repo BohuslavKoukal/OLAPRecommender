@@ -102,7 +102,8 @@ namespace Recommender.Business.FileHandling.Csv
                         {
                             int intee;
                             var isInt = int.TryParse(fields[i], out intee);
-                            if (!isInt) errors.Add($"Value {fields[i]} is not integer.");
+                            if (!isInt)
+                                errors.Add($"Value {fields[i]} is not integer.");
                         }
                     }
                 }

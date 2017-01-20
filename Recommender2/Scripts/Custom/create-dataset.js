@@ -48,4 +48,32 @@
         $(".parent[sequence=6]").val("Country");
     });
 
+    $("#prefillTesco").click(function () {
+        $(".type[sequence=0]").val("String");
+        $(".type[sequence=1]").val("DateTime");
+        $(".type[sequence=2]").val("String");
+        $(".type[sequence=3]").val("String");
+        $(".type[sequence=4]").val("String");
+        $(".type[sequence=5]").val("Int32");
+        $(".type[sequence=6]").val("String");
+        $(".type[sequence=7]").val("String");
+
+        $(".role[sequence=0]").val(1);
+        $(".role[sequence=1]").val(1);
+        $(".role[sequence=2]").val(1);
+        $(".role[sequence=3]").val(1);
+        $(".role[sequence=4]").val(1);
+        $(".role[sequence=5]").val(2);
+        $(".role[sequence=6]").val(1);
+        $(".role[sequence=7]").val(1);
+
+        $(".parent[sequence=0]").val("Type_");
+        $(".parent[sequence=1]").val("Root dimension");
+        $(".parent[sequence=2]").val("Category");
+        $(".parent[sequence=3]").val("Datum");
+        $(".parent[sequence=4]").val("Root dimension");
+        $(".parent[sequence=6]").val("Product");
+        $(".parent[sequence=7]").val("Datum");
+    });
+
 });
