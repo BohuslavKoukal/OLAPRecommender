@@ -72,6 +72,10 @@
       <HintPath>..\packages\MySql.Data.Entity.6.9.9\lib\net45\MySql.Data.Entity.EF6.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Ninject, Version=3.2.0.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
       <HintPath>..\packages\Ninject.3.2.2.0\lib\net45-full\Ninject.dll</HintPath>
       <Private>True</Private>
@@ -151,11 +155,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.6.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\NinjectWebCommon.cs" />
@@ -174,6 +173,7 @@
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Validations\InputValidations.cs" />
+    <Compile Include="ViewModels\AssociationRuleViewModel.cs" />
     <Compile Include="ViewModels\AttributeViewModel.cs" />
     <Compile Include="ViewModels\BrowseCubeViewModel.cs" />
     <Compile Include="ViewModels\DrilldownViewModel.cs" />
@@ -184,8 +184,10 @@
     <Compile Include="ViewModels\Mappers\AttributeViewModelMapper.cs" />
     <Compile Include="ViewModels\Mappers\BrowseCubeViewModelMapper.cs" />
     <Compile Include="ViewModels\Mappers\DatasetViewModelMapper.cs" />
+    <Compile Include="ViewModels\Mappers\MiningTaskViewModelMapper.cs" />
     <Compile Include="ViewModels\MeasureViewModel.cs" />
     <Compile Include="ViewModels\GroupedSeriesViewModel.cs" />
+    <Compile Include="ViewModels\MiningTaskViewModel.cs" />
     <Compile Include="WebModule.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -244,6 +246,7 @@
     <Content Include="Views\Upload\CreateDataset.cshtml" />
     <Compile Include="ViewModels\DimensionViewModel.cs" />
     <Content Include="Views\MinedResults\Mine.cshtml" />
+    <Content Include="Views\MinedResults\Details.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

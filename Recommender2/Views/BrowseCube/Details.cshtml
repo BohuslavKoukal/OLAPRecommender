@@ -6,6 +6,7 @@
     var chartDisplay = Model.ShouldChartBeDisplayed ? "block" : "none";
 }
 @Scripts.Render("~/bundles/browsecube")
+@Scripts.Render("~/bundles/modaldialog")
 <h2>Browse @Model.Dataset.Name</h2>
 
 @using (Html.BeginForm("ShowChart", "BrowseCube", null, FormMethod.Post))
@@ -39,10 +40,10 @@
                 <div class="modal-body">
                     <div class="form-group">
                         
-                            @for (var i = 0; i < Model.Filter.Dimensions.Count; i++)
+                            @for (var i = 0; i < Model.Dataset.Filter.Dimensions.Count; i++)
                             {
-                                var dimension = Model.Filter.Dimensions[i];
-                                <div class="floating-box"><strong>@Html.DisplayFor(m => Model.Filter.Dimensions[i].DimensionName)</strong><br />
+                                var dimension = Model.Dataset.Filter.Dimensions[i];
+                                <div class="floating-box"><strong>@Html.DisplayFor(m => Model.Dataset.Filter.Dimensions[i].DimensionName)</strong><br />
                                     @Html.Hidden($"dimensions[{i}].Key", dimension.DimensionId)
                                         @for (var j = 0; j < dimension.Values.Count; j++)
                                         {

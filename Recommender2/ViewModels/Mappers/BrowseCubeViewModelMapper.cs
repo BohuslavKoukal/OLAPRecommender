@@ -28,8 +28,7 @@ namespace Recommender2.ViewModels.Mappers
         {
             return new BrowseCubeViewModel
             {
-                Dataset = _datasetMapper.Map(dataset),
-                Filter = filter
+                Dataset = _datasetMapper.Map(dataset, filter)
             };
         }
 

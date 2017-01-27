@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using Recommender.Business.DTO;
-using Recommender.Common.Enums;
 using Recommender.Data.DataAccess;
 using Recommender.Data.Models;
 
-namespace Recommender.Business
+namespace Recommender.Business.StarSchema
 {
     public interface IStarSchemaQuerier
     {

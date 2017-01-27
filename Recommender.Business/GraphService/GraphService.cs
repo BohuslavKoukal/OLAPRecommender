@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Recommender.Business.DTO;
+using Recommender.Business.StarSchema;
 using Recommender.Data.DataAccess;
 using Recommender.Data.Models;
 
-namespace Recommender.Business.Service
+namespace Recommender.Business.GraphService
 {
     public interface IGraphService
     {

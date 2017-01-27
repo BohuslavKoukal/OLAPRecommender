@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Web.Mvc;
 using Recommender.Business.DTO;
+using Recommender.Business.StarSchema;
 using Recommender.Common.Helpers;
 using Recommender.Data.DataAccess;
 using Recommender.Data.Models;

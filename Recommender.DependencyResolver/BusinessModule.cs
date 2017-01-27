@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 using Ninject.Modules;
 using Recommender.Business;
 using Recommender.Business.FileHandling;
-using Recommender.Business.Service;
-using Recommender.Data.DataAccess;
-using DbConnection = System.Data.Common.DbConnection;
-using IDbConnection = System.Data.IDbConnection;
+using Recommender.Business.GraphService;
+using Recommender.Business.StarSchema;
 
 namespace Recommender.DependencyResolver
 {

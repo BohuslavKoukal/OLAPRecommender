@@ -7,7 +7,7 @@ using Recommender.Common.Helpers;
 using Recommender.Data.DataAccess;
 using Recommender.Data.Models;
 
-namespace Recommender.Business
+namespace Recommender.Business.StarSchema
 {
     public interface IStarSchemaBuilder
     {

@@ -52,6 +52,16 @@ namespace Recommender.Common.Helpers
             throw new InvalidDataException($"{integer} is unsupported type.");
         }
 
+        public static string ToUserFriendlyName(this string str)
+        {
+            return Convert.ToInt32(str).ToUserFriendlyName();
+        }
+
+        public static string ToUserFriendlyName(this int integer)
+        {
+            return integer.ToType().ToUserFriendlyName();
+        }
+
         public static string ToUserFriendlyName(this Type type)
         {
             if (type == typeof(string))

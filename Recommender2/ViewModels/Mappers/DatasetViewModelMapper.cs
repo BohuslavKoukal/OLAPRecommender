@@ -14,7 +14,7 @@ namespace Recommender2.ViewModels.Mappers
     public interface IDatasetViewModelMapper
     {
         DatasetViewModel Map(IEnumerable<Dataset> datasets);
-        SingleDatasetViewModel Map(Dataset dataset);
+        SingleDatasetViewModel Map(Dataset dataset, FilterViewModel filterValues = null);
     }
 
     public class DatasetViewModelMapper : IDatasetViewModelMapper
@@ -35,7 +35,7 @@ namespace Recommender2.ViewModels.Mappers
             return datasetViewModel;
         }
 
-        public SingleDatasetViewModel Map(Dataset dataset)
+        public SingleDatasetViewModel Map(Dataset dataset, FilterViewModel filterValues = null)
         {
             List<SelectListItem> dimensionSelectList;
             if (dataset.State >= State.DimensionsAndMeasuresSet)
@@ -67,6 +67,16 @@ namespace Recommender2.ViewModels.Mappers
                     Name = dimension.Name,
                     Type = dimension.Type.ToString()
                 }).ToList(),
+                MiningTasks = dataset.MiningTasks?.Select(task => new MiningTaskViewModel
+                {
+                    Id = task.Id,
+                    Name = task.Name,
+                    AssociationRules = task.AssociationRules?.Select(rule => new AssociationRuleViewModel
+                        {
+                            AssociationRuleText = rule.Text
+                        }).ToList()
+                }).ToList(),
+                Filter = filterValues,
                 DimensionsSelectList = dimensionSelectList,
                 FilePath = dataset.CsvFilePath,
                 State = dataset.State

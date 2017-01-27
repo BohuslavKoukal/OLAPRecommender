@@ -13,7 +13,6 @@ namespace Recommender2.ViewModels
         public int SelectedMeasureId { get; set; }
         public int XDimensionId { get; set; }
         public int LegendDimensionId { get; set; }
-        public FilterViewModel Filter { get; set; }
 
         public GroupedChartViewModel GroupedChart { get; set; }
         public DrilldownChartViewModel DrilldownChart { get; set; }
@@ -21,6 +20,8 @@ namespace Recommender2.ViewModels
         public string MeasureName { get; set; }
 
         public bool ShouldChartBeDisplayed { get; set; }
+
+        
     }
 
     public class GroupedChartViewModel : BaseChartViewModel

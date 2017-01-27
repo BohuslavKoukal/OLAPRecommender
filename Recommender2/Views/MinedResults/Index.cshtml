@@ -1,4 +1,5 @@
-﻿@model Recommender2.ViewModels.DatasetViewModel
+﻿@using Recommender.Common.Enums
+@model Recommender2.ViewModels.DatasetViewModel
 @{
     ViewBag.Title = "Mined rules";
 }
@@ -6,35 +7,21 @@
 <h2>Data sets</h2>
 
 <table class="table, table-bordered">
-    <tr><th>Name</th><th>Dimensions</th><th>Measures</th></tr>
-    @foreach (var dataset in Model.Datasets)
+    <tr><th>Name</th><th>Mining tasks</th><th>Mine rules</th></tr>
+    @foreach (var dataset in Model.Datasets.Where(d => d.State >= State.DimensionsAndMeasuresSet))
     {
         <tr>
-            <td class="col-md-3">@Html.ActionLink(dataset.Name, "Mine", new { id = dataset.Id })</td>
+            <td class="col-md-3">@Html.ActionLink(dataset.Name, "Details", "BrowseCube", new { id = dataset.Id }, null)</td>
             <td class="col-md-3">
                 <ul>
-                    @foreach (var dimension in dataset.Dimensions)
+                    @foreach (var task in dataset.MiningTasks)
                     {
-                        <li>@dimension.Name ( @dimension.Type )</li>
+                        <li>@Html.ActionLink(task.Name, "Details", "MinedResults", new { id = task.Id }, null)</li>
                     }
                 </ul>
             </td>
-            <td class="col-md-3">
-                <ul>
-                    @foreach (var measure in dataset.Measures)
-                    {
-                        <li>@measure.Name ( @measure.Type )</li>
-                    }
-                </ul>
-            </td>
+            <td class="col-md-3">@Html.ActionLink("Mine rules", "Mine", new { id = dataset.Id })</td>
         </tr>
     }
+
 </table>
-
-
-
-
-
-
-
-

@@ -26,5 +26,6 @@ namespace Recommender.Data.Models
         public virtual ICollection<Attribute> Attributes { get; set; }
         public virtual ICollection<Dimension> Dimensions { get; set; }
         public virtual ICollection<Measure> Measures { get; set; }
+        public virtual ICollection<MiningTask> MiningTasks { get; set; }
     }
 }

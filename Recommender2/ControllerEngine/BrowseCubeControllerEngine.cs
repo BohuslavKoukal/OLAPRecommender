@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Recommender.Business;
 using Recommender.Business.DTO;
-using Recommender.Business.Service;
-using Recommender.Common.Helpers;
+using Recommender.Business.GraphService;
+using Recommender.Business.StarSchema;
 using Recommender.Data.DataAccess;
 using Recommender.Data.Models;
 using Recommender2.ViewModels;
@@ -14,30 +14,34 @@ namespace Recommender2.ControllerEngine
 {
     public class BrowseCubeControllerEngine : ControllerEngineBase
     {
-        private readonly IDatasetViewModelMapper _datasetMapper;
         private readonly IBrowseCubeViewModelMapper _browseCubeMapper;
         private readonly IGraphService _graphService;
         private readonly IDimensionTreeBuilder _treeBuilder;
+        private readonly SubcubeService _subcubeService;
+        private readonly IDatasetViewModelMapper _datasetMapper;
 
         public BrowseCubeControllerEngine(IDataAccessLayer data, IDatasetViewModelMapper datasetMapper,
-            IBrowseCubeViewModelMapper browseCubeMapper,
+            IBrowseCubeViewModelMapper browseCubeMapper, SubcubeService subcubeService,
             IStarSchemaQuerier starSchemaQuerier, IGraphService graphService,
             IDimensionTreeBuilder treeBuilder) 
             : base(data, starSchemaQuerier)
         {
-            _datasetMapper = datasetMapper;
             _browseCubeMapper = browseCubeMapper;
             _graphService = graphService;
             _treeBuilder = treeBuilder;
+            _subcubeService = subcubeService;
+            _datasetMapper = datasetMapper;
+        }
+
+        
+        public SingleDatasetViewModel GetDataset(int id)
+        {
+            return _datasetMapper.Map(Data.GetDataset(id), GetFilterValues(id));
         }
 
         public DatasetViewModel GetDatasets()
         {
             return _datasetMapper.Map(Data.GetAllDatasets());
-        }
-        public SingleDatasetViewModel GetDataset(int id)
-        {
-            return _datasetMapper.Map(Data.GetDataset(id));
         }
 
         public BrowseCubeViewModel BrowseCube(int id)
@@ -51,7 +55,7 @@ namespace Recommender2.ControllerEngine
         {
             var dataset = Data.GetDataset(id);
             var measure = Data.GetMeasure(selectedMeasureId);
-            var filters = GetFilters(filterDimensions);
+            var filters = _subcubeService.GetFilters(filterDimensions);
             var dimensionTree = _treeBuilder.ConvertToTree(id, true);
             var groupedChart = GetGroupedChart(dimensionTree, dimensionTree.GetDimensionDto(xDimensionId),
                 dimensionTree.GetDimensionDto(legendDimensionId), measure, filters);
@@ -60,47 +64,21 @@ namespace Recommender2.ControllerEngine
 
             return new BrowseCubeViewModel
             {
-                Dataset = _datasetMapper.Map(dataset),
+                Dataset = _datasetMapper.Map(dataset, filterValues),
                 GroupedChart = groupedChart,
                 LegendDimensionId = legendDimensionId,
                 SelectedMeasureId = selectedMeasureId,
                 XDimensionId = xDimensionId,
                 MeasureName = measure?.Name,
                 ShouldChartBeDisplayed = true,
-                DrilldownChart = drilldownChart,
-                Filter = filterValues
+                DrilldownChart = drilldownChart
             };
         }
 
-        private FilterViewModel GetFilterValues(int datasetId)
+        public FilterViewModel GetFilterValues(int datasetId)
         {
             var tree = _treeBuilder.ConvertToTree(datasetId, true);
             return _browseCubeMapper.Map(tree);
-        }
-
-        private List<FlatDimensionDto> GetFilters(Dictionary<int, Dictionary<int, bool>> filterDimensions)
-        {
-            var ret = new List<FlatDimensionDto>();
-            // do not filter dimensions where all values are true
-            foreach (var fd in filterDimensions)
-            {
-                var dimension = Data.GetDimension(fd.Key);
-                var dimensionDto = new FlatDimensionDto
-                    {
-                        Id = dimension.Id,
-                        Name = dimension.Name,
-                        DimensionValues = new List<DimensionValueDto>()
-                    };
-                // do not include dimensions with all values checked
-                if (!fd.Value.Select(v => v.Value).Contains(false)) continue;
-                foreach (var value in fd.Value)
-                {
-                    if (value.Value)
-                        dimensionDto.DimensionValues.Add(new DimensionValueDto { Id = value.Key });
-                }
-                ret.Add(dimensionDto);
-            }
-            return ret;
         }
 
         private GroupedChartViewModel GetGroupedChart(DimensionTree tree, TreeDimensionDto xDimension, DimensionDto legendDimension,

@@ -10,6 +10,7 @@ namespace Recommender2
         {
             Bind<IDatasetViewModelMapper>().To<DatasetViewModelMapper>();
             Bind<IBrowseCubeViewModelMapper>().To<BrowseCubeViewModelMapper>();
+            Bind<IMiningTaskViewModelMapper>().To<MiningTaskViewModelMapper>();
             Bind<IConfiguration>().To<Configuration>();
         }
     }

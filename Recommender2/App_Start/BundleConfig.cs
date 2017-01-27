@@ -43,7 +43,9 @@ namespace Recommender2
                     "~/Scripts/Charts/drilldown.js",
                     "~/Scripts/Charts/data.js",
                     "~/Scripts/Custom/column-drilldown.js",
-                    "~/Scripts/Custom/chart-details.js",
+                    "~/Scripts/Custom/chart-details.js"
+                    ));
+            bundles.Add(new ScriptBundle("~/bundles/modaldialog").Include(
                     "~/Scripts/Custom/modal-dialog.js"
                     ));
         }

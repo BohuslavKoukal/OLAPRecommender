@@ -7,6 +7,7 @@ using Recommender.Business;
 using Recommender.Business.DTO.Mappers;
 using Recommender.Business.FileHandling;
 using Recommender.Business.FileHandling.Rdf;
+using Recommender.Business.StarSchema;
 using Recommender.Common.Enums;
 using Recommender.Common.Helpers;
 using Recommender.Data.DataAccess;
@@ -18,20 +19,20 @@ namespace Recommender2.ControllerEngine
 {
     public class UploadControllerEngine : ControllerEngineBase
     {
-        private readonly DatasetViewModelMapper _datasetMapper;
         private readonly AttributeViewModelMapper _attributeMapper;
         private readonly StarSchemaBuilder _starSchemaBuilder;
         private readonly IFileHandler _fileHandler;
+        private readonly DatasetViewModelMapper _datasetMapper;
 
         public UploadControllerEngine(IDataAccessLayer data, DatasetViewModelMapper datasetMapper,
             AttributeViewModelMapper attributeMapper, IFileHandler fileHandler,
             StarSchemaBuilder starSchemaBuilder, StarSchemaQuerier starSchemaQuerier) 
             : base(data, starSchemaQuerier)
         {
-            _datasetMapper = datasetMapper;
             _attributeMapper = attributeMapper;
             _starSchemaBuilder = starSchemaBuilder;
             _fileHandler = fileHandler;
+            _datasetMapper = datasetMapper;
         }
 
         public SingleDatasetViewModel GetDataset(int id = 0)
@@ -57,13 +58,9 @@ namespace Recommender2.ControllerEngine
         {
             var measures = _attributeMapper.MapToMeasures(attributes).ToList();
             var dimensions = _attributeMapper.MapToDimensions(attributes.ToList()).ToList();
-            Data.PopulateDataset(id, measures, dimensions, State.DimensionsAndMeasuresSet);
-            var dataset = Data.GetDataset(id);
             var columns = _attributeMapper.MapToDimensionsAndMeasures(attributes.ToList());
-            var data = _fileHandler.GetValues(dataset.CsvFilePath, columns.ToList(), separator, dateFormat);
-            _starSchemaBuilder.CreateAndFillDimensionTables(dataset.Name, dataset.Dimensions.ToList(), data);
-            _starSchemaBuilder.CreateFactTable(dataset.Name, dataset.Dimensions.ToList(), dataset.Measures.ToList());
-            _starSchemaBuilder.FillFactTable(dataset.Name, dimensions, measures, data);
+            var data = _fileHandler.GetValues(Data.GetDataset(id).CsvFilePath, columns.ToList(), separator, dateFormat);
+            BuildStarSchema(id, data, dimensions, measures);
         }
 
         public void CreateDataset(int id, HttpPostedFileBase dsdFile)
@@ -76,11 +73,25 @@ namespace Recommender2.ControllerEngine
             var dimensions = DimensionMapper.ConvertToDimensions(dimensionDtos);
             var measures = measureDtos.Select(d => d.ConvertToMeasure()).ToList();
             var data = rdfLoader.ConvertObservationsToDataTable(dimensionDtos, measureDtos);
+            BuildStarSchema(id, data, dimensions, measures);
+        }
+
+        private void BuildStarSchema(int id, DataTable data, List<Dimension> dimensions, List<Measure> measures)
+        {
+            PopulateDimensionsWithValues(dimensions, data);
             Data.PopulateDataset(id, measures, dimensions, State.DimensionsAndMeasuresSet);
             var dataset = Data.GetDataset(id);
             _starSchemaBuilder.CreateAndFillDimensionTables(dataset.Name, dataset.Dimensions.ToList(), data);
             _starSchemaBuilder.CreateFactTable(dataset.Name, dataset.Dimensions.ToList(), dataset.Measures.ToList());
             _starSchemaBuilder.FillFactTable(dataset.Name, dimensions, measures, data);
+        }
+
+        private void PopulateDimensionsWithValues(IEnumerable<Dimension> dimensions, DataTable data)
+        {
+            foreach (var dimension in dimensions)
+            {
+                dimension.DimensionValues = StarSchemaHelper.GetDimensionValues(dimension, data);
+            }
         }
 
 

@@ -19,4 +19,17 @@
         Ttl = 2
     }
 
+    public enum TaskState
+    {
+        Started = 1,
+        Finished = 2
+    }
+
+    public enum Sign
+    {
+        Higher = 1,
+        EquivalentTo = 0,
+        Lower = -1
+    }
+
 }

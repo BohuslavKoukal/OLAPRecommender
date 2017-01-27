@@ -17,6 +17,7 @@ namespace Recommender2.ViewModels
             Datasets = new List<SingleDatasetViewModel>();
         }
         public List<SingleDatasetViewModel> Datasets { get; set; }
+        public string Notification { get; set; }
     }
 
     public class SingleDatasetViewModel
@@ -47,6 +48,9 @@ namespace Recommender2.ViewModels
         public List<AttributeViewModel> Attributes { get; set; }
         public List<DimensionViewModel> Dimensions { get; set; }
         public List<MeasureViewModel> Measures { get; set; }
+        public List<MiningTaskViewModel> MiningTasks { get; set; }
+
+        public FilterViewModel Filter { get; set; }
 
         public List<SelectListItem> AttributesSelectList
         {
@@ -59,8 +63,6 @@ namespace Recommender2.ViewModels
                 }).ToList();
             }
         }
-
-        
 
         public List<SelectListItem> MeasuresSelectList
         {
@@ -114,5 +116,7 @@ namespace Recommender2.ViewModels
         };
 
         public string DateFormat { get; set; }
+
+        
     }
 }

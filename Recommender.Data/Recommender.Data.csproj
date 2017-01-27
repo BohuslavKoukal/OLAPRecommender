@@ -79,16 +79,20 @@
     <Compile Include="DataAccess\DbInitializer.cs" />
     <Compile Include="DataAccess\ForeignKey.cs" />
     <Compile Include="DataAccess\QueryBuilder.cs" />
-    <Compile Include="Migrations\201701041937300_Initial.cs" />
-    <Compile Include="Migrations\201701041937300_Initial.Designer.cs">
-      <DependentUpon>201701041937300_Initial.cs</DependentUpon>
+    <Compile Include="Migrations\201701271109073_Initial.cs" />
+    <Compile Include="Migrations\201701271109073_Initial.Designer.cs">
+      <DependentUpon>201701271109073_Initial.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Models\AssociationRule.cs" />
     <Compile Include="Models\Attribute.cs" />
+    <Compile Include="Models\DimensionValue.cs" />
+    <Compile Include="Models\MiningTask.cs" />
     <Compile Include="Models\RecommenderFile.cs" />
     <Compile Include="Models\Dataset.cs" />
     <Compile Include="Models\Dimension.cs" />
     <Compile Include="Models\Measure.cs" />
+    <Compile Include="Models\Succedent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -102,8 +106,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201701041937300_Initial.resx">
-      <DependentUpon>201701041937300_Initial.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201701271109073_Initial.resx">
+      <DependentUpon>201701271109073_Initial.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -6,6 +6,7 @@ namespace Recommender.Common
     public interface IConfiguration
     {
         string GetFilesLocation();
+        string GetPmmlFilesLocation();
         string GetCubeDatabaseConnectionString();
     }
 
@@ -14,6 +15,11 @@ namespace Recommender.Common
         public string GetFilesLocation()
         {
             return WebConfigurationManager.AppSettings["FilesLocation"];
+        }
+
+        public string GetPmmlFilesLocation()
+        {
+            return WebConfigurationManager.AppSettings["PmmlFilesLocation"];
         }
 
         public string GetCubeDatabaseConnectionString()

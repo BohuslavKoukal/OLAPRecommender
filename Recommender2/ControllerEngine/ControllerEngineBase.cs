@@ -4,7 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Recommender.Business;
+using Recommender.Business.StarSchema;
 using Recommender.Data.DataAccess;
+using Recommender2.ViewModels;
+using Recommender2.ViewModels.Mappers;
 
 namespace Recommender2.ControllerEngine
 {
@@ -18,7 +21,5 @@ namespace Recommender2.ControllerEngine
             Data = data;
             StarSchemaQuerier = starSchemaQuerier;
         }
-
-
     }
 }

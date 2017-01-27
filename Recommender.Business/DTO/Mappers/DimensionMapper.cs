@@ -10,7 +10,6 @@ namespace Recommender.Business.DTO.Mappers
 {
     public static class DimensionMapper
     {
-
         public static List<Dimension> ConvertToDimensions(List<DimensionDto> dimensionDtos)
         {
             var ret = dimensionDtos.Select(dimDto => new Dimension
@@ -30,5 +29,7 @@ namespace Recommender.Business.DTO.Mappers
             }
             return ret;
         }
+
+
     }
 }

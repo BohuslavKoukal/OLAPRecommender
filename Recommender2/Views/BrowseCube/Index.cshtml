@@ -20,7 +20,7 @@
                 <ul>
                     @foreach (var dimension in dataset.Dimensions)
                     {
-                        <li>@dimension.Name ( @(Convert.ToInt32(dimension.Type).ToType().ToUserFriendlyName()) )</li>
+                        <li>@dimension.Name ( @dimension.Type.ToUserFriendlyName()) )</li>
                     }
                 </ul >
             </td>
@@ -28,7 +28,7 @@
                 <ul>
                     @foreach (var measure in dataset.Measures)
                     {
-                        <li>@measure.Name ( @(Convert.ToInt32(measure.Type).ToType().ToUserFriendlyName()) )</li>
+                        <li>@measure.Name ( @measure.Type.ToUserFriendlyName()) )</li>
                     }
                 </ul>
             </td>

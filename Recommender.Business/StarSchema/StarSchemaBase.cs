@@ -1,6 +1,6 @@
 ﻿using Recommender.Data.DataAccess;
 
-namespace Recommender.Business
+namespace Recommender.Business.StarSchema
 {
     public class StarSchemaBase 
     {
