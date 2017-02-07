@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Recommender.Common.Constants;
 using Recommender.Common.Enums;
 
 namespace Recommender.Data.Models
@@ -27,5 +28,7 @@ namespace Recommender.Data.Models
         public virtual ICollection<Dimension> Dimensions { get; set; }
         public virtual ICollection<Measure> Measures { get; set; }
         public virtual ICollection<MiningTask> MiningTasks { get; set; }
+
+        
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Recommender.Business.DTO;
 using Recommender.Common;
 using Recommender.Data.DataAccess;
 using Recommender.Data.Models;
@@ -22,12 +23,11 @@ namespace Recommender.Business.AssociationRules
             _data = data;
         }
 
-        public void SendTask(MiningTask task)
+        public void SendTask(MiningTask task, int rowCount, List<Discretization> discretizations, List<EquivalencyClass> eqClasses)
         {
             var pmmlService = new PmmlService();
-            var preprocessingPmml = pmmlService.GetPreprocessingPmml(task);
-            var miningTaskPmml = pmmlService.GetMiningTaskPmml(task);
-            _lmConnector.SendTask(preprocessingPmml, miningTaskPmml);
+            var preprocessingAndTaskPmml = pmmlService.GetPreprocessingAndTaskPmml(task, rowCount, discretizations, eqClasses);
+            _lmConnector.SendTask(preprocessingAndTaskPmml);
             Task.Factory.StartNew(() => SaveTaskResults(task.Name, task.DataSet.Id, task.Id));
         }
 

@@ -5,7 +5,7 @@
 }
 
 <h2>Data sets</h2>
-
+<p style="color: green">@Model.Notification</p>
 <table class="table, table-bordered">
     <tr><th>Name</th><th>Mining tasks</th><th>Mine rules</th></tr>
     @foreach (var dataset in Model.Datasets.Where(d => d.State >= State.DimensionsAndMeasuresSet))

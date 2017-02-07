@@ -6,6 +6,7 @@ using Recommender.Common.Enums;
 using Recommender.Common.Helpers;
 using Recommender.Data.DataAccess;
 using Recommender.Data.Models;
+using Constants = Recommender.Common.Constants.Constants;
 
 namespace Recommender.Business.StarSchema
 {
@@ -53,10 +54,10 @@ namespace Recommender.Business.StarSchema
             var foreignKeys = new List<ForeignKey>();
             foreignKeys.AddRange(rootDimensionNames.Select(dimensionName => new ForeignKey
             {
-                KeyName = dimensionName + "Id",
+                KeyName = dimensionName + Constants.String.Id,
                 Reference = datasetName + dimensionName
             }));
-            QueryBuilder.CreateTable(datasetName + "FactTable", measuresColumns, foreignKeys);
+            QueryBuilder.CreateTable(datasetName + Constants.String.FactTable, measuresColumns, foreignKeys);
         }        
 
         public void FillFactTable(string datasetName, List<Dimension> dimensions, List<Measure> measures, DataTable values)
@@ -71,11 +72,11 @@ namespace Recommender.Business.StarSchema
                 // We insert fks only for root dimensions
                 var dimensionColumns = dimensions.Where(d => d.ParentDimension == null).Select(dimension => new Column
                 {
-                    Name = dimension.Name + "Id",
+                    Name = dimension.Name + Constants.String.Id,
                     Value = GetDimensionId(datasetName + dimension.Name, row[dimension.Name].ToString(dimension.Type.ToType())).ToString()
                 }).ToList();
                 
-                QueryBuilder.Insert(datasetName + "FactTable", dimensionColumns.Concat(measureColumns));
+                QueryBuilder.Insert(datasetName + Constants.String.FactTable, dimensionColumns.Concat(measureColumns));
             }
         }
 
@@ -86,7 +87,7 @@ namespace Recommender.Business.StarSchema
         private int GetDimensionId(string tableName, string value)
         {
             return Convert.ToInt32
-                (QueryBuilder.Select(tableName, new Column { Name = "Value", Value = value }).Rows.Cast<DataRow>().First()[0]);
+                (QueryBuilder.Select(tableName, new Column { Name = Constants.String.Value, Value = value }).Rows.Cast<DataRow>().First()[0]);
             
         }
 
@@ -100,13 +101,13 @@ namespace Recommender.Business.StarSchema
                 {
                     new Column
                     {
-                        Name = "Value",
+                        Name = Constants.String.Value,
                         Value = row[dimension.Name].ToString(dimension.Type.ToType())
                     }
                 };
                 dimensionColumns.AddRange(children.Select(child => new Column
                 {
-                    Name = child.Name + "Id",
+                    Name = child.Name + Constants.String.Id,
                     Value = GetDimensionId(datasetName + child.Name, row[child.Name].ToString()).ToString()
                 }));
                 allRowsToInsert.Add(dimensionColumns);
@@ -117,11 +118,11 @@ namespace Recommender.Business.StarSchema
         private void CreateDimensionTable(string datasetName, string dimensionName, string datatype, List<string> childrenNames)
         {
             var tableName = datasetName + dimensionName;
-            var columns = new List<Column> { new Column { Name = "Value", Type = datatype } };
+            var columns = new List<Column> { new Column { Name = Constants.String.Value, Type = datatype } };
             var foreignKeys = new List<ForeignKey>();
             foreignKeys.AddRange(childrenNames.Select(childName => new ForeignKey
             {
-                KeyName = childName + "Id",
+                KeyName = childName + Constants.String.Id,
                 Reference = datasetName + childName
             }));
             QueryBuilder.CreateTable(tableName, columns, foreignKeys);

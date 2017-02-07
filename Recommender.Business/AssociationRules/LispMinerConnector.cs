@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml;
 using Recommender.Common;
 using Recommender.Data.Models;
 
@@ -19,7 +20,7 @@ namespace Recommender.Business.AssociationRules
             _configuration = configuration;
         }
 
-        public void SendTask(string preprocessingPmml, string taskPmml)
+        public void SendTask(XmlDocument preprocessingAndTaskPmml)
         {
             // Send task to LM connect
         }

@@ -60,9 +60,9 @@
   <ItemGroup>
     <Compile Include="Configuration.cs" />
     <Compile Include="Constants\RdfConstants.cs" />
+    <Compile Include="Constants\StringConstants.cs" />
     <Compile Include="Enums\Enums.cs" />
     <Compile Include="Enums\Extensions.cs" />
-    <Compile Include="Helpers\Constants.cs" />
     <Compile Include="Helpers\DataTableExtension.cs" />
     <Compile Include="Helpers\FileTypeExtension.cs" />
     <Compile Include="Helpers\SqlSafetyExtension.cs" />

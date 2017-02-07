@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Recommender.Common.Helpers
+namespace Recommender.Data.Models
 {
-    public static class Constants
+    public interface IDimensionOrMeasure
     {
-        
+
     }
 }

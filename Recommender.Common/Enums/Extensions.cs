@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Data;
 
 namespace Recommender.Common.Enums
 {
-    
     public static class AttributeRoleExtensions
     {
         public static string ToString(this AttributeRole attributeRole)
@@ -58,5 +58,4 @@ namespace Recommender.Common.Enums
             return "Unknown state";
         }
     }
-
 }

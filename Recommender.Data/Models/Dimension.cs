@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Recommender.Common.Constants;
 
 namespace Recommender.Data.Models
 {
@@ -17,7 +18,7 @@ namespace Recommender.Data.Models
         public virtual ICollection<DimensionValue> DimensionValues { get; set; }
 
         public string TableName => DataSet.Name + Name;
-        public string IdName => Name + "Id";
-        public string FactTableName => DataSet.Name + "FactTable";
+        public string IdName => Name + Constants.String.Id;
+        public string FactTableName => DataSet.Name + Constants.String.FactTable;
     }
 }

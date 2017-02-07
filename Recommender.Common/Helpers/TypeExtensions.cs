@@ -75,5 +75,19 @@ namespace Recommender.Common.Helpers
             return "Unknown type";
         }
 
+        public static string ToLispName(this int type)
+        {
+            if (type == 2)
+                return "string";
+            if (type == 0)
+                return "integer";
+            if (type == 1)
+                return "float";
+            if (type == 3)
+                //return "datetime";
+                return "string";
+            throw new InvalidDataException($"{type} is unsupported type.");
+        }
+
     }
 }

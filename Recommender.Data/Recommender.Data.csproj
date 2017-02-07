@@ -79,6 +79,10 @@
     <Compile Include="DataAccess\DbInitializer.cs" />
     <Compile Include="DataAccess\ForeignKey.cs" />
     <Compile Include="DataAccess\QueryBuilder.cs" />
+    <Compile Include="Extensions\DatasetExtension.cs" />
+    <Compile Include="Extensions\DimensionExtension.cs" />
+    <Compile Include="Extensions\MeasureExtension.cs" />
+    <Compile Include="Extensions\MiningTaskExtension.cs" />
     <Compile Include="Migrations\201701271109073_Initial.cs" />
     <Compile Include="Migrations\201701271109073_Initial.Designer.cs">
       <DependentUpon>201701271109073_Initial.cs</DependentUpon>
@@ -87,6 +91,8 @@
     <Compile Include="Models\AssociationRule.cs" />
     <Compile Include="Models\Attribute.cs" />
     <Compile Include="Models\DimensionValue.cs" />
+    <Compile Include="Models\Discretization.cs" />
+    <Compile Include="Models\IDimensionOrMeasure.cs" />
     <Compile Include="Models\MiningTask.cs" />
     <Compile Include="Models\RecommenderFile.cs" />
     <Compile Include="Models\Dataset.cs" />

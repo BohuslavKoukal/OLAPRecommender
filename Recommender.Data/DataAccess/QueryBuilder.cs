@@ -22,6 +22,7 @@ namespace Recommender.Data.DataAccess
         DataTable Select(string tableName, Column selector);
         DataTable Select(string tableName, List<Column> selectors);
         DataTable Select(string tableName, List<List<Column>> selectors);
+        int Count(string tableName);
     }
 
     public class QueryBuilder : IQueryBuilder
@@ -144,6 +145,23 @@ namespace Recommender.Data.DataAccess
             }
             var query = $"SELECT * FROM {tableName} WHERE {selectorsString}";
             return Select(query);
+        }
+
+        public int Count(string tableName)
+        {
+            int ret;
+            using (var conn = _dbConnection.GetConnection())
+            {
+                conn.Open();
+                var command = new MySqlCommand
+                {
+                    Connection = conn,
+                    CommandText = $@"select count(*) from {tableName}"                    
+                };
+                ret = Convert.ToInt32(command.ExecuteScalar());
+                conn.Close();
+            }
+            return ret;
         }
 
         private DataTable Select(string query)

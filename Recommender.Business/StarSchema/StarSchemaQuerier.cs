@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using Recommender.Business.DTO;
+using Recommender.Common.Constants;
 using Recommender.Data.DataAccess;
+using Recommender.Data.Extensions;
 using Recommender.Data.Models;
 
 namespace Recommender.Business.StarSchema
@@ -16,6 +18,10 @@ namespace Recommender.Business.StarSchema
             List<FlatDimensionDto> conditions, Measure measure);
 
         IEnumerable<DimensionValueDto> GetCorrespondingValues (DimensionTree tree, int dimensionId, DimensionDto child);
+
+        int GetFactTableRowCount(string factTableName);
+
+        List<double> GetOrderedMeasureValues(Measure measure);
     }
 
     public class StarSchemaQuerier : StarSchemaBase, IStarSchemaQuerier
@@ -36,8 +42,8 @@ namespace Recommender.Business.StarSchema
                     {
                         Id = Convert.ToInt32(row["Id"]),
                         Value = dimension.Type == typeof(DateTime)
-                        ? ((DateTime)row["Value"]).ToString("dd.MM.yyyy") 
-                        : row["Value"].ToString()
+                        ? ((DateTime)row[Constants.String.Value]).ToString("dd.MM.yyyy") 
+                        : row[Constants.String.Value].ToString()
                     })
                     .ToList();
             return valuesToReturn;
@@ -62,6 +68,20 @@ namespace Recommender.Business.StarSchema
             var selectors = ConvertToSelectors(allValues, allFilteringIds);
             var queryResult = QueryBuilder.Select(factTableName, selectors);
             return AggregateData(queryResult, measure.Name);
+        }
+
+        public int GetFactTableRowCount(string factTableName)
+        {
+            return QueryBuilder.Count(factTableName);
+        }
+
+        public List<double> GetOrderedMeasureValues(Measure measure)
+        {
+            var dt = QueryBuilder.Select(measure.DataSet.GetViewName(), new List<Column>());
+            var ret = (from DataRow row
+                    in dt.Rows select Convert.ToDouble(row[measure.Name]))
+                    .ToList();
+            return ret.OrderBy(d => d).ToList();
         }
 
         private List<List<Column>> ConvertToSelectors(DimensionTree allValues, IEnumerable<List<DimensionValueIds>> filters)
@@ -96,36 +116,15 @@ namespace Recommender.Business.StarSchema
                 oldIds = newIds;
                 var currentIds = QueryBuilder.Select(parentDimension.TableName, selectors);
                 newIds.Clear();
-                newIds.AddRange(from DataRow currentId in currentIds.Rows select Convert.ToInt32(currentId["Id"]));
+                newIds.AddRange(from DataRow currentId in currentIds.Rows select Convert.ToInt32(currentId[Constants.String.Id]));
                 childDimension = parentDimension;
             }
             var ret = new List<DimensionValueDto>();
             foreach (var newId in newIds)
             {
-                ret.AddRange(GetValuesOfDimension(tree.GetDimensionDto(dimensionId), new Column { Name = "Id", Value = newId.ToString() }));
+                ret.AddRange(GetValuesOfDimension(tree.GetDimensionDto(dimensionId), new Column { Name = Constants.String.Id, Value = newId.ToString() }));
             }
             return ret;
-        }
-
-        private IEnumerable<DimensionValueIds> GroupDimensionIds(IEnumerable<DimensionValueIds> dimensionIds)
-        {
-            var groupedIds = new List<DimensionValueIds>();
-            foreach (var dimId in dimensionIds)
-            {
-                var existingDim = groupedIds.SingleOrDefault(gid => gid.DimensionId == dimId.DimensionId);
-                if (existingDim == null)
-                {
-                    groupedIds.Add(dimId);
-                }
-                else
-                {
-                    foreach (var id in dimId.ValueIds)
-                    {
-                        existingDim.ValueIds.Add(id);
-                    }
-                }
-            }
-            return groupedIds;
         }
 
         private double AggregateData(DataTable table, string columnName)
@@ -152,7 +151,7 @@ namespace Recommender.Business.StarSchema
 
                 var currentIds = QueryBuilder.Select(parentDimension.TableName, selectors);
                 newIds.Clear();
-                newIds.AddRange(from DataRow currentId in currentIds.Rows select Convert.ToInt32(currentId["Id"]));
+                newIds.AddRange(from DataRow currentId in currentIds.Rows select Convert.ToInt32(currentId[Constants.String.Id]));
                 childDimension = parentDimension;
                 if (childDimension.ParentId == null)
                     isRoot = true;

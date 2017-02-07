@@ -10,6 +10,7 @@ using Recommender.Business.GraphService;
 using Recommender.Business.StarSchema;
 using Recommender.Common.Enums;
 using Recommender.Data.DataAccess;
+using Recommender.Data.Extensions;
 using Recommender.Data.Models;
 using Recommender2.ViewModels;
 using Recommender2.ViewModels.Mappers;
@@ -21,17 +22,23 @@ namespace Recommender2.ControllerEngine
         private readonly AssociationRulesTaskProcessor _arTaskProcessor;
         private readonly SubcubeService _subcubeService;
         private readonly IMiningTaskViewModelMapper _taskMapper;
+        private readonly DataDiscretizator _discretizator;
+        private readonly IDimensionTreeBuilder _treeBuilder;
 
         public MinedResultsControllerEngine(IDataAccessLayer data,
             IStarSchemaQuerier starSchemaQuerier,
             SubcubeService subcubeService,
             AssociationRulesTaskProcessor arTaskProcessor,
-            IMiningTaskViewModelMapper taskMapper)
+            IMiningTaskViewModelMapper taskMapper,
+            DataDiscretizator discretizator,
+            IDimensionTreeBuilder treeBuilder)
             : base(data, starSchemaQuerier)
         {
             _subcubeService = subcubeService;
             _arTaskProcessor = arTaskProcessor;
             _taskMapper = taskMapper;
+            _discretizator = discretizator;
+            _treeBuilder = treeBuilder;
         }
 
         public void MineRules(int datasetId, string name, double baseQ,
@@ -53,7 +60,11 @@ namespace Recommender2.ControllerEngine
                 Base = baseQ
             };
             Data.Insert(task);
-            _arTaskProcessor.SendTask(task);
+            var rowCount = StarSchemaQuerier.GetFactTableRowCount(dataset.GetViewName());
+            var discretizations = _discretizator.GetDiscretizations(dataset);
+            var dimensionTree = _treeBuilder.ConvertToTree(datasetId, true);
+            var equivalencyClasses = _discretizator.GetEquivalencyClasses(dimensionTree);
+            _arTaskProcessor.SendTask(task, rowCount, discretizations, equivalencyClasses);
         }
 
         public MiningTaskViewModel GetDetails(int taskId)

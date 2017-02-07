@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Recommender.Common.Constants;
 
 namespace Recommender.Business.DTO
 {
@@ -14,11 +15,13 @@ namespace Recommender.Business.DTO
         public List<TreeDimensionDto> RootDimensions { get; set; }
         public string DatasetName { get; set; }
         public int Count => GetDimensionIds().Count();
-        public string FactTableName => DatasetName + "FactTable";
+        public string FactTableName => DatasetName + Constants.String.FactTable;
 
         public TreeDimensionDto GetDimensionDto(int id)
         {
-            return RootDimensions.Select(rootDimension => rootDimension.GetDimensionDto(id)).SingleOrDefault(childDimensionDto => childDimensionDto != null);
+            return RootDimensions
+                .Select(rootDimension => rootDimension.GetDimensionDto(id))
+                .SingleOrDefault(childDimensionDto => childDimensionDto != null);
         }
 
         public bool IsRoot(int id)
