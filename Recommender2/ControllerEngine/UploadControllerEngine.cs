@@ -82,8 +82,9 @@ namespace Recommender2.ControllerEngine
             Data.PopulateDataset(id, measures, dimensions, State.DimensionsAndMeasuresSet);
             var dataset = Data.GetDataset(id);
             _starSchemaBuilder.CreateAndFillDimensionTables(dataset.Name, dataset.Dimensions.ToList(), data);
-            _starSchemaBuilder.CreateFactTable(dataset.Name, dataset.Dimensions.ToList(), dataset.Measures.ToList());
+            _starSchemaBuilder.CreateFactTable(dataset, dataset.Dimensions.ToList(), dataset.Measures.ToList());
             _starSchemaBuilder.FillFactTable(dataset.Name, dimensions, measures, data);
+            _starSchemaBuilder.CreateView(dataset, dimensions, measures);
         }
 
         private void PopulateDimensionsWithValues(IEnumerable<Dimension> dimensions, DataTable data)

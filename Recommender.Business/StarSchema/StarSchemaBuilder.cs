@@ -5,6 +5,7 @@ using System.Linq;
 using Recommender.Common.Enums;
 using Recommender.Common.Helpers;
 using Recommender.Data.DataAccess;
+using Recommender.Data.Extensions;
 using Recommender.Data.Models;
 using Constants = Recommender.Common.Constants.Constants;
 
@@ -13,7 +14,7 @@ namespace Recommender.Business.StarSchema
     public interface IStarSchemaBuilder
     {
         void CreateAndFillDimensionTables(string datasetName, List<Dimension> dimensions, DataTable values);
-        void CreateFactTable(string datasetName, List<Dimension> dimensions, List<Measure> measures);
+        void CreateFactTable(Dataset dataset, List<Dimension> dimensions, List<Measure> measures);
         void FillFactTable(string datasetName, List<Dimension> dimensions, List<Measure> measures, DataTable values);
     }
 
@@ -47,18 +48,23 @@ namespace Recommender.Business.StarSchema
             }
         }
 
-        public void CreateFactTable(string datasetName, List<Dimension> dimensions, List<Measure> measures)
+        public void CreateFactTable(Dataset dataset, List<Dimension> dimensions, List<Measure> measures)
         {
             var rootDimensionNames = dimensions.Where(d => d.ParentDimension == null).Select(d => d.Name).ToList<string>();
-            var measuresColumns = measures.Select(m => new Column {Name = m.Name, Type = m.Type.ToType().ToSqlType() });
+            var measuresColumns = measures.Select(m => new Column { Name = m.Name, Type = m.Type.ToType().ToSqlType() });
             var foreignKeys = new List<ForeignKey>();
             foreignKeys.AddRange(rootDimensionNames.Select(dimensionName => new ForeignKey
             {
                 KeyName = dimensionName + Constants.String.Id,
-                Reference = datasetName + dimensionName
+                Reference = dataset.Name + dimensionName
             }));
-            QueryBuilder.CreateTable(datasetName + Constants.String.FactTable, measuresColumns, foreignKeys);
-        }        
+            QueryBuilder.CreateTable(dataset.GetFactTableName(), measuresColumns, foreignKeys);
+        }
+
+        public void CreateView(Dataset dataset, List<Dimension> dimensions, List<Measure> measures)
+        {
+            QueryBuilder.CreateView(dataset.Name, dataset.GetFactTableName(), dimensions, measures);
+        }       
 
         public void FillFactTable(string datasetName, List<Dimension> dimensions, List<Measure> measures, DataTable values)
         {

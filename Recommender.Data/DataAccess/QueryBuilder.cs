@@ -3,12 +3,17 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using MySql.Data.MySqlClient;
+using Recommender.Common.Constants;
+using Recommender.Data.Extensions;
+using Recommender.Data.Models;
 
 namespace Recommender.Data.DataAccess
 {
     public interface IQueryBuilder
     {
         void CreateTable(string tableName, IEnumerable<Column> columns, IEnumerable<ForeignKey> keys);
+
+        void CreateView(string datasetName, string factTableName, IEnumerable<Dimension> dimensions, IEnumerable<Measure> measures);
 
         /// <summary>
         ///  Insert columns as single row to table
@@ -60,6 +65,40 @@ namespace Recommender.Data.DataAccess
             {
                 conn.Open();
                 var command = new MySqlCommand(query, conn);
+                command.ExecuteNonQuery();
+                conn.Close();
+            }
+        }
+
+        public void CreateView(string datasetName, string factTableName, IEnumerable<Dimension> dimensions, IEnumerable<Measure> measures)
+        {
+            var selectClause = "fact.Id AS Id";
+            var fromClause = factTableName + " fact";
+            foreach (var dimension in dimensions)
+            {
+                selectClause += $", {dimension.Name}.{Constants.String.Value} AS {dimension.GetNameValue()}";
+                fromClause += $" JOIN {dimension.TableName} {dimension.Name} ON ";
+                if (dimension.ParentDimension == null)
+                {
+                    fromClause += $"fact.{dimension.IdName} = {dimension.Name}.Id";
+                }
+                else
+                {
+                    fromClause += $"{dimension.ParentDimension.Name}. {dimension.IdName} = {dimension.Name}.Id";
+                }
+            }
+            foreach (var measure in measures)
+            {
+                selectClause += $", fact.{measure.Name} AS {measure.Name}";
+            }
+            using (var conn = _dbConnection.GetConnection())
+            {
+                conn.Open();
+                var command = new MySqlCommand
+                {
+                    Connection = conn,
+                    CommandText = $@"CREATE VIEW {datasetName}View AS SELECT {selectClause} FROM {fromClause}"
+                };
                 command.ExecuteNonQuery();
                 conn.Close();
             }

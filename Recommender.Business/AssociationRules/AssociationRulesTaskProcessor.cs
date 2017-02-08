@@ -13,19 +13,20 @@ namespace Recommender.Business.AssociationRules
 {
     public class AssociationRulesTaskProcessor
     {
-        
         private readonly LispMinerConnector _lmConnector;
         private readonly IDataAccessLayer _data;
+        private readonly IConfiguration _configuration;
 
-        public AssociationRulesTaskProcessor(LispMinerConnector lmConnector, IDataAccessLayer data)
+        public AssociationRulesTaskProcessor(LispMinerConnector lmConnector, IDataAccessLayer data, IConfiguration configuration)
         {
             _lmConnector = lmConnector;
             _data = data;
+            _configuration = configuration;
         }
 
         public void SendTask(MiningTask task, int rowCount, List<Discretization> discretizations, List<EquivalencyClass> eqClasses)
         {
-            var pmmlService = new PmmlService();
+            var pmmlService = new PmmlService(_configuration);
             var preprocessingAndTaskPmml = pmmlService.GetPreprocessingAndTaskPmml(task, rowCount, discretizations, eqClasses);
             _lmConnector.SendTask(preprocessingAndTaskPmml);
             Task.Factory.StartNew(() => SaveTaskResults(task.Name, task.DataSet.Id, task.Id));
@@ -40,7 +41,7 @@ namespace Recommender.Business.AssociationRules
                 Thread.Sleep(5000);
                 resultsFile = _lmConnector.GetTaskResultsFile(taskName);
             }
-            var pmmlService = new PmmlService(resultsFile);
+            var pmmlService = new PmmlService(_configuration, resultsFile);
             var dimensionValues = _data.GetAllDimensionValues(datasetId);
             var measures = _data.GetAllMeasures(datasetId);
             var rules = pmmlService.GetRules(dimensionValues, measures);

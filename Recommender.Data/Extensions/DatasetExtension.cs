@@ -14,5 +14,10 @@ namespace Recommender.Data.Extensions
         {
             return dataset.Name + Constants.String.View;
         }
+
+        public static string GetFactTableName(this Dataset dataset)
+        {
+            return dataset.Name + Constants.String.FactTable;
+        }
     }
 }

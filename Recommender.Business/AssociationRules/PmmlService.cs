@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using Recommender.Business.DTO;
+using Recommender.Common;
 using Recommender.Common.Helpers;
 using Recommender.Data.Extensions;
 using Recommender.Data.Models;
@@ -16,22 +17,25 @@ namespace Recommender.Business.AssociationRules
     public class PmmlService
     {
         private readonly XmlDocument _doc;
+        private readonly IConfiguration _configuration;
 
-        public PmmlService(string resultsPmmlFileName)
+        public PmmlService(IConfiguration configuration)
         {
-            _doc = new XmlDocument();
-            _doc.Load(resultsPmmlFileName);
+            _configuration = configuration;
         }
 
-        public PmmlService()
+        public PmmlService(IConfiguration configuration, string resultsPmmlFileName)
         {
+            _configuration = configuration;
+            _doc = new XmlDocument();
+            _doc.Load(resultsPmmlFileName);
         }
 
         public XmlDocument GetPreprocessingAndTaskPmml(MiningTask task, int factTableRowCount, List<Discretization> discretizations, List<EquivalencyClass> eqClasses)
         {
             var docAndRoot = GetPreprocessingPmml(task, factTableRowCount, discretizations);
             var document = GetMiningTaskPmml(task, docAndRoot.Item1, docAndRoot.Item2, eqClasses);
-            document.Save("D:\\home\\site\\Files\\Pmml\\" + task.Name + "preprocessingAndTask.pmml");
+            document.Save(_configuration.GetPmmlFilesLocation() + task.Name + "preprocessingAndTask.pmml");
             return document;
         }
 

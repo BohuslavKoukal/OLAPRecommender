@@ -19,6 +19,5 @@ namespace Recommender.Data.Models
 
         public string TableName => DataSet.Name + Name;
         public string IdName => Name + Constants.String.Id;
-        public string FactTableName => DataSet.Name + Constants.String.FactTable;
     }
 }

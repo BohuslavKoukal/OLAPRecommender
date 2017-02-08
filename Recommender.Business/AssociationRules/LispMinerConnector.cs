@@ -4,10 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Xml;
 using Recommender.Common;
-using Recommender.Data.Models;
 
 namespace Recommender.Business.AssociationRules
 {
