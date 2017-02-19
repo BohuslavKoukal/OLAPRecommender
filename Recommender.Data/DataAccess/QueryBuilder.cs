@@ -70,11 +70,11 @@ namespace Recommender.Data.DataAccess
             }
         }
 
-        public void CreateView(string datasetName, string factTableName, IEnumerable<Dimension> dimensions, IEnumerable<Measure> measures)
+        public void CreateView(string datasetName, string factTableName, IEnumerable<Dimension> orderedDimensions, IEnumerable<Measure> measures)
         {
             var selectClause = "fact.Id AS Id";
             var fromClause = factTableName + " fact";
-            foreach (var dimension in dimensions)
+            foreach (var dimension in orderedDimensions)
             {
                 selectClause += $", {dimension.Name}.{Constants.String.Value} AS {dimension.GetNameValue()}";
                 fromClause += $" JOIN {dimension.TableName} {dimension.Name} ON ";
@@ -84,7 +84,7 @@ namespace Recommender.Data.DataAccess
                 }
                 else
                 {
-                    fromClause += $"{dimension.ParentDimension.Name}. {dimension.IdName} = {dimension.Name}.Id";
+                    fromClause += $"{dimension.ParentDimension.Name}.{dimension.IdName} = {dimension.Name}.Id";
                 }
             }
             foreach (var measure in measures)

@@ -272,6 +272,11 @@ namespace Recommender.Business.AssociationRules
 
         private XmlElement GetSchemaDefinition(XmlDocument doc)
         {
+            XmlDeclaration declaration = doc.CreateXmlDeclaration("1.0", "UTF-8", null);
+            doc.AppendChild(declaration);
+            XmlProcessingInstruction pi = doc.CreateProcessingInstruction("oxygen", "SCHSchema=\"http://sewebar.vse.cz/schemas/GUHARestr0_1.sch\"");
+            doc.AppendChild(pi);
+
             //var xml = (XmlElement)doc.AppendChild(doc.CreateElement("xml"));
             //xml.SetAttribute("version", "1.0");
             //var oxygen = (XmlElement)doc.AppendChild(doc.CreateElement("oxygen"));
@@ -447,18 +452,29 @@ namespace Recommender.Business.AssociationRules
             {
                 var antecedentName = rule.Attributes["antecedent"].InnerText;
                 var succedentName = rule.Attributes["consequent"].InnerText;
-                var conditionName = rule.Attributes["condition"].InnerText;
+                
                 var antecedentDba = dbas.Single(dba => dba.Attributes["id"].InnerText == antecedentName);
                 var succedentDba = dbas.Single(dba => dba.Attributes["id"].InnerText == succedentName);
-                var conditionDba = dbas.Single(dba => dba.Attributes["id"].InnerText == conditionName);
                 var antecedentText =
                     antecedentDba.ChildNodes.Cast<XmlNode>().Single(childNode => childNode.LocalName.Equals("Text")).InnerText;
                 var succedentText =
                     succedentDba.ChildNodes.Cast<XmlNode>().Single(childNode => childNode.LocalName.Equals("Text")).InnerText;
-                var conditionText =
-                    conditionDba.ChildNodes.Cast<XmlNode>().Single(childNode => childNode.LocalName.Equals("Text")).InnerText;
-                var aadValue = Convert.ToDouble(rule.ChildNodes.Cast<XmlNode>().Single(childNode => childNode.LocalName.Equals("IMValue") && childNode.Attributes["name"].InnerText == "AAD").InnerText);
-                var baseValue = Convert.ToDouble(rule.ChildNodes.Cast<XmlNode>().Single(childNode => childNode.LocalName.Equals("IMValue") && childNode.Attributes["name"].InnerText == "BASE").InnerText);
+                var aadString =
+                    rule.ChildNodes.Cast<XmlNode>()
+                        .Single(
+                            childNode =>
+                                childNode.LocalName.Equals("IMValue") &&
+                                childNode.Attributes["name"].InnerText == "AAD")
+                        .InnerText;
+                var aadValue = Convert.ToDouble(aadString, NumberFormatInfo.InvariantInfo);
+                var baseString =
+                    rule.ChildNodes.Cast<XmlNode>()
+                        .Single(
+                            childNode =>
+                                childNode.LocalName.Equals("IMValue") &&
+                                childNode.Attributes["name"].InnerText == "BASE")
+                        .InnerText;
+                var baseValue = Convert.ToDouble(baseString, NumberFormatInfo.InvariantInfo);
                 var ruleText = rule.ChildNodes.Cast<XmlNode>().Single(childNode => childNode.LocalName.Equals("Text")).InnerText;
                 var assocRule = new AssociationRule
                 {
@@ -466,9 +482,18 @@ namespace Recommender.Business.AssociationRules
                     Base = baseValue,
                     Text = ruleText,
                     AntecedentValues = GetLiteralConjunction(antecedentText, dimensionValues),
-                    ConditionValues = GetLiteralConjunction(conditionText, dimensionValues),
-                    SuccedentMeasure = GetSuccedentMeasure(succedentText, measures)
+                    SuccedentMeasure = GetSuccedentMeasure(succedentText, measures),
+                    ConditionValues = new List<DimensionValue>()
                 };
+                var conditionExists = rule.Attributes["condition"] != null;
+                if (conditionExists)
+                {
+                    var conditionName = rule.Attributes["condition"].InnerText;
+                    var conditionDba = dbas.Single(dba => dba.Attributes["id"].InnerText == conditionName);
+                    var conditionText =
+                    conditionDba.ChildNodes.Cast<XmlNode>().Single(childNode => childNode.LocalName.Equals("Text")).InnerText;
+                    assocRule.ConditionValues = GetLiteralConjunction(conditionText, dimensionValues);
+                }
                 ret.Add(assocRule);
             }
             return ret;
@@ -498,7 +523,7 @@ namespace Recommender.Business.AssociationRules
                 var split = conjunctionPart.Split('(');
                 var dimensionName = split[0].TrimStart(' ').TrimEnd(' ');
                 var valueName = split[1].TrimStart(' ').TrimEnd(' ', ')');
-                ret.Add(dimensionValues.Single(dv => dv.Dimension.Name == dimensionName && dv.Value == valueName));
+                ret.Add(dimensionValues.Single(dv => dv.Dimension.GetNameValue() == dimensionName && dv.Value == valueName));
             }
             return ret;
         }

@@ -48,6 +48,33 @@ namespace Recommender.Business.StarSchema
             }
         }
 
+        private List<Dimension> OrderDimensionsTopDown(List<Dimension> dimensions)
+        {
+            var orderedDimensions = new List<Dimension>();
+            while (orderedDimensions.Count != dimensions.Count)
+            {
+                foreach (var dimension in dimensions)
+                {
+                    // Add dimension if its parent is added
+                    // If this dimension is not added yet
+                    if (!orderedDimensions.Select(d => d.Id).Contains(dimension.Id))
+                    {
+                        if (dimension.ParentDimension == null)
+                        {
+                            orderedDimensions.Add(dimension);
+                        }
+                        else
+                        {
+                            // Add dimension only if its parent is already added
+                            if(orderedDimensions.Select(d => d.Id).Contains(dimension.ParentDimension.Id))
+                                orderedDimensions.Add(dimension);
+                        }
+                    }
+                }
+            }
+            return orderedDimensions;
+        }
+
         public void CreateFactTable(Dataset dataset, List<Dimension> dimensions, List<Measure> measures)
         {
             var rootDimensionNames = dimensions.Where(d => d.ParentDimension == null).Select(d => d.Name).ToList<string>();
@@ -63,7 +90,7 @@ namespace Recommender.Business.StarSchema
 
         public void CreateView(Dataset dataset, List<Dimension> dimensions, List<Measure> measures)
         {
-            QueryBuilder.CreateView(dataset.Name, dataset.GetFactTableName(), dimensions, measures);
+            QueryBuilder.CreateView(dataset.Name, dataset.GetFactTableName(), OrderDimensionsTopDown(dimensions), measures);
         }       
 
         public void FillFactTable(string datasetName, List<Dimension> dimensions, List<Measure> measures, DataTable values)

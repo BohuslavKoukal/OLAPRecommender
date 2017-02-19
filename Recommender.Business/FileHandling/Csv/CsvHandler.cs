@@ -8,6 +8,7 @@ using System.Web;
 using Microsoft.VisualBasic.FileIO;
 using Recommender.Business.DTO;
 using Recommender.Common;
+using Recommender.Common.Helpers;
 using Recommender.Data.Models;
 
 namespace Recommender.Business.FileHandling.Csv
@@ -59,7 +60,7 @@ namespace Recommender.Business.FileHandling.Csv
                         }
                         else
                         {
-                            objectArrayToAdd.Add(field);
+                            objectArrayToAdd.Add(field.SafeName());
                         }
                     }
                     row.ItemArray = objectArrayToAdd.ToArray();
