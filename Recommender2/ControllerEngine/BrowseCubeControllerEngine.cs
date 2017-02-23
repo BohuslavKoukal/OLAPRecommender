@@ -50,7 +50,7 @@ namespace Recommender2.ControllerEngine
             return _browseCubeMapper.Map(dataset, GetFilterValues(id));
         }
 
-        public BrowseCubeViewModel ShowChart(int id, int selectedMeasureId, int xDimensionId, int legendDimensionId,
+        public BrowseCubeViewModel ShowChart(int id, int selectedMeasureId, int xDimensionId, int legendDimensionId, bool group,
             Dictionary <int, Dictionary<int, bool>> filterDimensions)
         {
             var dataset = Data.GetDataset(id);
@@ -58,7 +58,7 @@ namespace Recommender2.ControllerEngine
             var filters = _subcubeService.GetFilters(filterDimensions);
             var dimensionTree = _treeBuilder.ConvertToTree(id, true);
             var groupedChart = GetGroupedChart(dimensionTree, dimensionTree.GetDimensionDto(xDimensionId),
-                dimensionTree.GetDimensionDto(legendDimensionId), measure, filters);
+                dimensionTree.GetDimensionDto(legendDimensionId), measure, filters, group);
             var drilldownChart = GetDrilldownChart(dimensionTree, dimensionTree.GetDimensionDto(xDimensionId), measure, filters);
             var filterValues = GetFilterValues(id);
 
@@ -82,9 +82,9 @@ namespace Recommender2.ControllerEngine
         }
 
         private GroupedChartViewModel GetGroupedChart(DimensionTree tree, TreeDimensionDto xDimension, DimensionDto legendDimension,
-            Measure measure, List<FlatDimensionDto> filters)
+            Measure measure, List<FlatDimensionDto> filters, bool group)
         {
-            var groupedGraphDto = _graphService.GetGroupedGraph(tree, xDimension, legendDimension, measure, filters);
+            var groupedGraphDto = _graphService.GetGroupedGraph(tree, xDimension, legendDimension, measure, filters, group);
             return _browseCubeMapper.Map(groupedGraphDto);
         }
 

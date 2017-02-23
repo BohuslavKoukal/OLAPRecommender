@@ -13,6 +13,7 @@ namespace Recommender2.ViewModels
         public int SelectedMeasureId { get; set; }
         public int XDimensionId { get; set; }
         public int LegendDimensionId { get; set; }
+        public bool Group { get; set; }
 
         public GroupedChartViewModel GroupedChart { get; set; }
         public DrilldownChartViewModel DrilldownChart { get; set; }

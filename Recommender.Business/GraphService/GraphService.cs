@@ -10,7 +10,7 @@ namespace Recommender.Business.GraphService
     public interface IGraphService
     {
         GroupedGraphDto GetGroupedGraph(DimensionTree allDimensionsTree, TreeDimensionDto xDimension,
-            DimensionDto legendDimension, Measure measure, List<FlatDimensionDto> filterDimensions);
+            DimensionDto legendDimension, Measure measure, List<FlatDimensionDto> filterDimensions, bool group);
 
         DrilldownGraphDto GetDrilldownGraph(DimensionTree allDimensionsTree, TreeDimensionDto xDimension, Measure measure, List<FlatDimensionDto> filters);
     }
@@ -25,7 +25,7 @@ namespace Recommender.Business.GraphService
         }
 
         public GroupedGraphDto GetGroupedGraph(DimensionTree allDimensionsTree, TreeDimensionDto xDimension,
-            DimensionDto legendDimension, Measure measure, List<FlatDimensionDto> filterDimensions)
+            DimensionDto legendDimension, Measure measure, List<FlatDimensionDto> filterDimensions, bool group)
         {
             var graph = new GroupedGraphDto
             {
@@ -35,7 +35,8 @@ namespace Recommender.Business.GraphService
             var xDimIsRoot = allDimensionsTree.IsRoot(xDimension.Id);
             var filteredXValues = GetFilteredValues(allDimensionsTree, xDimension, filterDimensions);
             // if x-dimension is root dimension, its values will be leaves
-            if (xDimIsRoot)
+            // x-dim values will be also leaves if graph should not be grouped
+            if (xDimIsRoot || !group)
             {
                 graph.Roots.Add(GetRoot(allDimensionsTree, xDimension, measure, filteredXValues, filterDimensions, null, legendDimension));
             }

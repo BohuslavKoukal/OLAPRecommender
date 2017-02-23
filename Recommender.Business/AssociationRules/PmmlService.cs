@@ -276,11 +276,6 @@ namespace Recommender.Business.AssociationRules
             doc.AppendChild(declaration);
             XmlProcessingInstruction pi = doc.CreateProcessingInstruction("oxygen", "SCHSchema=\"http://sewebar.vse.cz/schemas/GUHARestr0_1.sch\"");
             doc.AppendChild(pi);
-
-            //var xml = (XmlElement)doc.AppendChild(doc.CreateElement("xml"));
-            //xml.SetAttribute("version", "1.0");
-            //var oxygen = (XmlElement)doc.AppendChild(doc.CreateElement("oxygen"));
-            //oxygen.SetAttribute("SCHSchema", "http://sewebar.vse.cz/schemas/GUHARestr0_1.sch");
             var pmml = (XmlElement)doc.AppendChild(doc.CreateElement("PMML"));
             pmml.SetAttribute("version", "4.0");
             pmml.SetAttribute("xmlns", "http://www.dmg.org/PMML-4_0");
