@@ -115,7 +115,9 @@ namespace Recommender.Data.DataAccess
 
         public MiningTask GetMiningTask(int id)
         {
-            return _dbContext.MiningTasks.SingleOrDefault(mt => mt.Id == id);
+            return _dbContext.MiningTasks
+                .SingleOrDefault(mt => mt.Id == id)
+                ;
         }
 
         public List<Dimension> GetChildDimensions(int id)

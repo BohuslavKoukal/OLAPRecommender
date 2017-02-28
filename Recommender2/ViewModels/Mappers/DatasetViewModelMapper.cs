@@ -70,11 +70,7 @@ namespace Recommender2.ViewModels.Mappers
                 MiningTasks = dataset.MiningTasks?.Select(task => new MiningTaskViewModel
                 {
                     Id = task.Id,
-                    Name = task.Name,
-                    AssociationRules = task.AssociationRules?.Select(rule => new AssociationRuleViewModel
-                        {
-                            AssociationRuleText = rule.Text
-                        }).ToList()
+                    Name = task.Name
                 }).ToList(),
                 Filter = filterValues,
                 DimensionsSelectList = dimensionSelectList,

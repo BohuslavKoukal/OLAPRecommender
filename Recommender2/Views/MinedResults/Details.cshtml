@@ -14,20 +14,52 @@
         <li>Task duration: @Model.TaskDuration</li>
         <li>Task start time: @Model.TaskStartTime</li>
         <li>Task state: @Model.TaskState.ToString()</li>
+        <li>Rules count: @Model.AssociationRules.Count</li>
     </ul>
 </p>
 
 <h2>Mined rules</h2>
 
 <table class="table, table-bordered">
-    <tr><th>Name</th><th>Aad</th><th>Base</th></tr>
+    <tr><th>&nbsp;</th><th>Antecedent</th><th>Condition</th><th>Succedent</th><th>AAD</th><th>Base</th></tr>
     @foreach (var rule in Model.AssociationRules)
     {
+        var succedentCount = rule.Succedents.Count;
         <tr>
-            <td class="col-md-3">@rule.AssociationRuleText</td>
-            <td class="col-md-3">@rule.Aad</td>
-            <td class="col-md-3">@rule.Base</td>
+            <td rowspan="@succedentCount">
+                Show
+            </td>
+            <td rowspan="@succedentCount">
+                <ul>
+                    @foreach (var antecedentValue in rule.AntecedentValues)
+                    {
+                        <li>@antecedentValue</li>
+                    }
+                </ul>
+            </td>
+            <td rowspan="@succedentCount">
+                <ul>
+                    @foreach (var conditionValue in rule.ConditionValues)
+                    {
+                        <li>@conditionValue</li>
+                    }
+                </ul>
+            </td>
+            <td>@rule.Succedents[0].Text</td>
+            <td>@rule.Succedents[0].Aad</td>
+            <td>@rule.Succedents[0].Base</td>
         </tr>
+        if (succedentCount > 1)
+        {
+            for (var i = 1; i < succedentCount; i++)
+            {
+                <tr>
+                    <td>@rule.Succedents[i].Text</td>
+                    <td>@rule.Succedents[i].Aad</td>
+                    <td>@rule.Succedents[i].Base</td>
+                </tr>
+            }
+        }
     }
 
 </table>

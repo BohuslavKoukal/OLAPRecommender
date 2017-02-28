@@ -16,6 +16,7 @@ namespace Recommender.Data.Models
         public virtual Dataset DataSet { get; set; }
         public virtual Dimension ParentDimension { get; set; }
         public virtual ICollection<DimensionValue> DimensionValues { get; set; }
+        public virtual ICollection<MiningTask> Tasks { get; set; }
 
         public string TableName => DataSet.Name + Name;
         public string IdName => Name + Constants.String.Id;

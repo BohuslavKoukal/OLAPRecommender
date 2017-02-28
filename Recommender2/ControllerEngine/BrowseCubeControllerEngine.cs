@@ -36,7 +36,9 @@ namespace Recommender2.ControllerEngine
         
         public SingleDatasetViewModel GetDataset(int id)
         {
-            return _datasetMapper.Map(Data.GetDataset(id), GetFilterValues(id));
+            var dataset = Data.GetDataset(id);
+            var dimensionTree = _treeBuilder.ConvertToTree(id, true);
+            return _datasetMapper.Map(dataset, GetFilterValues(dimensionTree));
         }
 
         public DatasetViewModel GetDatasets()
@@ -75,10 +77,15 @@ namespace Recommender2.ControllerEngine
             };
         }
 
-        public FilterViewModel GetFilterValues(int datasetId)
+        private FilterViewModel GetFilterValues(DimensionTree tree)
         {
-            var tree = _treeBuilder.ConvertToTree(datasetId, true);
             return _browseCubeMapper.Map(tree);
+        }
+
+        private FilterViewModel GetFilterValues(int id)
+        {
+            var dimensionTree = _treeBuilder.ConvertToTree(id, true);
+            return GetFilterValues(dimensionTree);
         }
 
         private GroupedChartViewModel GetGroupedChart(DimensionTree tree, TreeDimensionDto xDimension, DimensionDto legendDimension,

@@ -13,7 +13,7 @@ namespace Recommender.Data.Migrations
         
         string IMigrationMetadata.Id
         {
-            get { return "201701271109073_Initial"; }
+            get { return "201702281855494_Initial"; }
         }
         
         string IMigrationMetadata.Source

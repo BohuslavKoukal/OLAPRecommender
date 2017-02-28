@@ -176,6 +176,7 @@
     <Compile Include="ViewModels\AssociationRuleViewModel.cs" />
     <Compile Include="ViewModels\AttributeViewModel.cs" />
     <Compile Include="ViewModels\BrowseCubeViewModel.cs" />
+    <Compile Include="ViewModels\CommensurabilityViewModel.cs" />
     <Compile Include="ViewModels\DrilldownViewModel.cs" />
     <Compile Include="ViewModels\FilterViewModel.cs" />
     <Compile Include="ViewModels\GroupedCategoryViewModel.cs" />
@@ -188,6 +189,7 @@
     <Compile Include="ViewModels\MeasureViewModel.cs" />
     <Compile Include="ViewModels\GroupedSeriesViewModel.cs" />
     <Compile Include="ViewModels\MiningTaskViewModel.cs" />
+    <Compile Include="ViewModels\MiningViewModel.cs" />
     <Compile Include="WebModule.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -16,12 +16,15 @@ namespace Recommender.Business.AssociationRules
         private readonly LispMinerConnector _lmConnector;
         private readonly IDataAccessLayer _data;
         private readonly IConfiguration _configuration;
+        private readonly RulesPruner _pruner;
 
-        public AssociationRulesTaskProcessor(LispMinerConnector lmConnector, IDataAccessLayer data, IConfiguration configuration)
+        public AssociationRulesTaskProcessor(LispMinerConnector lmConnector,
+            IDataAccessLayer data, IConfiguration configuration, RulesPruner pruner)
         {
             _lmConnector = lmConnector;
             _data = data;
             _configuration = configuration;
+            _pruner = pruner;
         }
 
         public void SendTask(MiningTask task, int rowCount, List<Discretization> discretizations, List<EquivalencyClass> eqClasses)
@@ -45,9 +48,10 @@ namespace Recommender.Business.AssociationRules
             var dimensionValues = _data.GetAllDimensionValues(datasetId);
             var measures = _data.GetAllMeasures(datasetId);
             var rules = pmmlService.GetRules(dimensionValues, measures);
+            var postprocessedRules = _pruner.PruneRules(rules);
             var taskDuration = pmmlService.GetTaskDuration();
             var numberOfVerifications = pmmlService.GetNumberOfVerifications();
-            _data.SaveTaskResults(taskId, rules, numberOfVerifications, taskDuration);
+            _data.SaveTaskResults(taskId, postprocessedRules, numberOfVerifications, taskDuration);
         }
     }
 }

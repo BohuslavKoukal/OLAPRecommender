@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using Recommender2.ControllerEngine;
+using Recommender2.ViewModels;
 
 namespace Recommender2.Controllers
 {
@@ -26,7 +27,7 @@ namespace Recommender2.Controllers
         // GET: MinedResults
         public ActionResult Mine(int id)
         {
-            var dataset = _browseCubeEgine.GetDataset(id);
+            var dataset = _engine.GetMiningViewModel(id);
             if (dataset == null)
             {
                 return HttpNotFound();
@@ -34,13 +35,13 @@ namespace Recommender2.Controllers
             return View(dataset);
         }
 
-        public ActionResult MineRules(int id, string name, double baseQ, double aadQ, Dictionary<int, Dictionary<int, bool>> dimensions)
+        public ActionResult MineRules(MiningViewModel model)
         {
-            _engine.MineRules(id, name, baseQ, aadQ, dimensions);
-            var model = _browseCubeEgine.GetDatasets();
-            model.Notification =
+            _engine.MineRules(model.Id, model);
+            var model2 = _browseCubeEgine.GetDatasets();
+            model2.Notification =
                 "Your task was succesfully sent to LispMiner. You will be notified once the mining is finished.";
-            return View("Index", model);
+            return View("Index", model2);
         }
 
         public ActionResult Details(int id)

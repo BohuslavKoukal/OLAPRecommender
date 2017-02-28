@@ -14,13 +14,11 @@ namespace Recommender.Data.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
         public int Id { get; set; }
-        public double Base { get; set; }
-        public double Aad { get; set; }
+        
         public string Text { get; set; }
         public virtual ICollection<DimensionValue> AntecedentValues { get; set; }
         public virtual ICollection<DimensionValue> ConditionValues { get; set; }
-        public Measure SuccedentMeasure { get; set; }
+        public virtual ICollection<Succedent> Succedents { get; set; }
         public virtual MiningTask MiningTask { get; set; }
-    
     }
 }

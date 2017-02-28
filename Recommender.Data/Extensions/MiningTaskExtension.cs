@@ -11,12 +11,15 @@ namespace Recommender.Data.Extensions
     {
         public static List<Dimension> GetAntecedentDimensions(this MiningTask task)
         {
-            return task.DataSet.Dimensions.Where(dim => task.DataSet.Dimensions.Any(d => d.ParentDimension?.Id == dim.Id)).ToList();
+            return (from dimId 
+                    in task.DataSet.Dimensions.Select(d => d.Id)
+                    where !task.ConditionDimensions.Select(d => d.Id).Contains(dimId)
+                    select task.DataSet.Dimensions.Single(d => d.Id == dimId)).ToList();
         }
 
         public static List<Dimension> GetConditionDimensions(this MiningTask task)
         {
-            return task.DataSet.Dimensions.Where(dim => task.DataSet.Dimensions.All(d => d.ParentDimension?.Id != dim.Id)).ToList();
+            return task.ConditionDimensions.ToList();
         }
 
         public static string GetAntecedentId(this MiningTask task)

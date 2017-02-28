@@ -13,9 +13,9 @@ namespace Recommender.Data.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
         public int Id { get; set; }
-        //public int LowerBoundary { get; set; }
-        //public int HigherBoundary { get; set; }
-        //public int Sign { get; set; }
+        public string SuccedentText { get; set; }
+        public double Aad { get; set; }
+        public double Base { get; set; }
         public Measure Measure { get; set; }
 
         [Required]

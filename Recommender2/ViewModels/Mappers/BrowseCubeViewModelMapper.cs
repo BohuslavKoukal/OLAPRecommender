@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using Recommender.Business.DTO;
+using Recommender.Common.Helpers;
 using Recommender.Data.Models;
 
 namespace Recommender2.ViewModels.Mappers
@@ -75,6 +76,7 @@ namespace Recommender2.ViewModels.Mappers
             return viewModel;
         }
 
+        
         private DrilldownSeriesViewModel GetSeries(DrilldownGraphDto graph)
         {
             var graphRoots = graph.Roots.ToList();

@@ -10,7 +10,6 @@ using Recommender.Common;
 using Recommender.Common.Helpers;
 using Recommender.Data.Extensions;
 using Recommender.Data.Models;
-using VDS.Common.Tries;
 
 namespace Recommender.Business.AssociationRules
 {
@@ -100,7 +99,7 @@ namespace Recommender.Business.AssociationRules
             }
             foreach (var measure in task.DataSet.Measures)
             {
-                CreateBbaSetting(bbaSettings, doc, measure.Name, measure.GetBbaId(), measure.Name, "Cut", 3);
+                CreateBbaSetting(bbaSettings, doc, measure.Name, measure.GetBbaId(), measure.Name, "Sequences", 3);
             }
         }
 
@@ -136,13 +135,11 @@ namespace Recommender.Business.AssociationRules
 
             CreateConjunctionDbaSetting(dbaSettings, doc, task.GetAntecedentId(), task.GetAntecedentDimensions(), 1, 2);
             CreateConjunctionDbaSetting(dbaSettings, doc, task.GetSuccedentId(), task.DataSet.Measures.ToList(), 1, 1);
-            CreateConjunctionDbaSetting(dbaSettings, doc, task.GetSuccedentId(), task.GetConditionDimensions(), 0, task.GetConditionDimensions().Count);
+            CreateConjunctionDbaSetting(dbaSettings, doc, task.GetSuccedentId(), task.GetConditionDimensions(), task.ConditionRequired ? 1 : 0, task.GetConditionDimensions().Count);
 
-            CreateBagDbaSetting(doc, dbaSettings, task.GetAntecedentBagId(), "Antecedent", task.GetAntecedentId(), 1, 5);
-            CreateBagDbaSetting(doc, dbaSettings, task.GetSuccedentBagId(), "Succedent", task.GetSuccedentId(), 1, 5);
-            CreateBagDbaSetting(doc, dbaSettings, task.GetConditionBagId(), "Condition", task.GetConditionId(), 1, 5);
-
-            
+            CreateBagDbaSetting(doc, dbaSettings, task.GetAntecedentBagId(), "Antecedent", task.GetAntecedentId(), 1, 1);
+            CreateBagDbaSetting(doc, dbaSettings, task.GetSuccedentBagId(), "Succedent", task.GetSuccedentId(), 1, 1);
+            CreateBagDbaSetting(doc, dbaSettings, task.GetConditionBagId(), "Condition", task.GetConditionId(), 1, 1);
         }
 
         private void CreateConjunctionDbaSetting(XmlElement dbaSettings, XmlDocument doc, string id, List<Dimension> dimensions, int minLength, int maxLength)
@@ -473,11 +470,9 @@ namespace Recommender.Business.AssociationRules
                 var ruleText = rule.ChildNodes.Cast<XmlNode>().Single(childNode => childNode.LocalName.Equals("Text")).InnerText;
                 var assocRule = new AssociationRule
                 {
-                    Aad = aadValue,
-                    Base = baseValue,
                     Text = ruleText,
                     AntecedentValues = GetLiteralConjunction(antecedentText, dimensionValues),
-                    SuccedentMeasure = GetSuccedentMeasure(succedentText, measures),
+                    Succedents = new List<Succedent> { GetSuccedent(succedentText, measures, aadValue, baseValue) } ,
                     ConditionValues = new List<DimensionValue>()
                 };
                 var conditionExists = rule.Attributes["condition"] != null;
@@ -523,19 +518,16 @@ namespace Recommender.Business.AssociationRules
             return ret;
         }
 
-        private Measure GetSuccedentMeasure(string succedentText, List<Measure> measures)
+        private Succedent GetSuccedent(string succedentText, List<Measure> measures, double aadValue, double baseValue)
         {
-            // Succedent text is supposed to be in form Units(>= [500;1000]) or Units([500;1000])
-
-            //var sign = succedentParts[1].Split(' ')[0];
-            //var signEnum = Sign.EquivalentTo;
-            //if(sign.StartsWith(">")) signEnum = Sign.Higher;
-            //else if (sign.StartsWith("<")) signEnum = Sign.Lower;
-            //var boundaries = signEnum == Sign.EquivalentTo ? succedentParts[1].Split(';') : succedentParts[1].Split(' ')[1].Split(';');
-            //var lowerBoundary = Convert.ToInt32(boundaries[0].Remove(0, 1));
-            //var higherBoundary = Convert.ToInt32(boundaries[1].Remove(boundaries[1].Length - 2, 2));
             var succedentParts = succedentText.Split('(');
-            return measures.Single(m => m.Name == succedentParts[0]);
+            return new Succedent
+            {
+                Aad = aadValue,
+                Base = baseValue,
+                Measure = measures.Single(m => m.Name == succedentParts[0]),
+                SuccedentText = succedentText
+            };
         }
         #endregion
 

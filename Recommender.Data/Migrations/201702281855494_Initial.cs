@@ -12,17 +12,12 @@ namespace Recommender.Data.Migrations
                 c => new
                     {
                         Id = c.Int(nullable: false, identity: true),
-                        Base = c.Double(nullable: false),
-                        Aad = c.Double(nullable: false),
                         Text = c.String(unicode: false),
                         MiningTask_Id = c.Int(),
-                        SuccedentMeasure_Id = c.Int(),
                     })
                 .PrimaryKey(t => t.Id)
                 .ForeignKey("dbo.MiningTask", t => t.MiningTask_Id)
-                .ForeignKey("dbo.Measure", t => t.SuccedentMeasure_Id)
-                .Index(t => t.MiningTask_Id)
-                .Index(t => t.SuccedentMeasure_Id);
+                .Index(t => t.MiningTask_Id);
             
             CreateTable(
                 "dbo.DimensionValue",
@@ -99,6 +94,7 @@ namespace Recommender.Data.Migrations
                         TaskState = c.Int(nullable: false),
                         Base = c.Double(nullable: false),
                         Aad = c.Double(nullable: false),
+                        ConditionRequired = c.Boolean(nullable: false),
                         TaskStartTime = c.DateTime(nullable: false, precision: 0),
                         TaskDuration = c.Time(nullable: false, precision: 0),
                         DataSet_Id = c.Int(),
@@ -106,6 +102,36 @@ namespace Recommender.Data.Migrations
                 .PrimaryKey(t => t.Id)
                 .ForeignKey("dbo.Dataset", t => t.DataSet_Id)
                 .Index(t => t.DataSet_Id);
+            
+            CreateTable(
+                "dbo.Succedent",
+                c => new
+                    {
+                        Id = c.Int(nullable: false, identity: true),
+                        SuccedentText = c.String(unicode: false),
+                        Aad = c.Double(nullable: false),
+                        Base = c.Double(nullable: false),
+                        AssociationRule_Id = c.Int(nullable: false),
+                        Measure_Id = c.Int(),
+                    })
+                .PrimaryKey(t => t.Id)
+                .ForeignKey("dbo.AssociationRule", t => t.AssociationRule_Id, cascadeDelete: true)
+                .ForeignKey("dbo.Measure", t => t.Measure_Id)
+                .Index(t => t.AssociationRule_Id)
+                .Index(t => t.Measure_Id);
+            
+            CreateTable(
+                "dbo.MiningTaskConditionDimensions",
+                c => new
+                    {
+                        MiningTaskId = c.Int(nullable: false),
+                        ConditionDimensionId = c.Int(nullable: false),
+                    })
+                .PrimaryKey(t => new { t.MiningTaskId, t.ConditionDimensionId })
+                .ForeignKey("dbo.MiningTask", t => t.MiningTaskId, cascadeDelete: true)
+                .ForeignKey("dbo.Dimension", t => t.ConditionDimensionId, cascadeDelete: true)
+                .Index(t => t.MiningTaskId)
+                .Index(t => t.ConditionDimensionId);
             
             CreateTable(
                 "dbo.AntecedentDimensionValues",
@@ -137,7 +163,8 @@ namespace Recommender.Data.Migrations
         
         public override void Down()
         {
-            DropForeignKey("dbo.AssociationRule", "SuccedentMeasure_Id", "dbo.Measure");
+            DropForeignKey("dbo.Succedent", "Measure_Id", "dbo.Measure");
+            DropForeignKey("dbo.Succedent", "AssociationRule_Id", "dbo.AssociationRule");
             DropForeignKey("dbo.ConditionDimensionValues", "DimensionValueId", "dbo.DimensionValue");
             DropForeignKey("dbo.ConditionDimensionValues", "AssociationRuleId", "dbo.AssociationRule");
             DropForeignKey("dbo.AntecedentDimensionValues", "DimensionValueId", "dbo.DimensionValue");
@@ -145,6 +172,8 @@ namespace Recommender.Data.Migrations
             DropForeignKey("dbo.Dimension", "ParentDimension_Id", "dbo.Dimension");
             DropForeignKey("dbo.DimensionValue", "Dimension_Id", "dbo.Dimension");
             DropForeignKey("dbo.MiningTask", "DataSet_Id", "dbo.Dataset");
+            DropForeignKey("dbo.MiningTaskConditionDimensions", "ConditionDimensionId", "dbo.Dimension");
+            DropForeignKey("dbo.MiningTaskConditionDimensions", "MiningTaskId", "dbo.MiningTask");
             DropForeignKey("dbo.AssociationRule", "MiningTask_Id", "dbo.MiningTask");
             DropForeignKey("dbo.Measure", "DataSet_Id", "dbo.Dataset");
             DropForeignKey("dbo.Dimension", "DataSet_Id", "dbo.Dataset");
@@ -153,16 +182,21 @@ namespace Recommender.Data.Migrations
             DropIndex("dbo.ConditionDimensionValues", new[] { "AssociationRuleId" });
             DropIndex("dbo.AntecedentDimensionValues", new[] { "DimensionValueId" });
             DropIndex("dbo.AntecedentDimensionValues", new[] { "AssociationRuleId" });
+            DropIndex("dbo.MiningTaskConditionDimensions", new[] { "ConditionDimensionId" });
+            DropIndex("dbo.MiningTaskConditionDimensions", new[] { "MiningTaskId" });
+            DropIndex("dbo.Succedent", new[] { "Measure_Id" });
+            DropIndex("dbo.Succedent", new[] { "AssociationRule_Id" });
             DropIndex("dbo.MiningTask", new[] { "DataSet_Id" });
             DropIndex("dbo.Measure", new[] { "DataSet_Id" });
             DropIndex("dbo.Attribute", new[] { "DataSet_Id" });
             DropIndex("dbo.Dimension", new[] { "ParentDimension_Id" });
             DropIndex("dbo.Dimension", new[] { "DataSet_Id" });
             DropIndex("dbo.DimensionValue", new[] { "Dimension_Id" });
-            DropIndex("dbo.AssociationRule", new[] { "SuccedentMeasure_Id" });
             DropIndex("dbo.AssociationRule", new[] { "MiningTask_Id" });
             DropTable("dbo.ConditionDimensionValues");
             DropTable("dbo.AntecedentDimensionValues");
+            DropTable("dbo.MiningTaskConditionDimensions");
+            DropTable("dbo.Succedent");
             DropTable("dbo.MiningTask");
             DropTable("dbo.Measure");
             DropTable("dbo.Attribute");

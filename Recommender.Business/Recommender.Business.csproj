@@ -92,6 +92,7 @@
     <Compile Include="AssociationRules\DataDiscretizator.cs" />
     <Compile Include="AssociationRules\LispMinerConnector.cs" />
     <Compile Include="AssociationRules\PmmlService.cs" />
+    <Compile Include="AssociationRules\RulesPruner.cs" />
     <Compile Include="DTO\EquivalencyClass.cs" />
     <Compile Include="DTO\Mappers\DimensionMapper.cs" />
     <Compile Include="DTO\Mappers\DimensionValueMapper.cs" />

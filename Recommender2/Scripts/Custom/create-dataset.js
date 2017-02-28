@@ -54,26 +54,30 @@
         $(".type[sequence=2]").val("String");
         $(".type[sequence=3]").val("String");
         $(".type[sequence=4]").val("String");
-        $(".type[sequence=5]").val("Int32");
-        $(".type[sequence=6]").val("String");
+        $(".type[sequence=5]").val("String");
+        $(".type[sequence=6]").val("Int32");
         $(".type[sequence=7]").val("String");
+        $(".type[sequence=8]").val("String");
 
         $(".role[sequence=0]").val(1);
         $(".role[sequence=1]").val(1);
         $(".role[sequence=2]").val(1);
         $(".role[sequence=3]").val(1);
         $(".role[sequence=4]").val(1);
-        $(".role[sequence=5]").val(2);
-        $(".role[sequence=6]").val(1);
+        $(".role[sequence=5]").val(1);
+        $(".role[sequence=6]").val(2);
         $(".role[sequence=7]").val(1);
+        $(".role[sequence=8]").val(1);
 
         $(".parent[sequence=0]").val("Type_");
         $(".parent[sequence=1]").val("Root dimension");
-        $(".parent[sequence=2]").val("Category");
-        $(".parent[sequence=3]").val("Datum");
-        $(".parent[sequence=4]").val("Root dimension");
-        $(".parent[sequence=6]").val("Product");
-        $(".parent[sequence=7]").val("Datum");
+        $(".parent[sequence=2]").val("Datum");
+        $(".parent[sequence=3]").val("Category");
+        $(".parent[sequence=4]").val("Datum");
+        $(".parent[sequence=5]").val("Root dimension");
+        $(".parent[sequence=6]").val("Root dimension");
+        $(".parent[sequence=7]").val("Product");
+        $(".parent[sequence=8]").val("Datum");
     });
 
 });

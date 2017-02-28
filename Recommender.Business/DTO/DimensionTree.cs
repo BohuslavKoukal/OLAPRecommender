@@ -29,6 +29,11 @@ namespace Recommender.Business.DTO
             return RootDimensions.Select(d => d.Id).Contains(id);
         }
 
+        public bool IsLeaf(int id)
+        {
+            return GetDimensionDtos().All(dimension => dimension.ParentId != id);
+        }
+
         public IEnumerable<int> GetDimensionIds()
         {
             var ret = new List<int>();

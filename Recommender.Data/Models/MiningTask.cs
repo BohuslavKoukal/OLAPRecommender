@@ -28,10 +28,11 @@ namespace Recommender.Data.Models
         public int TaskState { get; set; }
         public double Base { get; set; }
         public double Aad { get; set; }
+        public bool ConditionRequired { get; set; }
         public DateTime TaskStartTime { get; set; }
         public TimeSpan TaskDuration { get; set; }
         public virtual ICollection<AssociationRule> AssociationRules { get; set; }
-        //public virtual ICollection<DimensionValue> Filters { get; set; }
+        public virtual ICollection<Dimension> ConditionDimensions { get; set; }
 
         public virtual Dataset DataSet { get; set; }
     }

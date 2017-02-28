@@ -12,7 +12,7 @@ namespace Recommender.Data.DataAccess
         DbSet<Measure> Measures { get; set; }
         DbSet<MiningTask> MiningTasks { get; set; }
         DbSet<AssociationRule> AssociationRules { get; set; }
-        //DbSet<LiteralConjunction> LiteralConjunctions { get; set; }
+        DbSet<Succedent> Succedents { get; set; }
         DbSet<DimensionValue> DimensionValues { get; set; }
     }
 
@@ -29,6 +29,7 @@ namespace Recommender.Data.DataAccess
         public DbSet<Measure> Measures { get; set; }
         public DbSet<MiningTask> MiningTasks { get; set; }
         public DbSet<AssociationRule> AssociationRules { get; set; }
+        public DbSet<Succedent> Succedents { get; set; }
         public DbSet<DimensionValue> DimensionValues { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
@@ -51,6 +52,15 @@ namespace Recommender.Data.DataAccess
                     x.MapLeftKey("AssociationRuleId");
                     x.MapRightKey("DimensionValueId");
                     x.ToTable("ConditionDimensionValues");
+                });
+            modelBuilder.Entity<MiningTask>()
+                .HasMany(mt => mt.ConditionDimensions)
+                .WithMany(cd => cd.Tasks)
+                .Map(x =>
+                {
+                    x.MapLeftKey("MiningTaskId");
+                    x.MapRightKey("ConditionDimensionId");
+                    x.ToTable("MiningTaskConditionDimensions");
                 });
         }
     }

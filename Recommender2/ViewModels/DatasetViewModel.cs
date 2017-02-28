@@ -20,18 +20,21 @@ namespace Recommender2.ViewModels
         public string Notification { get; set; }
     }
 
-    public class SingleDatasetViewModel
+    public class SingleDatasetViewModelBase
     {
-        public SingleDatasetViewModel()
-        {
-            Attributes = new List<AttributeViewModel>();
-
-        }
         public int Id { get; set; }
         [Required]
         [StringLength(50)]
         [Display(Name = "Dataset Name")]
         public string Name { get; set; }
+    }
+
+    public class SingleDatasetViewModel : SingleDatasetViewModelBase
+    {
+        public SingleDatasetViewModel()
+        {
+            Attributes = new List<AttributeViewModel>();
+        }
 
         [Required]
         [Display(Name = "FileName")]
@@ -116,7 +119,5 @@ namespace Recommender2.ViewModels
         };
 
         public string DateFormat { get; set; }
-
-        
     }
 }

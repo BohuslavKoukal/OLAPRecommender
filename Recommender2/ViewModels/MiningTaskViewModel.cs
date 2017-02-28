@@ -24,6 +24,5 @@ namespace Recommender2.ViewModels
         public double Aad { get; set; }
         public DateTime TaskStartTime { get; set; }
         public TimeSpan TaskDuration { get; set; }
-        public FilterViewModel Filters { get; set; }
     }
 }
