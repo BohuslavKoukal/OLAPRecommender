@@ -16,7 +16,8 @@
     public enum FileType
     {
         Csv = 1,
-        Ttl = 2
+        Ttl = 2,
+        Undefined = 3
     }
 
     public enum TaskState

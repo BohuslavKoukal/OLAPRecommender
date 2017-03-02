@@ -44,7 +44,15 @@ namespace Recommender2.ViewModels
         [Display(Name = "FileName")]
         public string FilePath { get; set; }
 
-        public FileType FileType => FileName.GetFileType();
+        public FileType FileType
+        {
+            get
+            {
+                var fileType = FileName?.GetFileType();
+                if (fileType != null) return (FileType) fileType;
+                return FileType.Undefined;
+            }
+        }
 
         public State State { get; set; }
 

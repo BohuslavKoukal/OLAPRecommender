@@ -27,7 +27,7 @@
         var succedentCount = rule.Succedents.Count;
         <tr>
             <td rowspan="@succedentCount">
-                Show
+                @Html.ActionLink("Show", "ShowChart", "BrowseCube", new {ruleId = rule.Id}, null)
             </td>
             <td rowspan="@succedentCount">
                 <ul>

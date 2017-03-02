@@ -19,10 +19,9 @@ namespace Recommender2.ViewModels
         public DrilldownChartViewModel DrilldownChart { get; set; }
 
         public string MeasureName { get; set; }
+        public string ChartText { get; set; }
 
         public bool ShouldChartBeDisplayed { get; set; }
-
-        
     }
 
     public class GroupedChartViewModel : BaseChartViewModel

@@ -26,4 +26,11 @@
             }
         }
 
+        $('.checkAll').click(function () {
+            var parentDiv = $(this).parent();
+            var d = $(this).data(); // access the data object of the button
+            parentDiv.find(':checkbox').prop('checked', !d.checked); // set all checkboxes 'checked' property using '.prop()'
+            d.checked = !d.checked; // set the new 'checked' opposite value to the button's data object
+        });
+
     });

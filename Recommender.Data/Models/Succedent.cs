@@ -16,7 +16,7 @@ namespace Recommender.Data.Models
         public string SuccedentText { get; set; }
         public double Aad { get; set; }
         public double Base { get; set; }
-        public Measure Measure { get; set; }
+        public virtual Measure Measure { get; set; }
 
         [Required]
         public virtual AssociationRule AssociationRule { get; set; }

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Recommender.Business;
+using Recommender.Business.AssociationRules;
 using Recommender.Business.DTO;
 using Recommender.Business.GraphService;
 using Recommender.Business.StarSchema;
@@ -17,20 +19,22 @@ namespace Recommender2.ControllerEngine
         private readonly IBrowseCubeViewModelMapper _browseCubeMapper;
         private readonly IGraphService _graphService;
         private readonly IDimensionTreeBuilder _treeBuilder;
-        private readonly SubcubeService _subcubeService;
+        //private readonly SubcubeService _subcubeService;
         private readonly IDatasetViewModelMapper _datasetMapper;
+        private readonly AssociationRuleToViewMapper _ruleToViewMapper;
 
         public BrowseCubeControllerEngine(IDataAccessLayer data, IDatasetViewModelMapper datasetMapper,
-            IBrowseCubeViewModelMapper browseCubeMapper, SubcubeService subcubeService,
+            IBrowseCubeViewModelMapper browseCubeMapper,
             IStarSchemaQuerier starSchemaQuerier, IGraphService graphService,
-            IDimensionTreeBuilder treeBuilder) 
+            IDimensionTreeBuilder treeBuilder, AssociationRuleToViewMapper ruleToViewMapper) 
             : base(data, starSchemaQuerier)
         {
             _browseCubeMapper = browseCubeMapper;
             _graphService = graphService;
             _treeBuilder = treeBuilder;
-            _subcubeService = subcubeService;
+            //_subcubeService = subcubeService;
             _datasetMapper = datasetMapper;
+            _ruleToViewMapper = ruleToViewMapper;
         }
 
         
@@ -52,18 +56,33 @@ namespace Recommender2.ControllerEngine
             return _browseCubeMapper.Map(dataset, GetFilterValues(id));
         }
 
+        public BrowseCubeViewModel ShowChart(int ruleId)
+        {
+            var rule = Data.GetRule(ruleId);
+            var datasetId = rule.MiningTask.DataSet.Id;
+            var measureId = rule.Succedents.First().Measure.Id;
+            var xAndLegendIds = _ruleToViewMapper.GetXAndLegendDimensionsId(rule, _treeBuilder.ConvertToTree(datasetId));
+            var filters = _ruleToViewMapper.GetFilterValues(rule);
+            var chartText = _ruleToViewMapper.GetChartText(rule);
+            return ShowChart(datasetId, measureId, xAndLegendIds.Item1, xAndLegendIds.Item2, false, filters.ToList(), chartText);
+        }
+
+        public BrowseCubeViewModel ShowChart(int id, int selectedMeasureId, int xDimensionId, int legendDimensionId,
+            bool group, FilterViewModel filterDimensions)
+        {
+            return ShowChart(id, selectedMeasureId, xDimensionId, legendDimensionId, group, GetFilters(filterDimensions), String.Empty);
+        }
+
         public BrowseCubeViewModel ShowChart(int id, int selectedMeasureId, int xDimensionId, int legendDimensionId, bool group,
-            Dictionary <int, Dictionary<int, bool>> filterDimensions)
+            List<FlatDimensionDto> filters, string chartText)
         {
             var dataset = Data.GetDataset(id);
             var measure = Data.GetMeasure(selectedMeasureId);
-            var filters = _subcubeService.GetFilters(filterDimensions);
             var dimensionTree = _treeBuilder.ConvertToTree(id, true);
             var groupedChart = GetGroupedChart(dimensionTree, dimensionTree.GetDimensionDto(xDimensionId),
                 dimensionTree.GetDimensionDto(legendDimensionId), measure, filters, group);
             var drilldownChart = GetDrilldownChart(dimensionTree, dimensionTree.GetDimensionDto(xDimensionId), measure, filters);
             var filterValues = GetFilterValues(id);
-
             return new BrowseCubeViewModel
             {
                 Dataset = _datasetMapper.Map(dataset, filterValues),
@@ -73,8 +92,34 @@ namespace Recommender2.ControllerEngine
                 XDimensionId = xDimensionId,
                 MeasureName = measure?.Name,
                 ShouldChartBeDisplayed = true,
-                DrilldownChart = drilldownChart
+                DrilldownChart = drilldownChart,
+                ChartText = chartText
             };
+        }
+
+        private List<FlatDimensionDto> GetFilters(FilterViewModel filter)
+        {
+            var ret = new List<FlatDimensionDto>();
+            // do not filter dimensions where all values are true
+            foreach (var dim in filter.Dimensions)
+            {
+                var dimension = Data.GetDimension(dim.DimensionId);
+                var dimensionDto = new FlatDimensionDto
+                {
+                    Id = dimension.Id,
+                    Name = dimension.Name,
+                    DimensionValues = new List<DimensionValueDto>()
+                };
+                // do not include dimensions with all values checked
+                if (!dim.Values.Select(v => v.Checked).Contains(false)) continue;
+                foreach (var value in dim.Values)
+                {
+                    if (value.Checked)
+                        dimensionDto.DimensionValues.Add(new DimensionValueDto { Id = value.Id });
+                }
+                ret.Add(dimensionDto);
+            }
+            return ret;
         }
 
         private FilterViewModel GetFilterValues(DimensionTree tree)

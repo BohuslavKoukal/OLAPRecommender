@@ -89,6 +89,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssociationRules\AssociationRulesTaskProcessor.cs" />
+    <Compile Include="AssociationRules\AssociationRuleToViewMapper.cs" />
     <Compile Include="AssociationRules\DataDiscretizator.cs" />
     <Compile Include="AssociationRules\LispMinerConnector.cs" />
     <Compile Include="AssociationRules\PmmlService.cs" />

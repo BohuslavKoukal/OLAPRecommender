@@ -15,7 +15,8 @@ namespace Recommender.Data.DataAccess
         void PopulateDataset(int id, ICollection<Measure> measures, ICollection<Dimension> dimensions, State state);
         string GetCsvFilePath(int id);
         List<Dataset> GetAllDatasets();
-        List<DimensionValue> GetAllDimensionValues(int id);
+        List<DimensionValue> GetAllDimensionValues(int datasetId);
+        List<DimensionValue> GetAllDimValues(int dimensionId);
         List<Measure> GetAllMeasures(int id);
         Dataset GetDataset(string name);
         Dataset GetDataset(int id);
@@ -23,6 +24,7 @@ namespace Recommender.Data.DataAccess
         List<Dimension> GetChildDimensions(int id);
         Dimension GetDimension(int id);
         Measure GetMeasure(int id);
+        AssociationRule GetRule(int id);
     }
 
     public class DataAccessLayer : IDataAccessLayer
@@ -93,9 +95,14 @@ namespace Recommender.Data.DataAccess
             return _dbContext.Datasets.ToList();
         }
 
-        public List<DimensionValue> GetAllDimensionValues(int id)
+        public List<DimensionValue> GetAllDimensionValues(int datasetId)
         {
-            return _dbContext.DimensionValues.Where(dv => dv.Dimension.DataSet.Id == id).ToList();
+            return _dbContext.DimensionValues.Where(dv => dv.Dimension.DataSet.Id == datasetId).ToList();
+        }
+
+        public List<DimensionValue> GetAllDimValues(int dimensionId)
+        {
+            return _dbContext.DimensionValues.Where(dv => dv.Dimension.Id == dimensionId).ToList();
         }
 
         public List<Measure> GetAllMeasures(int id)
@@ -116,8 +123,7 @@ namespace Recommender.Data.DataAccess
         public MiningTask GetMiningTask(int id)
         {
             return _dbContext.MiningTasks
-                .SingleOrDefault(mt => mt.Id == id)
-                ;
+                .SingleOrDefault(mt => mt.Id == id);
         }
 
         public List<Dimension> GetChildDimensions(int id)
@@ -135,5 +141,9 @@ namespace Recommender.Data.DataAccess
             return _dbContext.Measures.Single(m => m.Id == id);
         }
 
+        public AssociationRule GetRule(int id)
+        {
+            return _dbContext.AssociationRules.Single(ar => ar.Id == id);
+        }
     }
 }

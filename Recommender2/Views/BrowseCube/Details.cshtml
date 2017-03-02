@@ -11,7 +11,7 @@
 
 @using (Html.BeginForm("ShowChart", "BrowseCube", null, FormMethod.Post))
 {
-    @Html.HiddenFor(m => Model.DatasetId)
+    @Html.HiddenFor(m => m.DatasetId)
     <div class="form-horizontal">
         @Html.ValidationSummary(true, "", new {@class = "text-danger"})
         <div class="form-group">
@@ -43,30 +43,29 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        
-                            @for (var i = 0; i < Model.Dataset.Filter.Dimensions.Count; i++)
-                            {
-                                var dimension = Model.Dataset.Filter.Dimensions[i];
-                                <div class="floating-box"><strong>@Html.DisplayFor(m => Model.Dataset.Filter.Dimensions[i].DimensionName)</strong><br />
-                                    @Html.Hidden($"dimensions[{i}].Key", dimension.DimensionId)
-                                        @for (var j = 0; j < dimension.Values.Count; j++)
-                                        {
-                                            var value = dimension.Values[j];
-                                            @Html.Hidden($"dimensions[{i}].Value[{j}].Key", value.Id)
-                                            @Html.CheckBox($"dimensions[{i}].Value[{j}].Value", value.Checked)
-                                            @Html.Label(value.Value, " " + value.Value)
-                                            @Html.Hidden($"dimensions[{i}].Value[{j}].Value", value.Id, new {value = false})
-                                            <br/>
-                                        }
-                                </div>
-                            }
-                        
+                        @for (var i = 0; i < Model.Dataset.Filter.Dimensions.Count; i++)
+                        {
+                            var dimension = Model.Dataset.Filter.Dimensions[i];
+                            <div class="floating-box">
+                                <strong>@Html.DisplayFor(m => dimension.DimensionName)</strong><br/>
+                                <a href="#" class='checkAll' data-checked='true'>check/uncheck all</a><br />
+                                @Html.HiddenFor(m => m.Dataset.Filter.Dimensions[i].DimensionId)
+                                @for (var j = 0; j < Model.Dataset.Filter.Dimensions[i].Values.Count; j++)
+                                {
+                                    @Html.CheckBoxFor(m => m.Dataset.Filter.Dimensions[i].Values[j].Checked)
+                                    @Html.HiddenFor(m => m.Dataset.Filter.Dimensions[i].Values[j].Id)
+                                    @Html.DisplayFor(m => m.Dataset.Filter.Dimensions[i].Values[j].Value)
+                                    <br />
+                                }
+                            </div>
+                        }
                         <p><span class="close btn btn-default">Apply filters</span></p>
                     </div>
                     <p></p>
                 </div>
             </div>
         </div>
+       
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
                 <input type="submit" value="Show chart" class="btn btn-default"/>
@@ -76,6 +75,7 @@
 }
 
 <div style="display: @chartDisplay">
+    <p>@Model.ChartText</p>
     <script>
         measureName = @JavaScriptConverter.SerializeObject(Model.MeasureName);
         //

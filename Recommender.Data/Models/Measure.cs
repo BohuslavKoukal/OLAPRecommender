@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -13,5 +14,7 @@ namespace Recommender.Data.Models
         public string RdfUri { get; set; }
         public int Type { get; set; }
         public virtual Dataset DataSet { get; set; }
+
+        public virtual ICollection<Succedent> Succedents { get; set; }
     }
 }

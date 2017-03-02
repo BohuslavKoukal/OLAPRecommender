@@ -6,6 +6,7 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using Recommender2.ControllerEngine;
+using Recommender2.ViewModels;
 
 namespace Recommender2.Controllers
 {
@@ -35,9 +36,21 @@ namespace Recommender2.Controllers
             return View(dataset);
         }
 
-        public ActionResult ShowChart(int datasetId, int selectedMeasureId, int xDimensionId, int legendDimensionId, bool group, Dictionary<int, Dictionary<int, bool>> dimensions)
+        [HttpGet]
+        public ActionResult ShowChart(int ruleId)
         {
-            var chart = _engine.ShowChart(datasetId, selectedMeasureId, xDimensionId, legendDimensionId, group, dimensions);
+            var chart = _engine.ShowChart(ruleId);
+            if (chart == null)
+            {
+                return HttpNotFound();
+            }
+            return View("Details", chart);
+        }
+
+        [HttpPost]
+        public ActionResult ShowChart(int datasetId, BrowseCubeViewModel model)
+        {
+            var chart = _engine.ShowChart(datasetId, model.SelectedMeasureId, model.XDimensionId, model.LegendDimensionId, model.Group, model.Dataset.Filter);
             if (chart == null)
             {
                 return HttpNotFound();
