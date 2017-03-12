@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity.Infrastructure;
 using System.Linq;
 using Recommender.Common.Enums;
 using Recommender.Data.Models;
@@ -13,6 +14,7 @@ namespace Recommender.Data.DataAccess
         void Insert(ICollection<AssociationRule> rules);
         void SaveTaskResults(int taskId, ICollection<AssociationRule> rules, int numberOfVerifications, TimeSpan taskDuration);
         void PopulateDataset(int id, ICollection<Measure> measures, ICollection<Dimension> dimensions, State state);
+        void SetTaskState(int taskId, int state, string failedReason = null);
         string GetCsvFilePath(int id);
         List<Dataset> GetAllDatasets();
         List<DimensionValue> GetAllDimensionValues(int datasetId);
@@ -82,6 +84,14 @@ namespace Recommender.Data.DataAccess
                 dimension.DataSet = dataset;
                 _dbContext.Dimensions.Add(dimension);
             }
+            _dbContext.SaveChanges();
+        }
+
+        public void SetTaskState(int taskId, int state, string failedReason = null)
+        {
+            var task = GetMiningTask(taskId);
+            task.TaskState = state;
+            task.FailedReason = failedReason;
             _dbContext.SaveChanges();
         }
 

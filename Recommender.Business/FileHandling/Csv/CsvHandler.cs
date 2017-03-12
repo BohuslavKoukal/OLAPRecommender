@@ -91,7 +91,8 @@ namespace Recommender.Business.FileHandling.Csv
                             DateTime dateTime;
                             var isDateTime = DateTime.TryParseExact(fields[i], dateFormat, CultureInfo.InvariantCulture,
                                   DateTimeStyles.None, out dateTime);
-                            if (!isDateTime) errors.Add($"Value {fields[i]} is not datetime.");
+                            if (!isDateTime)
+                                errors.Add($"Value {fields[i]} is not datetime.");
                         }
                         else if (type == typeof(double))
                         {

@@ -1,4 +1,5 @@
 ﻿using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
 using System.Data.Entity.ModelConfiguration.Conventions;
 using Recommender.Data.Models;
 
@@ -21,6 +22,9 @@ namespace Recommender.Data.DataAccess
     {
         public DbContext() : base("DbContext")
         {
+            var adapter = (IObjectContextAdapter)this;
+            var objectContext = adapter.ObjectContext;
+            objectContext.CommandTimeout = 2 * 60;
         }
 
         public DbSet<Attribute> Attributes { get; set; }

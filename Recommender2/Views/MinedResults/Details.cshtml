@@ -14,6 +14,10 @@
         <li>Task duration: @Model.TaskDuration</li>
         <li>Task start time: @Model.TaskStartTime</li>
         <li>Task state: @Model.TaskState.ToString()</li>
+        @if (@Model.TaskState == TaskState.Failed)
+        {
+            <li>Failed reason: @Model.FailedReason</li>
+        }
         <li>Rules count: @Model.AssociationRules.Count</li>
     </ul>
 </p>

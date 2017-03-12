@@ -85,25 +85,6 @@ namespace Recommender.Data.Migrations
                 .Index(t => t.DataSet_Id);
             
             CreateTable(
-                "dbo.MiningTask",
-                c => new
-                    {
-                        Id = c.Int(nullable: false, identity: true),
-                        Name = c.String(unicode: false),
-                        NumberOfVerifications = c.Int(nullable: false),
-                        TaskState = c.Int(nullable: false),
-                        Base = c.Double(nullable: false),
-                        Aad = c.Double(nullable: false),
-                        ConditionRequired = c.Boolean(nullable: false),
-                        TaskStartTime = c.DateTime(nullable: false, precision: 0),
-                        TaskDuration = c.Time(nullable: false, precision: 0),
-                        DataSet_Id = c.Int(),
-                    })
-                .PrimaryKey(t => t.Id)
-                .ForeignKey("dbo.Dataset", t => t.DataSet_Id)
-                .Index(t => t.DataSet_Id);
-            
-            CreateTable(
                 "dbo.Succedent",
                 c => new
                     {
@@ -119,6 +100,26 @@ namespace Recommender.Data.Migrations
                 .ForeignKey("dbo.Measure", t => t.Measure_Id)
                 .Index(t => t.AssociationRule_Id)
                 .Index(t => t.Measure_Id);
+            
+            CreateTable(
+                "dbo.MiningTask",
+                c => new
+                    {
+                        Id = c.Int(nullable: false, identity: true),
+                        Name = c.String(unicode: false),
+                        NumberOfVerifications = c.Int(nullable: false),
+                        TaskState = c.Int(nullable: false),
+                        Base = c.Double(nullable: false),
+                        Aad = c.Double(nullable: false),
+                        ConditionRequired = c.Boolean(nullable: false),
+                        TaskStartTime = c.DateTime(nullable: false, precision: 0),
+                        TaskDuration = c.Time(nullable: false, precision: 0),
+                        FailedReason = c.String(unicode: false),
+                        DataSet_Id = c.Int(),
+                    })
+                .PrimaryKey(t => t.Id)
+                .ForeignKey("dbo.Dataset", t => t.DataSet_Id)
+                .Index(t => t.DataSet_Id);
             
             CreateTable(
                 "dbo.MiningTaskConditionDimensions",
@@ -163,8 +164,6 @@ namespace Recommender.Data.Migrations
         
         public override void Down()
         {
-            DropForeignKey("dbo.Succedent", "Measure_Id", "dbo.Measure");
-            DropForeignKey("dbo.Succedent", "AssociationRule_Id", "dbo.AssociationRule");
             DropForeignKey("dbo.ConditionDimensionValues", "DimensionValueId", "dbo.DimensionValue");
             DropForeignKey("dbo.ConditionDimensionValues", "AssociationRuleId", "dbo.AssociationRule");
             DropForeignKey("dbo.AntecedentDimensionValues", "DimensionValueId", "dbo.DimensionValue");
@@ -175,6 +174,8 @@ namespace Recommender.Data.Migrations
             DropForeignKey("dbo.MiningTaskConditionDimensions", "ConditionDimensionId", "dbo.Dimension");
             DropForeignKey("dbo.MiningTaskConditionDimensions", "MiningTaskId", "dbo.MiningTask");
             DropForeignKey("dbo.AssociationRule", "MiningTask_Id", "dbo.MiningTask");
+            DropForeignKey("dbo.Succedent", "Measure_Id", "dbo.Measure");
+            DropForeignKey("dbo.Succedent", "AssociationRule_Id", "dbo.AssociationRule");
             DropForeignKey("dbo.Measure", "DataSet_Id", "dbo.Dataset");
             DropForeignKey("dbo.Dimension", "DataSet_Id", "dbo.Dataset");
             DropForeignKey("dbo.Attribute", "DataSet_Id", "dbo.Dataset");
@@ -184,9 +185,9 @@ namespace Recommender.Data.Migrations
             DropIndex("dbo.AntecedentDimensionValues", new[] { "AssociationRuleId" });
             DropIndex("dbo.MiningTaskConditionDimensions", new[] { "ConditionDimensionId" });
             DropIndex("dbo.MiningTaskConditionDimensions", new[] { "MiningTaskId" });
+            DropIndex("dbo.MiningTask", new[] { "DataSet_Id" });
             DropIndex("dbo.Succedent", new[] { "Measure_Id" });
             DropIndex("dbo.Succedent", new[] { "AssociationRule_Id" });
-            DropIndex("dbo.MiningTask", new[] { "DataSet_Id" });
             DropIndex("dbo.Measure", new[] { "DataSet_Id" });
             DropIndex("dbo.Attribute", new[] { "DataSet_Id" });
             DropIndex("dbo.Dimension", new[] { "ParentDimension_Id" });
@@ -196,8 +197,8 @@ namespace Recommender.Data.Migrations
             DropTable("dbo.ConditionDimensionValues");
             DropTable("dbo.AntecedentDimensionValues");
             DropTable("dbo.MiningTaskConditionDimensions");
-            DropTable("dbo.Succedent");
             DropTable("dbo.MiningTask");
+            DropTable("dbo.Succedent");
             DropTable("dbo.Measure");
             DropTable("dbo.Attribute");
             DropTable("dbo.Dataset");

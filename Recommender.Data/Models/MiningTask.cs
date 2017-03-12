@@ -31,6 +31,7 @@ namespace Recommender.Data.Models
         public bool ConditionRequired { get; set; }
         public DateTime TaskStartTime { get; set; }
         public TimeSpan TaskDuration { get; set; }
+        public string FailedReason { get; set; }
         public virtual ICollection<AssociationRule> AssociationRules { get; set; }
         public virtual ICollection<Dimension> ConditionDimensions { get; set; }
 

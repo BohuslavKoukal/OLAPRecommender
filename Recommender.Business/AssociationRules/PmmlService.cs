@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using System.Xml.Schema;
 using Recommender.Business.DTO;
 using Recommender.Common;
 using Recommender.Common.Helpers;
@@ -17,6 +18,12 @@ namespace Recommender.Business.AssociationRules
     {
         private readonly XmlDocument _doc;
         private readonly IConfiguration _configuration;
+        private readonly Tuple<string, string> _xmlns = Tuple.Create("xmlns", "http://www.dmg.org/PMML-4_0");
+        private readonly Tuple<string, string> _xmlnsXsi = Tuple.Create("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+        private readonly Tuple<string, string> _xmlnsPmml = Tuple.Create("xmlns:pmml", "http://www.dmg.org/PMML-4_0");
+        private readonly Tuple<string, string> _xmlnsSchemalocation = Tuple.Create("xsi:schemaLocation", "http://www.dmg.org/PMML-4_0 http://sewebar.vse.cz/schemas/PMML4.0+GUHA0.1.xsd");
+        private readonly Tuple<string, string> _pmml = Tuple.Create("pmml", "http://www.dmg.org/PMML-4_0");
+        private readonly Tuple<string, string> _guha = Tuple.Create("guha", "http://keg.vse.cz/ns/GUHA0.1rev1");
 
         public PmmlService(IConfiguration configuration)
         {
@@ -30,32 +37,48 @@ namespace Recommender.Business.AssociationRules
             _doc.Load(resultsPmmlFileName);
         }
 
-        public XmlDocument GetPreprocessingAndTaskPmml(MiningTask task, int factTableRowCount, List<Discretization> discretizations, List<EquivalencyClass> eqClasses)
+        public XmlDocument GetPreprocessingPmml(MiningTask task, List<Discretization> discretizations)
         {
-            var docAndRoot = GetPreprocessingPmml(task, factTableRowCount, discretizations);
-            var document = GetMiningTaskPmml(task, docAndRoot.Item1, docAndRoot.Item2, eqClasses);
-            document.Save(_configuration.GetPmmlFilesLocation() + task.Name + "preprocessingAndTask.pmml");
+            XmlDocument doc = new XmlDocument();
+            var pmml = GetSchemaDefinition(doc);
+            GetHeaders(pmml, doc, task.DataSet.Name + "metabase", task.DataSet.Name + "view");
+            CreateMiningBuildTask(pmml, doc, task);
+            CreateDataDictionary(pmml, doc, task);
+            CreateTransformationDictionary(pmml, doc, task, discretizations);
+            doc.Save(_configuration.GetPmmlFilesLocation() + task.Name + "preprocessing.pmml");
+            return doc;
+        }
+
+        public XmlDocument GetTaskPmml(MiningTask task, List<EquivalencyClass> eqClasses)
+        {
+            var document = GetMiningTaskPmml(task, eqClasses);
+            document.Save(_configuration.GetPmmlFilesLocation() + task.Name + "task.pmml");
             return document;
         }
 
         #region MiningTask
-        private XmlDocument GetMiningTaskPmml(MiningTask task, XmlDocument doc, XmlElement root, List<EquivalencyClass> eqClasses)
+        private XmlDocument GetMiningTaskPmml(MiningTask task, List<EquivalencyClass> eqClasses)
         {
-            var gam = GetGuhaAssociationModel(task, doc, root);
+            XmlDocument doc = new XmlDocument();
+            var pmml = GetSchemaDefinition(doc);
+            GetHeaders(pmml, doc, task.DataSet.Name + "metabase", task.DataSet.Name + "view");
+            var gam = GetGuhaAssociationModel(task, doc, pmml);
             var ts = GetTaskSetting(doc, gam);
             GetLispMinerExtension(doc, ts);
             GetBbaSettings(task, doc, ts);
             GetDbaSettings(task, doc, ts, eqClasses);
             CreateAntecedentConsequentAndConditionSettings(task, ts, doc);
             CreateInterestMeasureSettings(task, ts, doc);
+            CreatePmmlMiningSchema(doc, gam, task);
             return doc;
         }
 
         private XmlElement GetGuhaAssociationModel(MiningTask task, XmlDocument doc, XmlElement root)
         {
-            var gam = (XmlElement)root.AppendChild(doc.CreateElement("guha:AssociationModel"));
+            var gam = (XmlElement)root.AppendChild(doc.CreateElement(_guha.Item1, "AssociationModel", _guha.Item2));
+            
             gam.SetAttribute("xsi:schemaLocation", "http://keg.vse.cz/ns/GUHA0.1rev1 http://sewebar.vse.cz/schemas/GUHA0.1rev1.xsd");
-            gam.SetAttribute("xmlns:guha", "http://keg.vse.cz/ns/GUHA0.1rev1");
+            //gam.SetAttribute("xmlns:guha", "http://keg.vse.cz/ns/GUHA0.1rev1");
             gam.SetAttribute("modelName", task.Name);
             gam.SetAttribute("functionName", "associationRules");
             gam.SetAttribute("algorithmName", "4ft");
@@ -73,9 +96,9 @@ namespace Recommender.Business.AssociationRules
             var lmex = (XmlElement)taskSetting.AppendChild(doc.CreateElement("Extension"));
             lmex.SetAttribute("name", "LISp-Miner");
             var taskGroup = (XmlElement)lmex.AppendChild(doc.CreateElement("TaskGroup"));
-            taskGroup.InnerText = "Default group of tasks";
+            taskGroup.InnerText = "Default Task Group";
             var ftMissingType = (XmlElement)lmex.AppendChild(doc.CreateElement("FTMissingsType"));
-            ftMissingType.InnerText = "Ignore X-categories";
+            ftMissingType.InnerText = "Delete";
             var fTTaskParamProlong100AFlag = (XmlElement)lmex.AppendChild(doc.CreateElement("FTTaskParamProlong100AFlag"));
             fTTaskParamProlong100AFlag.InnerText = "Yes";
             var fTTaskParamProlong100SFlag = (XmlElement)lmex.AppendChild(doc.CreateElement("FTTaskParamProlong100SFlag"));
@@ -93,20 +116,20 @@ namespace Recommender.Business.AssociationRules
         private void GetBbaSettings(MiningTask task, XmlDocument doc, XmlElement taskSetting)
         {
             var bbaSettings = (XmlElement)taskSetting.AppendChild(doc.CreateElement("BBASettings"));
-            foreach (var dimension in task.DataSet.Dimensions)
+            foreach (var dimension in task.DataSet.GetNonDateDimensions())
             {
-                CreateBbaSetting(bbaSettings, doc, dimension.Name, dimension.GetBbaId(), dimension.GetNameValue(), "Subsets", 1);
+                CreateBbaSetting(bbaSettings, doc, dimension.Name, dimension.GetBbaId(), dimension.GetNameValue(), "Subset", 1);
             }
             foreach (var measure in task.DataSet.Measures)
             {
-                CreateBbaSetting(bbaSettings, doc, measure.Name, measure.GetBbaId(), measure.Name, "Sequences", 3);
+                CreateBbaSetting(bbaSettings, doc, measure.Name, measure.GetBbaId(), measure.Name, "Interval", 3);
             }
         }
 
         private void CreateBbaSetting(XmlElement bbaSettings, XmlDocument doc, string name, string id, string nameValue, string coefType, int maxLength)
         {
-            var bbaSetting = (XmlElement)bbaSettings.AppendChild(doc.CreateElement("BBASettings"));
-            bbaSettings.SetAttribute("id", id);
+            var bbaSetting = (XmlElement)bbaSettings.AppendChild(doc.CreateElement("BBASetting"));
+            bbaSetting.SetAttribute("id", id);
             var naame = (XmlElement)bbaSetting.AppendChild(doc.CreateElement("Name"));
             naame.InnerText = name;
             var fieldRef = (XmlElement)bbaSetting.AppendChild(doc.CreateElement("FieldRef"));
@@ -123,7 +146,7 @@ namespace Recommender.Business.AssociationRules
         private void GetDbaSettings(MiningTask task, XmlDocument doc, XmlElement taskSetting, List<EquivalencyClass> equivalencyClasses)
         {
             var dbaSettings = (XmlElement)taskSetting.AppendChild(doc.CreateElement("DBASettings"));
-            foreach (var dimension in task.DataSet.Dimensions)
+            foreach (var dimension in task.DataSet.GetNonDateDimensions())
             {
                 CreateLiteralDbaSetting(dbaSettings, doc, dimension.Name, dimension.GetDbaId(), dimension.GetBbaId(),
                     equivalencyClasses.SingleOrDefault(ec => ec.Dimensions.Select(d => d.Name).Contains(dimension.Name)));
@@ -133,18 +156,18 @@ namespace Recommender.Business.AssociationRules
                 CreateLiteralDbaSetting(dbaSettings, doc, measure.Name, measure.GetDbaId(), measure.GetBbaId());
             }
 
-            CreateConjunctionDbaSetting(dbaSettings, doc, task.GetAntecedentId(), task.GetAntecedentDimensions(), 1, 2);
-            CreateConjunctionDbaSetting(dbaSettings, doc, task.GetSuccedentId(), task.DataSet.Measures.ToList(), 1, 1);
-            CreateConjunctionDbaSetting(dbaSettings, doc, task.GetSuccedentId(), task.GetConditionDimensions(), task.ConditionRequired ? 1 : 0, task.GetConditionDimensions().Count);
+            CreateConjunctionDbaSetting(dbaSettings, doc, task.GetAntecedentId(), task.GetAntecedentName(), task.GetAntecedentDimensions(), 1, 2);
+            CreateConjunctionDbaSetting(dbaSettings, doc, task.GetSuccedentId(), task.GetSuccedentName(), task.DataSet.Measures.ToList(), 1, 1);
+            CreateConjunctionDbaSetting(dbaSettings, doc, task.GetConditionId(), task.GetConditionName(), task.GetConditionDimensions(), task.ConditionRequired ? 1 : 0, task.GetConditionDimensions().Count);
 
-            CreateBagDbaSetting(doc, dbaSettings, task.GetAntecedentBagId(), "Antecedent", task.GetAntecedentId(), 1, 1);
-            CreateBagDbaSetting(doc, dbaSettings, task.GetSuccedentBagId(), "Succedent", task.GetSuccedentId(), 1, 1);
-            CreateBagDbaSetting(doc, dbaSettings, task.GetConditionBagId(), "Condition", task.GetConditionId(), 1, 1);
+            CreateBagDbaSetting(doc, dbaSettings, task.GetAntecedentBagId(), task.GetAntecedentName(), task.GetAntecedentId(), 1, 1);
+            CreateBagDbaSetting(doc, dbaSettings, task.GetSuccedentBagId(), task.GetSuccedentName(), task.GetSuccedentId(), 1, 1);
+            CreateBagDbaSetting(doc, dbaSettings, task.GetConditionBagId(), task.GetConditionName(), task.GetConditionId(), 1, 1);
         }
 
-        private void CreateConjunctionDbaSetting(XmlElement dbaSettings, XmlDocument doc, string id, List<Dimension> dimensions, int minLength, int maxLength)
+        private void CreateConjunctionDbaSetting(XmlElement dbaSettings, XmlDocument doc, string id, string name, List<Dimension> dimensions, int minLength, int maxLength)
         {
-            var dbaSetting = CreateFirstPartOfConjunctionDbaSetting(dbaSettings, doc, id);
+            var dbaSetting = CreateFirstPartOfConjunctionDbaSetting(dbaSettings, doc, id, name);
             foreach (var dimension in dimensions)
             {
                 var baSettingRef = (XmlElement)dbaSetting.AppendChild(doc.CreateElement("BASettingRef"));
@@ -153,9 +176,9 @@ namespace Recommender.Business.AssociationRules
             CreateLastPartOfConjunctionDbaSetting(dbaSetting, doc, minLength, maxLength);
         }
 
-        private void CreateConjunctionDbaSetting(XmlElement dbaSettings, XmlDocument doc, string id, List<Measure> measures, int minLength, int maxLength)
+        private void CreateConjunctionDbaSetting(XmlElement dbaSettings, XmlDocument doc, string id, string name, List<Measure> measures, int minLength, int maxLength)
         {
-            var dbaSetting = CreateFirstPartOfConjunctionDbaSetting(dbaSettings, doc, id);
+            var dbaSetting = CreateFirstPartOfConjunctionDbaSetting(dbaSettings, doc, id, name);
             foreach (var measure in measures)
             {
                 var baSettingRef = (XmlElement)dbaSetting.AppendChild(doc.CreateElement("BASettingRef"));
@@ -164,13 +187,13 @@ namespace Recommender.Business.AssociationRules
             CreateLastPartOfConjunctionDbaSetting(dbaSetting, doc, minLength, maxLength);
         }
 
-        private XmlElement CreateFirstPartOfConjunctionDbaSetting(XmlElement dbaSettings, XmlDocument doc, string id)
+        private XmlElement CreateFirstPartOfConjunctionDbaSetting(XmlElement dbaSettings, XmlDocument doc, string id, string name)
         {
             var dbaSetting = (XmlElement)dbaSettings.AppendChild(doc.CreateElement("DBASetting"));
-            dbaSettings.SetAttribute("id", id);
-            dbaSettings.SetAttribute("type", "Conjunction");
-            var name = (XmlElement)dbaSetting.AppendChild(doc.CreateElement("Name"));
-            name.InnerText = "Default Partial Cedent";
+            dbaSetting.SetAttribute("id", id);
+            dbaSetting.SetAttribute("type", "Conjunction");
+            var nameElement = (XmlElement)dbaSetting.AppendChild(doc.CreateElement("Name"));
+            nameElement.InnerText = name;
             return dbaSetting;
         }
 
@@ -185,8 +208,8 @@ namespace Recommender.Business.AssociationRules
         private void CreateLiteralDbaSetting(XmlElement dbaSettings, XmlDocument doc, string name, string id, string bbaId, EquivalencyClass eqClass = null)
         {
             var dbaSetting = (XmlElement)dbaSettings.AppendChild(doc.CreateElement("DBASetting"));
-            dbaSettings.SetAttribute("id", id);
-            dbaSettings.SetAttribute("type", "Literal");
+            dbaSetting.SetAttribute("id", id);
+            dbaSetting.SetAttribute("type", "Literal");
             var naame = (XmlElement)dbaSetting.AppendChild(doc.CreateElement("Name"));
             naame.InnerText = name;
             var baSettingRef = (XmlElement)dbaSetting.AppendChild(doc.CreateElement("BASettingRef"));
@@ -205,8 +228,8 @@ namespace Recommender.Business.AssociationRules
         private void CreateBagDbaSetting(XmlDocument doc, XmlElement dbaSettings, string id, string name, string baRef, int minLength, int maxLength)
         {
             var dbaSetting = (XmlElement)dbaSettings.AppendChild(doc.CreateElement("DBASetting"));
-            dbaSettings.SetAttribute("id", id);
-            dbaSettings.SetAttribute("type", "Conjunction");
+            dbaSetting.SetAttribute("id", id);
+            dbaSetting.SetAttribute("type", "Conjunction");
             var naame = (XmlElement)dbaSetting.AppendChild(doc.CreateElement("Name"));
             naame.InnerText = name;
             var baSettingsRef = (XmlElement)dbaSetting.AppendChild(doc.CreateElement("BASettingRef"));
@@ -237,8 +260,8 @@ namespace Recommender.Business.AssociationRules
             var baseCompareType = (XmlElement)baseMeasureThreshold.AppendChild(doc.CreateElement("CompareType"));
             baseCompareType.InnerText = "Greater than or equal";
             var baseThreshold = (XmlElement)baseMeasureThreshold.AppendChild(doc.CreateElement("Threshold"));
-            baseThreshold.InnerText = task.Base.ToString(CultureInfo.InvariantCulture);
-            baseThreshold.SetAttribute("type", "%All");
+            baseThreshold.InnerText = (task.Base / 100.0).ToString(CultureInfo.InvariantCulture);
+            baseThreshold.SetAttribute("type", "% of all");
 
             var aadMeasureThreshold = (XmlElement)interestMeasureSetting.AppendChild(doc.CreateElement("InterestMeasureThreshold"));
             aadMeasureThreshold.SetAttribute("id", "2");
@@ -251,21 +274,24 @@ namespace Recommender.Business.AssociationRules
             aadThreshold.SetAttribute("type", "Abs");
         }
 
+        private void CreatePmmlMiningSchema(XmlDocument doc, XmlElement guhaAssocModel, MiningTask task)
+        {
+            var miningSchema = (XmlElement)guhaAssocModel.AppendChild(doc.CreateElement(_pmml.Item1, "MiningSchema", _pmml.Item2));
+            foreach (var dimension in task.DataSet.GetNonDateDimensions())
+            {
+                var miningField = (XmlElement)miningSchema.AppendChild(doc.CreateElement(_pmml.Item1, "MiningField", _pmml.Item2));
+                miningField.SetAttribute("name", dimension.GetNameValue());
+            }
+            foreach (var measure in task.DataSet.Measures)
+            {
+                var miningField = (XmlElement)miningSchema.AppendChild(doc.CreateElement(_pmml.Item1, "MiningField", _pmml.Item2));
+                miningField.SetAttribute("name", measure.Name);
+            }
+        }
+
         #endregion
 
         #region PreprocessingPMML
-        // Returns document and root element
-        private Tuple<XmlDocument, XmlElement> GetPreprocessingPmml(MiningTask task, int factTableRowCount, List<Discretization> discretizations)
-        {
-            XmlDocument doc = new XmlDocument();
-            var pmml = GetSchemaDefinition(doc);
-            GetHeaders(pmml, doc, task.DataSet.Name + "metabase", task.DataSet.Name + "view");
-            CreateMiningBuildTask(pmml, doc, task);
-            CreateDataDictionary(pmml, doc, task);
-            CreateTransformationDictionary(pmml, doc, task, factTableRowCount, discretizations);
-            
-            return Tuple.Create(doc, pmml);
-        }
 
         private XmlElement GetSchemaDefinition(XmlDocument doc)
         {
@@ -274,6 +300,12 @@ namespace Recommender.Business.AssociationRules
             XmlProcessingInstruction pi = doc.CreateProcessingInstruction("oxygen", "SCHSchema=\"http://sewebar.vse.cz/schemas/GUHARestr0_1.sch\"");
             doc.AppendChild(pi);
             var pmml = (XmlElement)doc.AppendChild(doc.CreateElement("PMML"));
+            //XmlSchema schema = new XmlSchema();
+            //schema.Namespaces.Add(_xmlns.Item1, _xmlns.Item2);
+            //schema.Namespaces.Add(_xmlnsXsi.Item1, _xmlnsXsi.Item2);
+            //schema.Namespaces.Add(_xmlnsPmml.Item1, _xmlnsPmml.Item2);
+            //schema.Namespaces.Add(_xmlnsSchemalocation.Item1, _xmlnsSchemalocation.Item2);
+            //doc.Schemas.Add(schema);
             pmml.SetAttribute("version", "4.0");
             pmml.SetAttribute("xmlns", "http://www.dmg.org/PMML-4_0");
             pmml.SetAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
@@ -294,13 +326,13 @@ namespace Recommender.Business.AssociationRules
             dataset.SetAttribute("value", datasetName);
             var subsystem = (XmlElement)header.AppendChild(doc.CreateElement("Extension"));
             subsystem.SetAttribute("name", "subsystem");
-            subsystem.SetAttribute("value", "LM Workspace");
+            subsystem.SetAttribute("value", "4ft-Miner");
             var module = (XmlElement)header.AppendChild(doc.CreateElement("Extension"));
             module.SetAttribute("name", "module");
-            module.SetAttribute("value", "LMWorkspace.exe");
+            module.SetAttribute("value", "4ftResult.exe");
             var format = (XmlElement)header.AppendChild(doc.CreateElement("Extension"));
             format.SetAttribute("name", "format");
-            format.SetAttribute("value", "LMDataSource.Matrix");
+            format.SetAttribute("value", "4ftMiner.Task");
             var timestamp = (XmlElement)header.AppendChild(doc.CreateElement("Timestamp"));
             timestamp.InnerText = DateTime.Now.ToString("dd.MM.yyyy hh:mm:ss", CultureInfo.InvariantCulture);
         }
@@ -313,7 +345,7 @@ namespace Recommender.Business.AssociationRules
             var table = (XmlElement)extension.AppendChild(doc.CreateElement("Table"));
             table.SetAttribute("name", task.DataSet.Name + "view");
             var columns = (XmlElement)table.AppendChild(doc.CreateElement("Columns"));
-            foreach (var dimension in task.DataSet.Dimensions)
+            foreach (var dimension in task.DataSet.GetNonDateDimensions())
             {
                 CreateMiningBuildTaskColumn(columns, doc, dimension.GetNameValue(), dimension.Type.ToLispName());
             }
@@ -338,9 +370,9 @@ namespace Recommender.Business.AssociationRules
         private void CreateDataDictionary(XmlElement rootElement, XmlDocument doc, MiningTask task)
         {
             var dd = (XmlElement)rootElement.AppendChild(doc.CreateElement("DataDictionary"));
-            var attrCount = task.DataSet.Dimensions.Count + task.DataSet.Measures.Count;
+            var attrCount = task.DataSet.GetNonDateDimensions().Count + task.DataSet.Measures.Count + 1;
             dd.SetAttribute("numberOfFields", attrCount.ToString());
-            foreach (var dimension in task.DataSet.Dimensions)
+            foreach (var dimension in task.DataSet.GetNonDateDimensions())
             {
                 CreateDataDictionaryDataField(dd, doc, dimension.GetNameValue(), dimension.Type.ToLispName(), "categorical");
             }
@@ -359,11 +391,11 @@ namespace Recommender.Business.AssociationRules
             df.SetAttribute("dataType", type);
         }
 
-        private void CreateTransformationDictionary(XmlElement rootElement, XmlDocument doc, MiningTask task, int factTableRowCount, List<Discretization> discretizations)
+        private void CreateTransformationDictionary(XmlElement rootElement, XmlDocument doc, MiningTask task, List<Discretization> discretizations)
         {
             var td = (XmlElement)rootElement.AppendChild(doc.CreateElement("TransformationDictionary"));
             // Dimensions
-            foreach (var dimension in task.DataSet.Dimensions)
+            foreach (var dimension in task.DataSet.GetNonDateDimensions())
             {
                 var dimensionValueName = dimension.GetNameValue();
                 var dimInlineTable = SetupInlineTable(td, doc, dimensionValueName, dimension.Type.ToLispName(), "ordinal");
@@ -377,15 +409,15 @@ namespace Recommender.Business.AssociationRules
                 }
             }
             // Id
-            var idInlineTable = SetupInlineTable(td, doc, "Id", "string", "ordinal");
-            for (int i = 1; i <= factTableRowCount; i++)
-            {
-                var row = idInlineTable.AppendChild(doc.CreateElement("row"));
-                var col = row.AppendChild(doc.CreateElement("column"));
-                col.InnerText = i.ToString();
-                var field = row.AppendChild(doc.CreateElement("field"));
-                field.InnerText = i.ToString();
-            }
+            //var idInlineTable = SetupInlineTable(td, doc, "Id", "string", "ordinal");
+            //for (int i = 1; i <= factTableRowCount; i++)
+            //{
+            //    var row = idInlineTable.AppendChild(doc.CreateElement("row"));
+            //    var col = row.AppendChild(doc.CreateElement("column"));
+            //    col.InnerText = i.ToString();
+            //    var field = row.AppendChild(doc.CreateElement("field"));
+            //    field.InnerText = i.ToString();
+            //}
             // Measures
             foreach (var measure in task.DataSet.Measures)
             {
@@ -410,9 +442,9 @@ namespace Recommender.Business.AssociationRules
         {
             var df = SetupDerivedField(transformationDictionary, doc, valueName, type, optype);
             var mapValues = (XmlElement)df.AppendChild(doc.CreateElement("MapValues"));
-            mapValues.SetAttribute("outputColumn", "field");
+            mapValues.SetAttribute("outputColumn", valueName);
             var fcp = (XmlElement)mapValues.AppendChild(doc.CreateElement("FieldColumnPair"));
-            fcp.SetAttribute("column", "column");
+            fcp.SetAttribute("column", valueName);
             fcp.SetAttribute("field", valueName);
             var inlineTable = (XmlElement)mapValues.AppendChild(doc.CreateElement("InlineTable"));
             return inlineTable;
@@ -426,7 +458,7 @@ namespace Recommender.Business.AssociationRules
             df.SetAttribute("optype", optype);
             var parentGroup = (XmlElement)df.AppendChild(doc.CreateElement("Extension"));
             parentGroup.SetAttribute("name", "ParentGroup");
-            parentGroup.SetAttribute("value", "Root group of attributes");
+            parentGroup.SetAttribute("value", "Root attribute group");
             var shortName = (XmlElement)df.AppendChild(doc.CreateElement("Extension"));
             shortName.SetAttribute("name", "ShortName");
             shortName.SetAttribute("value", valueName);

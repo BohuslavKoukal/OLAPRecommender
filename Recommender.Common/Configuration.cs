@@ -7,7 +7,9 @@ namespace Recommender.Common
     {
         string GetFilesLocation();
         string GetPmmlFilesLocation();
+        string GetMinerId();
         string GetCubeDatabaseConnectionString();
+        string GetLispMinerServer();
     }
 
     public class Configuration : IConfiguration
@@ -22,9 +24,19 @@ namespace Recommender.Common
             return WebConfigurationManager.AppSettings["PmmlFilesLocation"];
         }
 
+        public string GetMinerId()
+        {
+            return WebConfigurationManager.AppSettings["MinerId"];
+        }
+
         public string GetCubeDatabaseConnectionString()
         {
             return ConfigurationManager.ConnectionStrings["CubeDatabase"].ConnectionString;
+        }
+
+        public string GetLispMinerServer()
+        {
+            return WebConfigurationManager.AppSettings["LispMinerAddress"];
         }
     }
 }

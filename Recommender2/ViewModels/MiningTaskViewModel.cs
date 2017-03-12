@@ -20,6 +20,7 @@ namespace Recommender2.ViewModels
 
         public int NumberOfVerifications { get; set; }
         public TaskState TaskState { get; set; }
+        public string FailedReason { get; set; }
         public double Base { get; set; }
         public double Aad { get; set; }
         public DateTime TaskStartTime { get; set; }

@@ -195,7 +195,8 @@ namespace Recommender.Data.DataAccess
                 var command = new MySqlCommand
                 {
                     Connection = conn,
-                    CommandText = $@"select count(*) from {tableName}"                    
+                    CommandText = $@"select count(*) from {tableName}",
+                    CommandTimeout = 5*60
                 };
                 ret = Convert.ToInt32(command.ExecuteScalar());
                 conn.Close();
@@ -209,6 +210,7 @@ namespace Recommender.Data.DataAccess
             using (var conn = _dbConnection.GetConnection())
             {
                 var command = new MySqlCommand(query, conn);
+                command.CommandTimeout = 10*60;
                 using (var dataAdapter = new MySqlDataAdapter(command))
                     dataAdapter.Fill(results);
             }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml;
 using Recommender.Business.DTO;
 using Recommender.Common;
 using Recommender.Data.DataAccess;
@@ -27,23 +28,30 @@ namespace Recommender.Business.AssociationRules
             _pruner = pruner;
         }
 
-        public void SendTask(MiningTask task, int rowCount, List<Discretization> discretizations, List<EquivalencyClass> eqClasses)
+        public void SendTask(MiningTask task, List<Discretization> discretizations, List<EquivalencyClass> eqClasses)
         {
             var pmmlService = new PmmlService(_configuration);
-            var preprocessingAndTaskPmml = pmmlService.GetPreprocessingAndTaskPmml(task, rowCount, discretizations, eqClasses);
-            _lmConnector.SendTask(preprocessingAndTaskPmml);
-            Task.Factory.StartNew(() => SaveTaskResults(task.Name, task.DataSet.Id, task.Id));
+            var preprocessingPmml = pmmlService.GetPreprocessingPmml(task, discretizations);
+            var taskPmml = pmmlService.GetTaskPmml(task, eqClasses);
+            Task.Factory.StartNew(() => SendToLispMinerAsync(task, preprocessingPmml, taskPmml));
+        }
+
+        private void SendToLispMinerAsync(MiningTask task, XmlDocument preprocessingPmml, XmlDocument taskPmml)
+        {
+            var preprocessed = _lmConnector.SendPreprocessing(task, preprocessingPmml);
+            if (preprocessed)
+            {
+                var responseOk = _lmConnector.SendTask(task, taskPmml);
+                if (responseOk)
+                {
+                    SaveTaskResults(task.Name, task.DataSet.Id, task.Id);
+                }
+            }
         }
 
         private void SaveTaskResults(string taskName, int datasetId, int taskId)
         {
-            var resultsFile = string.Empty;
-            // Poll LM connect for results
-            while (resultsFile == string.Empty)
-            {
-                Thread.Sleep(5000);
-                resultsFile = _lmConnector.GetTaskResultsFile(taskName);
-            }
+            var resultsFile = _lmConnector.GetTaskResultsFile(taskName);
             var pmmlService = new PmmlService(_configuration, resultsFile);
             var dimensionValues = _data.GetAllDimensionValues(datasetId);
             var measures = _data.GetAllMeasures(datasetId);
@@ -53,5 +61,7 @@ namespace Recommender.Business.AssociationRules
             var numberOfVerifications = pmmlService.GetNumberOfVerifications();
             _data.SaveTaskResults(taskId, postprocessedRules, numberOfVerifications, taskDuration);
         }
+
+
     }
 }

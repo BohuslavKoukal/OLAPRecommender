@@ -23,7 +23,8 @@
     public enum TaskState
     {
         Started = 1,
-        Finished = 2
+        Finished = 2,
+        Failed = 3
     }
 
     public enum Sign

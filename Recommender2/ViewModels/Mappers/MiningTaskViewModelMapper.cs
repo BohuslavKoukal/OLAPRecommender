@@ -32,6 +32,7 @@ namespace Recommender2.ViewModels.Mappers
                 TaskDuration = task.TaskDuration,
                 TaskStartTime = task.TaskStartTime,
                 TaskState = (TaskState) task.TaskState,
+                FailedReason = task.FailedReason,
                 Base = task.Base
             };
         }

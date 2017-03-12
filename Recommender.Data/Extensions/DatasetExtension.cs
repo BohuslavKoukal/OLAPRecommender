@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Recommender.Common.Constants;
+using Recommender.Common.Helpers;
 using Recommender.Data.Models;
 
 namespace Recommender.Data.Extensions
@@ -18,6 +19,11 @@ namespace Recommender.Data.Extensions
         public static string GetFactTableName(this Dataset dataset)
         {
             return dataset.Name + Constants.String.FactTable;
+        }
+
+        public static List<Dimension> GetNonDateDimensions(this Dataset dataset)
+        {
+            return dataset.Dimensions.Where(d => d.Type.ToType() != typeof(DateTime)).ToList();
         }
     }
 }

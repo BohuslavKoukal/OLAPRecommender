@@ -12,7 +12,7 @@ namespace Recommender.Data.Extensions
         public static List<Dimension> GetAntecedentDimensions(this MiningTask task)
         {
             return (from dimId 
-                    in task.DataSet.Dimensions.Select(d => d.Id)
+                    in task.DataSet.GetNonDateDimensions().Select(d => d.Id)
                     where !task.ConditionDimensions.Select(d => d.Id).Contains(dimId)
                     select task.DataSet.Dimensions.Single(d => d.Id == dimId)).ToList();
         }
@@ -35,6 +35,21 @@ namespace Recommender.Data.Extensions
         public static string GetConditionId(this MiningTask task)
         {
             return "Derived_FTCedentD_Condition";
+        }
+
+        public static string GetAntecedentName(this MiningTask task)
+        {
+            return "Antecedent";
+        }
+
+        public static string GetSuccedentName(this MiningTask task)
+        {
+            return "Succedent";
+        }
+
+        public static string GetConditionName(this MiningTask task)
+        {
+            return "Condition";
         }
 
         public static string GetAntecedentBagId(this MiningTask task)
