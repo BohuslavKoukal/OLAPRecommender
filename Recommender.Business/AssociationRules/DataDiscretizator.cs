@@ -19,9 +19,8 @@ namespace Recommender.Business.AssociationRules
             _querier = starSchemaQuerier;
         }
 
-        public List<Discretization> GetDiscretizations(Dataset dataset)
+        public List<Discretization> GetDiscretizations(Dataset dataset, int rowCount)
         {
-            var rowCount = _querier.GetFactTableRowCount(dataset.GetViewName());
             var binCount = GetBinCount(rowCount);
             var ret = new List<Discretization>();
             foreach (var measure in dataset.Measures)

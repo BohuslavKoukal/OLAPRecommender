@@ -51,10 +51,11 @@ namespace Recommender2.ControllerEngine
                 .Select(cd => Data.GetDimension(cd.Dimension.Id)).ToList();
             var task = _taskMapper.Map(model, dataset, commensurableDimensions);
             Data.Insert(task);
-            var discretizations = _discretizator.GetDiscretizations(dataset);
+            var rowCount = StarSchemaQuerier.GetFactTableRowCount(dataset.GetViewName());
+            var discretizations = _discretizator.GetDiscretizations(dataset, rowCount);
             var dimensionTree = _treeBuilder.ConvertToTree(datasetId, true);
             var equivalencyClasses = _discretizator.GetEquivalencyClasses(dimensionTree);
-            _arTaskProcessor.SendTask(task, discretizations, equivalencyClasses);
+            _arTaskProcessor.SendTask(task, discretizations, equivalencyClasses, rowCount);
         }
 
         public MiningTaskViewModel GetDetails(int taskId)

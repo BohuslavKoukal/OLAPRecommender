@@ -11,12 +11,17 @@ namespace Recommender.Data.Extensions
     {
         public static string GetBbaId(this Measure measure)
         {
-            return "Basic_FTLiteralD_" + measure.Name;
+            return $"Basic_FTLiteralD_{measure.Name}";
         }
 
         public static string GetDbaId(this Measure measure)
         {
-            return "Derived_FTLiteralD_Sign_" + measure.Name;
+            return $"Derived_FTLiteralD_Sign_{measure.Name}";
+        }
+
+        public static string GetQualifiedName(this Measure measure)
+        {
+            return $"{measure.DataSet.Name}_{measure.Name}_Value";
         }
     }
 }

@@ -11,17 +11,17 @@ namespace Recommender.Data.Extensions
     {
         public static string GetBbaId(this Dimension dimension)
         {
-            return "Basic_FTLiteralD_" + dimension.Name;
+            return $"Basic_FTLiteralD_{dimension.Name}";
         }
 
-        public static string GetNameValue(this Dimension dimension)
+        public static string GetQualifiedNameValue(this Dimension dimension)
         {
-            return dimension.Name + "Value";
+            return $"{dimension.DataSet.Name}_{dimension.Name}_Value";
         }
 
         public static string GetDbaId(this Dimension dimension)
         {
-            return "Derived_FTLiteralD_Sign_" + dimension.Name;
+            return $"Derived_FTLiteralD_Sign_{dimension.Name}";
         }
         
     }

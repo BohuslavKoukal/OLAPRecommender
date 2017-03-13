@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Xml;
 using Recommender.Common;
 using Recommender.Common.Enums;
@@ -29,19 +30,29 @@ namespace Recommender.Business.AssociationRules
         {
             using (var client = new HttpClient())
             {
+                client.Timeout = TimeSpan.FromHours(1);
                 var method = new HttpMethod("PATCH");
                 var stringContent = new StringContent(preprocessingPmml.OuterXml);
                 var request = new HttpRequestMessage(method, GetSendPreprocessingAddress())
                 {
                     Content = stringContent
                 };
-                var response = client.SendAsync(request).Result;
-                var responseString = response.Content.ReadAsStringAsync().Result;
-                if (response.StatusCode == HttpStatusCode.InternalServerError || response.StatusCode == HttpStatusCode.NotFound)
+                try
                 {
-                    _data.SetTaskState(task.Id, (int)TaskState.Failed, responseString);
+                    var response = client.SendAsync(request).Result;
+                    var responseString = response.Content.ReadAsStringAsync().Result;
+                    if (response.StatusCode == HttpStatusCode.InternalServerError || response.StatusCode == HttpStatusCode.NotFound)
+                    {
+                        _data.SetTaskState(task.Id, (int)TaskState.Failed, responseString);
+                        return false;
+                    }
+                }
+                catch (TaskCanceledException e)
+                {
+                    _data.SetTaskState(task.Id, (int)TaskState.Failed, "Connection timed out after 1 hour.");
                     return false;
                 }
+                
             }
             return true;
         }
@@ -50,20 +61,30 @@ namespace Recommender.Business.AssociationRules
         {
             using (var client = new HttpClient())
             {
+                client.Timeout = TimeSpan.FromHours(1);
                 var stringContent = new StringContent(taskPmml.OuterXml);
-                var response = client.PostAsync(GetSendTaskAddress(), stringContent).Result;
-                var responseString = response.Content.ReadAsStringAsync().Result;
-                if (response.StatusCode == HttpStatusCode.InternalServerError)
+                try
                 {
-                    _data.SetTaskState(task.Id, (int)TaskState.Failed, responseString);
+                    var response = client.PostAsync(GetSendTaskAddress(), stringContent).Result;
+                    var responseString = response.Content.ReadAsStringAsync().Result;
+                    if (response.StatusCode == HttpStatusCode.InternalServerError)
+                    {
+                        _data.SetTaskState(task.Id, (int) TaskState.Failed, responseString);
+                        return false;
+                    }
+                    else
+                    {
+                        _data.SetTaskState(task.Id, (int) TaskState.Finished);
+                        File.WriteAllText(GetTaskResultsFileName(task.Name), responseString);
+                        return true;
+                    }
+                }
+                catch (TaskCanceledException e)
+                {
+                    _data.SetTaskState(task.Id, (int)TaskState.Failed, "Connection timed out after 1 hour.");
                     return false;
                 }
-                else
-                {
-                    _data.SetTaskState(task.Id, (int)TaskState.Finished);
-                    File.WriteAllText(GetTaskResultsFileName(task.Name), responseString);
-                    return true;
-                }
+                
             }
         }
 

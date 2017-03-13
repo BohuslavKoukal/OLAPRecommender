@@ -72,11 +72,11 @@ namespace Recommender.Data.DataAccess
 
         public void CreateView(string datasetName, string factTableName, IEnumerable<Dimension> orderedDimensions, IEnumerable<Measure> measures)
         {
-            var selectClause = "fact.Id AS Id";
+            var selectClause = $"fact.Id AS {datasetName}Id";
             var fromClause = factTableName + " fact";
             foreach (var dimension in orderedDimensions)
             {
-                selectClause += $", {dimension.Name}.{Constants.String.Value} AS {dimension.GetNameValue()}";
+                selectClause += $", {dimension.Name}.{Constants.String.Value} AS {dimension.GetQualifiedNameValue()}";
                 fromClause += $" JOIN {dimension.TableName} {dimension.Name} ON ";
                 if (dimension.ParentDimension == null)
                 {
@@ -89,7 +89,7 @@ namespace Recommender.Data.DataAccess
             }
             foreach (var measure in measures)
             {
-                selectClause += $", fact.{measure.Name} AS {measure.Name}";
+                selectClause += $", fact.{measure.Name} AS {measure.GetQualifiedName()}";
             }
             using (var conn = _dbConnection.GetConnection())
             {

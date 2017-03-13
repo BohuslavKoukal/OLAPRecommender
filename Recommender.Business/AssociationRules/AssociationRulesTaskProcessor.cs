@@ -28,11 +28,11 @@ namespace Recommender.Business.AssociationRules
             _pruner = pruner;
         }
 
-        public void SendTask(MiningTask task, List<Discretization> discretizations, List<EquivalencyClass> eqClasses)
+        public void SendTask(MiningTask task, List<Discretization> discretizations, List<EquivalencyClass> eqClasses, int rowCount)
         {
             var pmmlService = new PmmlService(_configuration);
-            var preprocessingPmml = pmmlService.GetPreprocessingPmml(task, discretizations);
-            var taskPmml = pmmlService.GetTaskPmml(task, eqClasses);
+            var preprocessingPmml = pmmlService.GetPreprocessingPmml(task, discretizations, rowCount);
+            var taskPmml = pmmlService.GetTaskPmml(task, eqClasses, rowCount);
             Task.Factory.StartNew(() => SendToLispMinerAsync(task, preprocessingPmml, taskPmml));
         }
 

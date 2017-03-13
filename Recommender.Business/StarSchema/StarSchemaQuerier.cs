@@ -79,7 +79,7 @@ namespace Recommender.Business.StarSchema
         {
             var dt = QueryBuilder.Select(measure.DataSet.GetViewName(), new List<Column>());
             var ret = (from DataRow row
-                    in dt.Rows select Convert.ToDouble(row[measure.Name]))
+                    in dt.Rows select Convert.ToDouble(row[measure.GetQualifiedName()]))
                     .ToList();
             return ret.OrderBy(d => d).ToList();
         }
