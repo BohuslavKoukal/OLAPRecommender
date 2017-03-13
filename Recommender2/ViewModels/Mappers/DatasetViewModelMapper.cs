@@ -20,9 +20,11 @@ namespace Recommender2.ViewModels.Mappers
     public class DatasetViewModelMapper : IDatasetViewModelMapper
     {
         private readonly IDimensionTreeBuilder _treeBuilder;
-        public DatasetViewModelMapper(IDimensionTreeBuilder treeBuilder)
+        private readonly IMiningTaskViewModelMapper _taskMapper;
+        public DatasetViewModelMapper(IDimensionTreeBuilder treeBuilder, IMiningTaskViewModelMapper taskMapper)
         {
             _treeBuilder = treeBuilder;
+            _taskMapper = taskMapper;
         }
 
         public DatasetViewModel Map(IEnumerable<Dataset> datasets)
@@ -67,11 +69,7 @@ namespace Recommender2.ViewModels.Mappers
                     Name = dimension.Name,
                     Type = dimension.Type.ToString()
                 }).ToList(),
-                MiningTasks = dataset.MiningTasks?.Select(task => new MiningTaskViewModel
-                {
-                    Id = task.Id,
-                    Name = task.Name
-                }).ToList(),
+                MiningTasks = dataset.MiningTasks?.Select(task => _taskMapper.Map(task)).ToList(),
                 Filter = filterValues,
                 DimensionsSelectList = dimensionSelectList,
                 FilePath = dataset.CsvFilePath,

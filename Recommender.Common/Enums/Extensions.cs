@@ -46,7 +46,7 @@ namespace Recommender.Common.Enums
 
     public static class TaskStateExtensions
     {
-        public static string ToString(this TaskState state)
+        public static string ToUserFriendlyString(this TaskState state)
         {
             switch (state)
             {
@@ -54,8 +54,24 @@ namespace Recommender.Common.Enums
                     return "Started - running";
                 case TaskState.Finished:
                     return "Finished";
+                 case TaskState.Failed:
+                    return "Failed";
             }
             return "Unknown state";
+        }
+
+        public static string GetColor(this TaskState state)
+        {
+            switch (state)
+            {
+                case TaskState.Started:
+                    return "black";
+                case TaskState.Finished:
+                    return "green";
+                case TaskState.Failed:
+                    return "red";
+            }
+            return "black";
         }
     }
 }

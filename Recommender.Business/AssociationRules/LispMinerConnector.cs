@@ -51,11 +51,6 @@ namespace Recommender.Business.AssociationRules
             using (var client = new HttpClient())
             {
                 var stringContent = new StringContent(taskPmml.OuterXml);
-                //var values = new Dictionary<string, string>
-                //{
-                //   { "data", taskPmml.OuterXml }
-                //};
-                //var content = new FormUrlEncodedContent(stringContent);
                 var response = client.PostAsync(GetSendTaskAddress(), stringContent).Result;
                 var responseString = response.Content.ReadAsStringAsync().Result;
                 if (response.StatusCode == HttpStatusCode.InternalServerError)
