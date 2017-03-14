@@ -18,12 +18,12 @@ namespace Recommender.Data.DataAccess
         /// <summary>
         ///  Insert columns as single row to table
         /// </summary>
-        void Insert(string tableName, IEnumerable<Column> columns, MySqlConnection connection = null);
+        void Insert(string tableName, IEnumerable<Column> columns);
 
         /// <summary>
         ///  Insert columns as multiple rows to table
         /// </summary>
-        void Insert(string tableName, IEnumerable<IEnumerable<Column>> columns);
+        void Insert(string tableName, List<List<Column>> rows);
         DataTable Select(string tableName, Column selector);
         DataTable Select(string tableName, List<Column> selectors);
         DataTable Select(string tableName, List<List<Column>> selectors);
@@ -104,58 +104,77 @@ namespace Recommender.Data.DataAccess
             }
         }
 
-        public void Insert(string tableName, IEnumerable<Column> columns, MySqlConnection conn = null)
+        public void Insert(string tableName, IEnumerable<Column> columns)
         {
-            var columnList = columns.ToList();
-            var columnsString = string.Empty;
-            var valuesString = string.Empty;
-            columnsString = columnList
-                .Aggregate(columnsString, (current, column) => current + $"{column.Name}, ");
-            valuesString = columnList
-                .Aggregate(valuesString, (current, column) => current + $"'{column.Value}', ");
-            columnsString = RemoveLastComma(columnsString);
-            valuesString = RemoveLastComma(valuesString);
-            if (conn == null)
-            {
-                using (conn = _dbConnection.GetConnection())
-                {
-                    conn.Open();
-                    var command = new MySqlCommand
-                    {
-                        Connection = conn,
-                        CommandText = $@"INSERT INTO {tableName}
-                    ({columnsString})
-                    VALUES ({valuesString});"
-                    };
-                    command.ExecuteNonQuery();
-                    conn.Close();
-                }
-            }
-            else
-            {
-                var command = new MySqlCommand
-                {
-                    Connection = conn,
-                    CommandText = $@"INSERT INTO {tableName}
-                ({columnsString})
-                VALUES ({valuesString});"
-                };
-                command.ExecuteNonQuery();
-            }
-            
+            var columnsString = GetColumnsString(columns);
+            var valuesString = GetValuesString(columns);
+            Insert(tableName, columnsString, valuesString);
         }
 
-        public void Insert(string tableName, IEnumerable<IEnumerable<Column>> rows)
+        private string GetColumnsString(IEnumerable<Column> columns)
+        {
+            var columnsString = "(";
+            columnsString = columns
+                .Aggregate(columnsString, (current, column) => current + $"{column.Name}, ");
+            columnsString = RemoveLastComma(columnsString);
+            columnsString += ")";
+            return columnsString;
+        }
+
+        private string GetValuesString(IEnumerable<Column> columns)
+        {
+            var valuesString = "(";
+            valuesString = columns
+                .Aggregate(valuesString, (current, column) => current + $"'{column.Value}', ");
+            valuesString = RemoveLastComma(valuesString);
+            valuesString += ")";
+            return valuesString;
+        }
+
+        private void Insert(string tableName, string columnsString, string valuesString)
         {
             using (var conn = _dbConnection.GetConnection())
             {
                 conn.Open();
-                foreach (var row in rows)
+                var command = new MySqlCommand
                 {
-                    Insert(tableName, row, conn);
-                }
+                    Connection = conn,
+                    CommandText = $@"INSERT INTO {tableName}
+                {columnsString}
+                VALUES {valuesString};"
+                };
+                command.ExecuteNonQuery();
                 conn.Close();
             }
+        }
+
+        public void Insert(string tableName, List<List<Column>> rows)
+        {
+            var rowsToInsert = new List<IEnumerable<Column>>();
+            var columnsString = GetColumnsString(rows.First());
+            for (int i = 0; i < rows.Count; i++)
+            {
+                rowsToInsert.Add(rows[i]);
+                if (rowsToInsert.Count == 1000)
+                {
+                    Insert(tableName, columnsString, GetMultipleValuesString(rowsToInsert));
+                    rowsToInsert.Clear();
+                }
+                if (i == rows.Count - 1)
+                {
+                    Insert(tableName, columnsString, GetMultipleValuesString(rowsToInsert));
+                }
+            }
+        }
+
+        private string GetMultipleValuesString(IEnumerable<IEnumerable<Column>> rows)
+        {
+            var valuesString = string.Empty;
+            foreach (var row in rows)
+            {
+                valuesString += GetValuesString(row) + ", ";
+            }
+            return RemoveLastComma(valuesString);
         }
 
         public DataTable Select(string tableName, Column selector)

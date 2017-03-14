@@ -95,12 +95,13 @@ namespace Recommender.Business.StarSchema
 
         public void FillFactTable(string datasetName, List<Dimension> dimensions, List<Measure> measures, DataTable values)
         {
+            var allRows = new List<List<Column>>();
             foreach (DataRow row in values.Rows)
             {
                 var measureColumns = measures.Select(measure => new Column
                 {
                     Name = measure.Name,
-                    Value = row[(string) measure.Name].ToString()
+                    Value = row[measure.Name].ToString()
                 }).ToList();
                 // We insert fks only for root dimensions
                 var dimensionColumns = dimensions.Where(d => d.ParentDimension == null).Select(dimension => new Column
@@ -108,9 +109,10 @@ namespace Recommender.Business.StarSchema
                     Name = dimension.Name + Constants.String.Id,
                     Value = GetDimensionId(datasetName + dimension.Name, row[dimension.Name].ToString(dimension.Type.ToType())).ToString()
                 }).ToList();
-                
-                QueryBuilder.Insert(datasetName + Constants.String.FactTable, dimensionColumns.Concat(measureColumns));
+                allRows.Add(dimensionColumns.Concat(measureColumns).ToList());
+                //QueryBuilder.Insert(datasetName + Constants.String.FactTable, dimensionColumns.Concat(measureColumns));
             }
+            QueryBuilder.Insert(datasetName + Constants.String.FactTable, allRows);
         }
 
         #endregion
