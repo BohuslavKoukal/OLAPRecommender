@@ -54,6 +54,8 @@ namespace Recommender2.ViewModels
             }
         }
 
+        public bool KeepFilePrivate { get; set; }
+
         public State State { get; set; }
 
         public List<AttributeViewModel> Attributes { get; set; }

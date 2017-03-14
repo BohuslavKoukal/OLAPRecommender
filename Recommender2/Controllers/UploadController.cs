@@ -25,7 +25,7 @@ namespace Recommender2.Controllers
             return View(_controllerEngine.GetDataset());
         }
 
-        public ActionResult UploadFile(string name, HttpPostedFileBase upload, string separator)
+        public ActionResult UploadFile(string name, HttpPostedFileBase upload, string separator, bool keepFilePrivate)
         {
             try
             {
@@ -37,7 +37,7 @@ namespace Recommender2.Controllers
                 ModelState.AddModelError("Name", e.Message);
                 return View("Index", _controllerEngine.GetDataset());
             }
-            return View("CreateDataset", _controllerEngine.UploadFile(name, upload, separator));
+            return View("CreateDataset", _controllerEngine.UploadFile(name, upload, separator, keepFilePrivate));
         }
 
         public ActionResult DefineDimensions(int id)

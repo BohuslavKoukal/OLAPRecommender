@@ -4,9 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using Recommender.Business;
-using Recommender.Business.DTO;
 using Recommender.Common.Enums;
-using Recommender.Common.Helpers;
 using Recommender.Data.Models;
 
 namespace Recommender2.ViewModels.Mappers
@@ -73,6 +71,7 @@ namespace Recommender2.ViewModels.Mappers
                 Filter = filterValues,
                 DimensionsSelectList = dimensionSelectList,
                 FilePath = dataset.CsvFilePath,
+                KeepFilePrivate = dataset.KeepFilePrivate,
                 State = dataset.State
             };
         }

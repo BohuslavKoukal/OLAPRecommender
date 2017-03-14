@@ -1,4 +1,5 @@
-﻿@using Recommender.Common.Enums
+﻿@using System.Diagnostics.Eventing.Reader
+@using Recommender.Common.Enums
 @using Recommender.Common.Helpers
 @model Recommender2.ViewModels.DatasetViewModel
 
@@ -15,7 +16,16 @@
         <tr>
             <td class="col-md-3">@Html.ActionLink(dataset.Name, "Details", new { id = dataset.Id })</td>
             <td>Dimensions and measures defined</td>
-            <td class="col-md-3">@Html.ActionLink(dataset.FileName, "Download", new { file = dataset.FilePath })</td>
+            
+                @if (dataset.KeepFilePrivate)
+                {
+                    <td class="col-md-3">@dataset.FileName (private file)</td>
+                }
+                else
+                {
+                    <td class="col-md-3">@Html.ActionLink(dataset.FileName, "Download", new { file = dataset.FilePath })</td>
+                }
+
             <td class="col-md-3">
                 <ul>
                     @foreach (var dimension in dataset.Dimensions)

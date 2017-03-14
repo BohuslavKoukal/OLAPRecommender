@@ -40,7 +40,7 @@ namespace Recommender2.ControllerEngine
             return id == 0 ? new SingleDatasetViewModel() : _datasetMapper.Map(Data.GetDataset(id));
         }
 
-        public SingleDatasetViewModel UploadFile(string datasetName, HttpPostedFileBase fileBase, string separator)
+        public SingleDatasetViewModel UploadFile(string datasetName, HttpPostedFileBase fileBase, string separator, bool keepFilePrivate)
         {
             var file = _fileHandler.SaveFile(fileBase, separator);
             var dataset = new Dataset
@@ -48,6 +48,7 @@ namespace Recommender2.ControllerEngine
                 State = State.FileUploaded,
                 Name = datasetName,
                 CsvFilePath = file.FilePath,
+                KeepFilePrivate = keepFilePrivate,
                 Attributes = file.Attributes?.ToList()
             };
             Data.Insert(dataset);

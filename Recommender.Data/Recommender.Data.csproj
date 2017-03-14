@@ -83,9 +83,9 @@
     <Compile Include="Extensions\DimensionExtension.cs" />
     <Compile Include="Extensions\MeasureExtension.cs" />
     <Compile Include="Extensions\MiningTaskExtension.cs" />
-    <Compile Include="Migrations\201703091712248_Initial.cs" />
-    <Compile Include="Migrations\201703091712248_Initial.Designer.cs">
-      <DependentUpon>201703091712248_Initial.cs</DependentUpon>
+    <Compile Include="Migrations\201703140928030_Initial.cs" />
+    <Compile Include="Migrations\201703140928030_Initial.Designer.cs">
+      <DependentUpon>201703140928030_Initial.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AssociationRule.cs" />
@@ -112,8 +112,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201703091712248_Initial.resx">
-      <DependentUpon>201703091712248_Initial.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201703140928030_Initial.resx">
+      <DependentUpon>201703140928030_Initial.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

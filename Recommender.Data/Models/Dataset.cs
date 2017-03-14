@@ -22,6 +22,7 @@ namespace Recommender.Data.Models
         public int Id { get; set; }
         public string Name { get; set; }
         public string CsvFilePath { get; set; }
+        public bool KeepFilePrivate { get; set; }
         public State State { get; set; }
 
         public virtual ICollection<Attribute> Attributes { get; set; }
