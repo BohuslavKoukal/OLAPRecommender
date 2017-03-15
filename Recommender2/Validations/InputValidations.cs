@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 using Recommender.Business;
@@ -49,15 +51,12 @@ namespace Recommender2.Validations
             }
         }
 
-        public void  DatatypesAreValid(AttributeViewModel[] attributes, int id, string separator, string dateFormat)
+        public List<string> DatatypesAreValid(AttributeViewModel[] attributes, int id, string separator, string dateFormat)
         {
             var csvFile = _data.GetCsvFilePath(id);
             var errors = _csvHandler.GetAttributeErrors
                 (csvFile, attributes.Select(a => a.SelectedAttributeType.ToType()).ToArray(), separator, dateFormat);
-            if (errors.Any())
-            {
-                throw new ValidationException(errors.Aggregate(string.Empty, (current, error) => current + (current + error)));
-            }
+            return errors.Any() ? GetFirst10Errors(errors) : errors;
         }
 
         public void DsdIsValid(HttpPostedFileBase file)
@@ -66,6 +65,21 @@ namespace Recommender2.Validations
             {
                 throw new ValidationException("Uploaded file is empty.");
             }
+        }
+
+        private List<string> GetFirst10Errors(List<string> errors)
+        {
+            var boundary = errors.Count < 11 ? errors.Count : 10;
+            var ret = new List<string>();
+            for (var i = 0; i < boundary; i++)
+            {
+                ret.Add(errors[i]);
+            }
+            if (errors.Count > 10)
+            {
+                ret.Add($"And {errors.Count - 10} more errors...");
+            }
+            return ret;
         }
     }
 }

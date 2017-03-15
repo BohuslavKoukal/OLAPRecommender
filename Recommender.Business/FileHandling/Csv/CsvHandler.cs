@@ -31,6 +31,7 @@ namespace Recommender.Business.FileHandling.Csv
             }
             using (var parser = new TextFieldParser(csvFileName))
             {
+                parser.HasFieldsEnclosedInQuotes = true;
                 parser.TextFieldType = FieldType.Delimited;
                 parser.SetDelimiters(separator);
                 // Do not validate first row

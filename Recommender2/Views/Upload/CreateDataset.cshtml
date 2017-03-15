@@ -14,7 +14,7 @@
 {
     @Html.HiddenFor(m => Model.Id);
     <div class="form-horizontal">
-        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @Html.ValidationSummary(false, "", new { @class = "text-danger" })
             <div class="form-group">
                 <table>
                     <tr><th>Attribute</th><th>Data Type</th><th>Role</th><th>Parent dimension</th></tr>

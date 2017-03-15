@@ -23,9 +23,11 @@ namespace Recommender2.Controllers
             _validations = validations;
         }
 
-        public ActionResult Index()
+        public ActionResult Index(string notification = null)
         {
-            return View(_browseCubeEgine.GetDatasets());
+            var model = _browseCubeEgine.GetDatasets();
+            model.Notification = notification;
+            return View(model);
         }
 
         // GET: MinedResults
@@ -51,10 +53,9 @@ namespace Recommender2.Controllers
                 return View("Mine", _engine.GetMiningViewModel(model.Id));
             }
             _engine.MineRules(model.Id, model);
-            var model2 = _browseCubeEgine.GetDatasets();
-            model2.Notification =
+            var modelNotification =
                 "Your task was succesfully sent to LispMiner. You can see its state below.";
-            return View("Index", model2);
+            return RedirectToAction("Index", new { notification = modelNotification });
         }
 
         public ActionResult Details(int id)

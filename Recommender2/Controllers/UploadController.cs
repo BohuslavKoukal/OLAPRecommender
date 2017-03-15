@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using Recommender2.ControllerEngine;
@@ -37,11 +38,27 @@ namespace Recommender2.Controllers
                 ModelState.AddModelError("Name", e.Message);
                 return View("Index", _controllerEngine.GetDataset());
             }
-            return View("CreateDataset", _controllerEngine.UploadFile(name, upload, separator, keepFilePrivate));
+            var viewModel = _controllerEngine.UploadFile(name, upload, separator, keepFilePrivate);
+            return RedirectToAction("CreateDataset", new { modelId = viewModel.Id, separatorString = separator });
+            //return View("CreateDataset", _controllerEngine.UploadFile(name, upload, separator, keepFilePrivate));
         }
 
-        public ActionResult DefineDimensions(int id)
+        public ActionResult CreateDataset(int modelId, string separatorString)
         {
+            var model = _controllerEngine.GetDataset(modelId);
+            model.Separator = separatorString;
+            return View("CreateDataset", model);
+        }
+
+        public ActionResult DefineDimensions(int id, List<string> errors = null)
+        {
+            if (errors != null)
+            {
+                foreach (var error in errors)
+                {
+                    ModelState.AddModelError(string.Empty, error);
+                }
+            }
             return View("CreateDataset", _controllerEngine.GetDataset(id));
         }
 
@@ -49,17 +66,12 @@ namespace Recommender2.Controllers
         [HttpPost]
         public ActionResult CreateDatasetManually(int id, AttributeViewModel[] attributes, string separator, string dateFormat)
         {
-            // check if attributes are valid
-            try
+            var errors = _validations.DatatypesAreValid(attributes, id, separator, dateFormat);
+            if (errors.Any())
             {
-                _validations.DatatypesAreValid(attributes, id, separator, dateFormat);
-                _controllerEngine.CreateDataset(attributes, id, separator, dateFormat);
+                return DefineDimensions(id, errors);
             }
-            catch (ValidationException e)
-            {
-                ModelState.AddModelError("DataType", e.Message);
-                return DefineDimensions(id);
-            }
+            _controllerEngine.CreateDataset(attributes, id, separator, dateFormat);
             return RedirectToAction("Index", "BrowseCube");
         }
 
