@@ -15,6 +15,7 @@ namespace Recommender.Data.DataAccess
         void SaveTaskResults(int taskId, ICollection<AssociationRule> rules, int numberOfVerifications, TimeSpan taskDuration);
         void PopulateDataset(int id, ICollection<Measure> measures, ICollection<Dimension> dimensions, State state);
         void SetTaskState(int taskId, int state, string failedReason = null);
+        void SetPreprocessed(int datasetId);
         string GetCsvFilePath(int id);
         List<Dataset> GetAllDatasets();
         List<DimensionValue> GetAllDimensionValues(int datasetId);
@@ -23,6 +24,7 @@ namespace Recommender.Data.DataAccess
         Dataset GetDataset(string name);
         Dataset GetDataset(int id);
         MiningTask GetMiningTask(int id);
+        MiningTask GetMiningTask(string name);
         List<Dimension> GetChildDimensions(int id);
         Dimension GetDimension(int id);
         Measure GetMeasure(int id);
@@ -95,6 +97,13 @@ namespace Recommender.Data.DataAccess
             _dbContext.SaveChanges();
         }
 
+        public void SetPreprocessed(int datasetId)
+        {
+            var dataset = GetDataset(datasetId);
+            dataset.Preprocessed = true;
+            _dbContext.SaveChanges();
+        }
+
         public string GetCsvFilePath(int id)
         {
             return GetDataset(id).CsvFilePath;
@@ -134,6 +143,12 @@ namespace Recommender.Data.DataAccess
         {
             return _dbContext.MiningTasks
                 .SingleOrDefault(mt => mt.Id == id);
+        }
+
+        public MiningTask GetMiningTask(string name)
+        {
+            return _dbContext.MiningTasks
+                .SingleOrDefault(mt => mt.Name == name);
         }
 
         public List<Dimension> GetChildDimensions(int id)

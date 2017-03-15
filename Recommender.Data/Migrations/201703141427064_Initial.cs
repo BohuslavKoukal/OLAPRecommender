@@ -55,6 +55,7 @@ namespace Recommender.Data.Migrations
                         Name = c.String(unicode: false),
                         CsvFilePath = c.String(unicode: false),
                         KeepFilePrivate = c.Boolean(nullable: false),
+                        Preprocessed = c.Boolean(nullable: false),
                         State = c.Int(nullable: false),
                     })
                 .PrimaryKey(t => t.Id);

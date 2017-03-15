@@ -380,7 +380,7 @@ namespace Recommender.Business.AssociationRules
             {
                 CreateDataDictionaryDataField(dd, doc, measure.GetQualifiedName(), measure.Type.ToLispName(), "continuous");
             }
-            CreateDataDictionaryDataField(dd, doc, "Id", "integer", "continuous");
+            CreateDataDictionaryDataField(dd, doc, $"{task.DataSet.Name}Id", "integer", "continuous");
         }
 
         private void CreateDataDictionaryDataField(XmlElement dataDictionary, XmlDocument doc, string name, string type, string optype)
@@ -557,7 +557,7 @@ namespace Recommender.Business.AssociationRules
             {
                 Aad = aadValue,
                 Base = baseValue,
-                Measure = measures.Single(m => m.Name == succedentParts[0]),
+                Measure = measures.Single(m => m.GetQualifiedName() == succedentParts[0]),
                 SuccedentText = succedentText
             };
         }

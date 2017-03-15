@@ -28,6 +28,14 @@ namespace Recommender2.Validations
             }
         }
 
+        public void TaskNameIsValid(string name)
+        {
+            if (_data.GetMiningTask(name) != null)
+            {
+                throw new ValidationException($"Task {name} already exists.");
+            }
+        }
+
         public void UploadedFileIsValid(HttpPostedFileBase file)
         {
             if (file == null || file.ContentLength == 0)

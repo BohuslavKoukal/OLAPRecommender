@@ -95,6 +95,7 @@ namespace Recommender.Business.StarSchema
 
         public void FillFactTable(string datasetName, List<Dimension> dimensions, List<Measure> measures, DataTable values)
         {
+            var queryCache = new QueryCache();
             var allRows = new List<List<Column>>();
             foreach (DataRow row in values.Rows)
             {
@@ -107,10 +108,9 @@ namespace Recommender.Business.StarSchema
                 var dimensionColumns = dimensions.Where(d => d.ParentDimension == null).Select(dimension => new Column
                 {
                     Name = dimension.Name + Constants.String.Id,
-                    Value = GetDimensionId(datasetName + dimension.Name, row[dimension.Name].ToString(dimension.Type.ToType())).ToString()
+                    Value = GetDimensionId(datasetName + dimension.Name, row[dimension.Name].ToString(dimension.Type.ToType()), queryCache).ToString()
                 }).ToList();
                 allRows.Add(dimensionColumns.Concat(measureColumns).ToList());
-                //QueryBuilder.Insert(datasetName + Constants.String.FactTable, dimensionColumns.Concat(measureColumns));
             }
             QueryBuilder.Insert(datasetName + Constants.String.FactTable, allRows);
         }
@@ -119,11 +119,21 @@ namespace Recommender.Business.StarSchema
 
         #region private
 
+        private int GetDimensionId(string tableName, string value, QueryCache cache)
+        {
+            var ret = cache.GetId(tableName, value);
+            if (ret < 1)
+            {
+                ret = GetDimensionId(tableName, value);
+                cache.Add(tableName, value, ret);
+            }
+            return ret;
+        }
+
         private int GetDimensionId(string tableName, string value)
         {
-            return Convert.ToInt32
+                return Convert.ToInt32
                 (QueryBuilder.Select(tableName, new Column { Name = Constants.String.Value, Value = value }).Rows.Cast<DataRow>().First()[0]);
-            
         }
 
         private void FillDimensionTable(string datasetName, Dimension dimension, DataTable values, List<Dimension> children)

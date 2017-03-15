@@ -3,6 +3,7 @@
 <p>
     @using (Html.BeginForm("MineRules", "MinedResults", null, FormMethod.Post))
     {
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
         @Html.HiddenFor(m => Model.Id)
         <div class="form-horizontal">
             @Html.ValidationSummary(true, "", new { @class = "text-danger" })

@@ -54,6 +54,7 @@ namespace Recommender.Business.AssociationRules
                 }
                 
             }
+            _data.SetPreprocessed(task.DataSet.Id);
             return true;
         }
 

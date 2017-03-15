@@ -118,6 +118,7 @@
     <Compile Include="GraphService\GraphService.cs" />
     <Compile Include="GraphService\SubcubeService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StarSchema\QueryCache.cs" />
     <Compile Include="StarSchema\StarSchemaBase.cs" />
     <Compile Include="StarSchema\StarSchemaBuilder.cs" />
     <Compile Include="StarSchema\StarSchemaHelper.cs" />

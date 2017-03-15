@@ -30,17 +30,22 @@ namespace Recommender.Business.AssociationRules
 
         public void SendTask(MiningTask task, List<Discretization> discretizations, List<EquivalencyClass> eqClasses, int rowCount)
         {
-            var pmmlService = new PmmlService(_configuration);
-            var preprocessingPmml = pmmlService.GetPreprocessingPmml(task, discretizations, rowCount);
-            var taskPmml = pmmlService.GetTaskPmml(task, eqClasses, rowCount);
-            Task.Factory.StartNew(() => SendToLispMinerAsync(task, preprocessingPmml, taskPmml));
+            Task.Factory.StartNew(() => SendToLispMinerAsync(task, discretizations, rowCount, eqClasses));
         }
 
-        private void SendToLispMinerAsync(MiningTask task, XmlDocument preprocessingPmml, XmlDocument taskPmml)
+        private void SendToLispMinerAsync(MiningTask task,
+            List<Discretization> discretizations, int rowCount, List<EquivalencyClass> eqClasses)
         {
-            var preprocessed = _lmConnector.SendPreprocessing(task, preprocessingPmml);
+            var service = new PmmlService(_configuration);
+            var preprocessed = task.DataSet.Preprocessed;
+            if (!preprocessed)
+            {
+                var preprocessingPmml = service.GetPreprocessingPmml(task, discretizations, rowCount);
+                preprocessed = _lmConnector.SendPreprocessing(task, preprocessingPmml);
+            }
             if (preprocessed)
             {
+                var taskPmml = service.GetTaskPmml(task, eqClasses, rowCount);
                 var responseOk = _lmConnector.SendTask(task, taskPmml);
                 if (responseOk)
                 {
