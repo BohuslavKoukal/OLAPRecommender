@@ -79,7 +79,7 @@ namespace Recommender2.ViewModels.Mappers
         
         private DrilldownSeriesViewModel GetSeries(DrilldownGraphDto graph)
         {
-            var graphRoots = graph.Roots.ToList();
+            var graphRoots = graph.Roots.Cast<DrilldownGraphXAxisRootDto>().ToList();
             var series = new DrilldownSeriesViewModel
             {
                 Id = graph.Name,

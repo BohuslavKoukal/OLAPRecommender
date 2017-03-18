@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using Recommender.Business.DTO;
 using Recommender.Common;
+using Recommender.Common.Enums;
 using Recommender.Data.DataAccess;
 using Recommender.Data.Models;
 
@@ -46,11 +47,36 @@ namespace Recommender.Business.AssociationRules
             if (preprocessed)
             {
                 var taskPmml = service.GetTaskPmml(task, eqClasses, rowCount);
-                var responseOk = _lmConnector.SendTask(task, taskPmml);
-                if (responseOk)
+                while (true)
                 {
-                    SaveTaskResults(task.Name, task.DataSet.Id, task.Id);
+                    var responseOk = _lmConnector.SendTask(task, taskPmml);
+                    if (responseOk)
+                    {
+                        var resultsFile = _lmConnector.GetTaskResultsFile(task.Name);
+                        var resultService = new PmmlService(_configuration, resultsFile);
+                        var taskState = resultService.GetTaskState();
+                        if (taskState == TaskState.Started)
+                        {
+                            Thread.Sleep(TimeSpan.FromMinutes(2));
+                        }
+                        else if (taskState == TaskState.Finished)
+                        {
+                            _data.SetTaskState(task.Id, (int) TaskState.Finished);
+                            SaveTaskResults(task.Name, task.DataSet.Id, task.Id);
+                            break;
+                        }
+                        else
+                        {
+                            _data.SetTaskState(task.Id, (int)TaskState.Failed, "Task failed due to an unknown reason in Lisp Miner.");
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
+                
             }
         }
 

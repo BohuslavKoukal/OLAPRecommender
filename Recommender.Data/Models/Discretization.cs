@@ -19,8 +19,8 @@ namespace Recommender.Data.Models
 
     public class DiscretizeBin
     {
-        public int LeftMargin { get; set; }
-        public int RightMargin { get; set; }
+        public long LeftMargin { get; set; }
+        public long RightMargin { get; set; }
         public string Name => $"[{LeftMargin};{RightMargin}]";
     }
 }

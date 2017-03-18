@@ -15,5 +15,16 @@ namespace Recommender.Common.Helpers
             var safeStr = rgx.Replace(str, "_");
             return safeStr;
         }
+
+        // Lisp Miner can handle only 50 chars in Attribute name
+        public static string ShortName(this string str, string datasetName)
+        {
+            var stringMaxLength = 49 - "_Value".Length - datasetName.Length;
+            if (str.Length <= stringMaxLength)
+            {
+                return str;
+            }
+            return str.Remove(stringMaxLength - 1);
+        }
     }
 }

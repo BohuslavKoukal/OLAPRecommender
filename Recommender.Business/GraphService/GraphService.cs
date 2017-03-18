@@ -12,7 +12,8 @@ namespace Recommender.Business.GraphService
         GroupedGraphDto GetGroupedGraph(DimensionTree allDimensionsTree, TreeDimensionDto xDimension,
             DimensionDto legendDimension, Measure measure, List<FlatDimensionDto> filterDimensions, bool group);
 
-        DrilldownGraphDto GetDrilldownGraph(DimensionTree allDimensionsTree, TreeDimensionDto xDimension, Measure measure, List<FlatDimensionDto> filters);
+        DrilldownGraphDto GetDrilldownGraph(DimensionTree allDimensionsTree, TreeDimensionDto xDimension,
+            Measure measure, List<FlatDimensionDto> filters, bool requireDrilldownChart);
     }
 
     public class GraphService : IGraphService
@@ -51,7 +52,8 @@ namespace Recommender.Business.GraphService
             return graph;
         }
 
-        public DrilldownGraphDto GetDrilldownGraph(DimensionTree allDimensionsTree, TreeDimensionDto xDimension, Measure measure, List<FlatDimensionDto> filters)
+        public DrilldownGraphDto GetDrilldownGraph(DimensionTree allDimensionsTree, TreeDimensionDto xDimension,
+            Measure measure, List<FlatDimensionDto> filters, bool requireDrilldownChart)
         {
             var graph = new DrilldownGraphDto
             {
@@ -61,12 +63,12 @@ namespace Recommender.Business.GraphService
             };
             var xDimIsRoot = allDimensionsTree.IsRoot(xDimension.Id);
             // if x-dimension is root dimension, there is no point for showing drilldown graph
-            if (xDimIsRoot)
+            if (xDimIsRoot && !requireDrilldownChart)
             {
                 return null;
             }
             // otherwise values of x dimension will be root and its parents values will be leaves
-            else
+            else if (!xDimIsRoot)
             {
                 var filteredXValues = GetFilteredValues(allDimensionsTree, xDimension, filters);
                 foreach (var xValue in filteredXValues)
@@ -74,24 +76,48 @@ namespace Recommender.Business.GraphService
                     graph.Roots.Add(GetParentRoot(allDimensionsTree, xDimension, measure, xValue, filters));
                 }
             }
+            else
+            {
+                var filteredXValues = GetFilteredValues(allDimensionsTree, xDimension, filters).ToList();
+                foreach (var xValue in filteredXValues)
+                {
+                    graph.Roots.Add(GetRoot(allDimensionsTree, xDimension, measure, filteredXValues, filters, xValue));
+                }
+            }
             return graph;
         }
 
-        private GroupedGraphXAxisRootDto GetRoot(DimensionTree allDimensionsTree, DimensionDto xDimension, Measure measure,
+        private GraphXAxisRootDto GetRoot(DimensionTree allDimensionsTree, DimensionDto xDimension, Measure measure,
             IEnumerable<DimensionValueDto> filteredXValues, List<FlatDimensionDto> filters,
             DimensionValueDto xValue = null, DimensionDto legendDimension = null)
         {
-            var xAxisRoot = new GroupedGraphXAxisRootDto
+            GraphXAxisRootDto xAxisRoot;
+            if (legendDimension == null)
             {
-                Id = xValue?.Id ?? 0,
-                Name = xValue?.Value ?? string.Empty,
-                XAxisLeaves = new List<GraphXAxisLeafDto>()
-            };
-            foreach (var dimValue in filteredXValues)
-            {
-                var leaf = GetLeaf(allDimensionsTree, xDimension, dimValue, measure, filters, legendDimension);
+                xAxisRoot = new DrilldownGraphXAxisRootDto
+                {
+                    Id = xValue?.Id ?? 0,
+                    Name = xValue?.Value ?? string.Empty,
+                    XAxisLeaves = new List<GraphXAxisLeafDto>()
+                };
+                var leaf = GetLeaf(allDimensionsTree, xDimension, xValue, measure, filters);
                 xAxisRoot.XAxisLeaves.Add(leaf);
             }
+            else
+            {
+                xAxisRoot = new GroupedGraphXAxisRootDto
+                {
+                    Id = xValue?.Id ?? 0,
+                    Name = xValue?.Value ?? string.Empty,
+                    XAxisLeaves = new List<GraphXAxisLeafDto>()
+                };
+                foreach (var dimValue in filteredXValues)
+                {
+                    var leaf = GetLeaf(allDimensionsTree, xDimension, dimValue, measure, filters, legendDimension);
+                    xAxisRoot.XAxisLeaves.Add(leaf);
+                }
+            }
+            
             return xAxisRoot;
         }
 

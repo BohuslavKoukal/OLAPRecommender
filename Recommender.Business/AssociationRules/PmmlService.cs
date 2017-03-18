@@ -8,6 +8,7 @@ using System.Xml;
 using System.Xml.Schema;
 using Recommender.Business.DTO;
 using Recommender.Common;
+using Recommender.Common.Enums;
 using Recommender.Common.Helpers;
 using Recommender.Data.Extensions;
 using Recommender.Data.Models;
@@ -158,11 +159,17 @@ namespace Recommender.Business.AssociationRules
 
             CreateConjunctionDbaSetting(dbaSettings, doc, task.GetAntecedentId(), task.GetAntecedentName(), task.GetAntecedentDimensions(), 1, 2);
             CreateConjunctionDbaSetting(dbaSettings, doc, task.GetSuccedentId(), task.GetSuccedentName(), task.DataSet.Measures.ToList(), 1, 1);
-            CreateConjunctionDbaSetting(dbaSettings, doc, task.GetConditionId(), task.GetConditionName(), task.GetConditionDimensions(), task.ConditionRequired ? 1 : 0, task.GetConditionDimensions().Count);
+            if (task.GetConditionDimensions().Any())
+            {
+                CreateConjunctionDbaSetting(dbaSettings, doc, task.GetConditionId(), task.GetConditionName(), task.GetConditionDimensions(), task.ConditionRequired ? 1 : 0, task.GetConditionDimensions().Count);
+            }
 
             CreateBagDbaSetting(doc, dbaSettings, task.GetAntecedentBagId(), task.GetAntecedentName(), task.GetAntecedentId(), 1, 1);
             CreateBagDbaSetting(doc, dbaSettings, task.GetSuccedentBagId(), task.GetSuccedentName(), task.GetSuccedentId(), 1, 1);
-            CreateBagDbaSetting(doc, dbaSettings, task.GetConditionBagId(), task.GetConditionName(), task.GetConditionId(), 1, 1);
+            if (task.GetConditionDimensions().Any())
+            {
+                CreateBagDbaSetting(doc, dbaSettings, task.GetConditionBagId(), task.GetConditionName(), task.GetConditionId(), 1, 1);
+            }
         }
 
         private void CreateConjunctionDbaSetting(XmlElement dbaSettings, XmlDocument doc, string id, string name, List<Dimension> dimensions, int minLength, int maxLength)
@@ -246,8 +253,11 @@ namespace Recommender.Business.AssociationRules
             antecedentSetting.InnerText = task.GetAntecedentBagId();
             var consequentSetting = (XmlElement)taskSetting.AppendChild(doc.CreateElement("ConsequentSetting"));
             consequentSetting.InnerText = task.GetSuccedentBagId();
-            var conditionSetting = (XmlElement)taskSetting.AppendChild(doc.CreateElement("ConditionSetting"));
-            conditionSetting.InnerText = task.GetConditionBagId();
+            if (task.ConditionDimensions.Any())
+            {
+                var conditionSetting = (XmlElement)taskSetting.AppendChild(doc.CreateElement("ConditionSetting"));
+                conditionSetting.InnerText = task.GetConditionBagId();
+            }
         }
 
         private void CreateInterestMeasureSettings(MiningTask task, XmlElement taskSetting, XmlDocument doc, int rowCount)
@@ -467,6 +477,7 @@ namespace Recommender.Business.AssociationRules
         #endregion
 
         #region ParsingRules
+
         public List<AssociationRule> GetRules(List<DimensionValue> dimensionValues, List<Measure> measures)
         {
             var ret = new List<AssociationRule>();
@@ -519,6 +530,16 @@ namespace Recommender.Business.AssociationRules
                 ret.Add(assocRule);
             }
             return ret;
+        }
+
+        public TaskState GetTaskState()
+        {
+            var taskState = _doc.SelectNodes("//*[local-name()='TaskState']").Cast<XmlNode>().Single().InnerText;
+            if(taskState == "Solved")
+                return TaskState.Finished;
+            if (taskState == "Running")
+                return TaskState.Started;
+            return TaskState.Failed;
         }
 
         public TimeSpan GetTaskDuration()

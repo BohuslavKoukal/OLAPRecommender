@@ -68,7 +68,7 @@ namespace Recommender.Business.FileHandling
             {
                 var oldName = Path.GetFileNameWithoutExtension(postedFile.FileName);
                 var guid = Guid.NewGuid().ToString().Remove(7);
-                filePathToSave = _configuration.GetFilesLocation() + oldName + guid + ".csv";
+                filePathToSave = _configuration.GetFilesLocation() + oldName + guid;
                 filePathToSave += fileType == FileType.Csv ? ".csv" : ".ttl";
             }
             byte[] content;

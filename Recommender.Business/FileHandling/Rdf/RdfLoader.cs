@@ -35,22 +35,22 @@ namespace Recommender.Business.FileHandling.Rdf
             return _observationsConverter.ConvertObservationsToDataTable(dimensions, measures);
         }
 
-        public IEnumerable<DimensionDto> GetDimensions()
+        public IEnumerable<DimensionDto> GetDimensions(string datasetName)
         {
             var dimensionTriples = GetDimensions(_components);
             var dimensions = _dsdConverter.ConvertToDimensionDtos(dimensionTriples);
             var dataFilledDimensions = _observationsConverter.FillDimensionsFromData(dimensions.ToList());
             return dataFilledDimensions.Select(d => {
-                d.Name = d.Name.SafeName();
+                d.Name = d.Name.SafeName().ShortName(datasetName);
                 return d;
             }).ToList();
         }
 
-        public IEnumerable<MeasureDto> GetMeasures()
+        public IEnumerable<MeasureDto> GetMeasures(string datasetName)
         {
             var measureTriples = GetMeasures(_components);
             return _dsdConverter.ConvertToMeasures(measureTriples).Select(m => {
-                m.Name = m.Name.SafeName();
+                m.Name = m.Name.SafeName().ShortName(datasetName);
                 return m;
             }).ToList();
         }

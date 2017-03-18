@@ -4,6 +4,8 @@
 @{
     ViewBag.Title = "Details of" + Model.Dataset.Name;
     var chartDisplay = Model.ShouldChartBeDisplayed ? "block" : "none";
+    var groupedDisplay = Model.GroupedChart == null ? "none" : "block";
+    var drilldownDisplay = Model.DrilldownChart == null ? "none" : "block";
 }
 @Scripts.Render("~/bundles/browsecube")
 @Scripts.Render("~/bundles/modaldialog")
@@ -87,6 +89,6 @@
         drilldownSerializedDrilldown = @JavaScriptConverter.SerializeObject(Model.DrilldownChart?.Drilldown);
         drilldownChartTitle = @JavaScriptConverter.SerializeObject(Model.DrilldownChart?.ChartTitle);
     </script>
-    <div class="chart-container" id="grouped-chart"></div>
-    <div id="container" style="height: 400px; margin: 0 auto; min-width: 310px;"></div>
+    <div class="chart-container" id="grouped-chart" style="display: @groupedDisplay"></div>
+    <div id="container" style="height: 400px; margin: 0 auto; min-width: 310px; display: @drilldownDisplay"></div>
 </div>

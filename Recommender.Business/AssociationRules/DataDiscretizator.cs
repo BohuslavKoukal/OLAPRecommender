@@ -28,13 +28,13 @@ namespace Recommender.Business.AssociationRules
                 var disc = new Discretization {Measure = measure};
                 var orderedValues = _querier.GetOrderedMeasureValues(measure);
                 var step = rowCount/binCount;
-                var currentLeftMargin = (int)Math.Floor(orderedValues[0]);
+                var currentLeftMargin = (long)Math.Floor(orderedValues[0]);
                 for (int i = 1; i <= binCount; i++)
                 {
                     var bin = new DiscretizeBin
                     {
                         LeftMargin = currentLeftMargin,
-                        RightMargin = (int) Math.Floor(orderedValues[i*step])
+                        RightMargin = (long) Math.Floor(orderedValues[i*step])
                     };
                     currentLeftMargin = bin.RightMargin;
                     disc.Bins.Add(bin);
@@ -72,9 +72,9 @@ namespace Recommender.Business.AssociationRules
             }
             else if (rowCount < 10000)
             {
-                return 15;
+                return 10;
             }
-            return 20;
+            return 15;
         }
     }
 }

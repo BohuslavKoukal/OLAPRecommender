@@ -66,11 +66,12 @@ namespace Recommender2.ControllerEngine
 
         public void CreateDataset(int id, HttpPostedFileBase dsdFile)
         {
+            var dataset = Data.GetDataset(id);
             var file = _fileHandler.SaveFile(dsdFile, string.Empty);
             var rdfLoader = new RdfLoader(file.FilePath, Data.GetCsvFilePath(id));
             // Check names for Sql safety
-            var dimensionDtos = rdfLoader.GetDimensions().ToList();
-            var measureDtos = rdfLoader.GetMeasures().ToList();
+            var dimensionDtos = rdfLoader.GetDimensions(dataset.Name).ToList();
+            var measureDtos = rdfLoader.GetMeasures(dataset.Name).ToList();
             var dimensions = DimensionMapper.ConvertToDimensions(dimensionDtos);
             var measures = measureDtos.Select(d => d.ConvertToMeasure()).ToList();
             var data = rdfLoader.ConvertObservationsToDataTable(dimensionDtos, measureDtos);

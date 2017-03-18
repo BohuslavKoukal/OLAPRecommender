@@ -30,7 +30,7 @@ namespace Recommender.Business.AssociationRules
         {
             using (var client = new HttpClient())
             {
-                client.Timeout = TimeSpan.FromHours(1);
+                client.Timeout = TimeSpan.FromMinutes(10);
                 var method = new HttpMethod("PATCH");
                 var stringContent = new StringContent(preprocessingPmml.OuterXml);
                 var request = new HttpRequestMessage(method, GetSendPreprocessingAddress())
@@ -49,7 +49,7 @@ namespace Recommender.Business.AssociationRules
                 }
                 catch (TaskCanceledException e)
                 {
-                    _data.SetTaskState(task.Id, (int)TaskState.Failed, "Connection timed out after 1 hour.");
+                    _data.SetTaskState(task.Id, (int)TaskState.Failed, "Connection to Lisp Miner timed out after 10 minutes.");
                     return false;
                 }
                 
@@ -62,27 +62,26 @@ namespace Recommender.Business.AssociationRules
         {
             using (var client = new HttpClient())
             {
-                client.Timeout = TimeSpan.FromHours(1);
+                client.Timeout = TimeSpan.FromMinutes(10);
                 var stringContent = new StringContent(taskPmml.OuterXml);
                 try
                 {
                     var response = client.PostAsync(GetSendTaskAddress(), stringContent).Result;
                     var responseString = response.Content.ReadAsStringAsync().Result;
-                    if (response.StatusCode == HttpStatusCode.InternalServerError)
+                    if (response.StatusCode != HttpStatusCode.OK)
                     {
                         _data.SetTaskState(task.Id, (int) TaskState.Failed, responseString);
                         return false;
                     }
                     else
                     {
-                        _data.SetTaskState(task.Id, (int) TaskState.Finished);
                         File.WriteAllText(GetTaskResultsFileName(task.Name), responseString);
                         return true;
                     }
                 }
                 catch (TaskCanceledException e)
                 {
-                    _data.SetTaskState(task.Id, (int)TaskState.Failed, "Connection timed out after 1 hour.");
+                    _data.SetTaskState(task.Id, (int)TaskState.Failed, "Connection to Lisp Miner timed out after 10 minutes.");
                     return false;
                 }
                 

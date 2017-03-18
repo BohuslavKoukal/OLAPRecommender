@@ -11,7 +11,7 @@ namespace Recommender.Business.DTO
     {
         public override double GetValue()
         {
-            return XAxisLeaves.Aggregate(0, (current, leaf) => (int) (current + ((DrilldownGraphXAxisLeafDto) leaf).Value));
+            return XAxisLeaves.Aggregate(0L, (current, leaf) => (long) (current + ((DrilldownGraphXAxisLeafDto) leaf).Value));
         }
     }
 

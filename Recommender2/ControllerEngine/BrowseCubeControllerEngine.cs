@@ -64,24 +64,28 @@ namespace Recommender2.ControllerEngine
             var xAndLegendIds = _ruleToViewMapper.GetXAndLegendDimensionsId(rule, _treeBuilder.ConvertToTree(datasetId));
             var filters = _ruleToViewMapper.GetFilterValues(rule);
             var chartText = _ruleToViewMapper.GetChartText(rule);
-            return ShowChart(datasetId, measureId, xAndLegendIds.Item1, xAndLegendIds.Item2, false, filters.ToList(), chartText);
+            return ShowChart(datasetId, measureId, xAndLegendIds.Item1, xAndLegendIds.Item2, false, filters.ToList(), chartText, true);
         }
 
         public BrowseCubeViewModel ShowChart(int id, int selectedMeasureId, int xDimensionId, int legendDimensionId,
             bool group, FilterViewModel filterDimensions)
         {
-            return ShowChart(id, selectedMeasureId, xDimensionId, legendDimensionId, group, GetFilters(filterDimensions), String.Empty);
+            return ShowChart(id, selectedMeasureId, xDimensionId, legendDimensionId, group, GetFilters(filterDimensions), String.Empty, false);
         }
 
         public BrowseCubeViewModel ShowChart(int id, int selectedMeasureId, int xDimensionId, int legendDimensionId, bool group,
-            List<FlatDimensionDto> filters, string chartText)
+            List<FlatDimensionDto> filters, string chartText, bool requireDrilldownChart)
         {
             var dataset = Data.GetDataset(id);
             var measure = Data.GetMeasure(selectedMeasureId);
             var dimensionTree = _treeBuilder.ConvertToTree(id, true);
-            var groupedChart = GetGroupedChart(dimensionTree, dimensionTree.GetDimensionDto(xDimensionId),
+            GroupedChartViewModel groupedChart = null;
+            if (legendDimensionId != 0)
+            {
+                groupedChart = GetGroupedChart(dimensionTree, dimensionTree.GetDimensionDto(xDimensionId),
                 dimensionTree.GetDimensionDto(legendDimensionId), measure, filters, group);
-            var drilldownChart = GetDrilldownChart(dimensionTree, dimensionTree.GetDimensionDto(xDimensionId), measure, filters);
+            }
+            var drilldownChart = GetDrilldownChart(dimensionTree, dimensionTree.GetDimensionDto(xDimensionId), measure, filters, requireDrilldownChart);
             var filterValues = GetFilterValues(id);
             return new BrowseCubeViewModel
             {
@@ -140,9 +144,10 @@ namespace Recommender2.ControllerEngine
             return _browseCubeMapper.Map(groupedGraphDto);
         }
 
-        private DrilldownChartViewModel GetDrilldownChart(DimensionTree tree, TreeDimensionDto xDimension, Measure measure, List<FlatDimensionDto> filters)
+        private DrilldownChartViewModel GetDrilldownChart(DimensionTree tree, TreeDimensionDto xDimension, Measure measure,
+            List<FlatDimensionDto> filters, bool requireDrilldownChart)
         {
-            var drilldownGraphDto = _graphService.GetDrilldownGraph(tree, xDimension, measure, filters);
+            var drilldownGraphDto = _graphService.GetDrilldownGraph(tree, xDimension, measure, filters, requireDrilldownChart);
             return _browseCubeMapper.Map(drilldownGraphDto);
         }
 
