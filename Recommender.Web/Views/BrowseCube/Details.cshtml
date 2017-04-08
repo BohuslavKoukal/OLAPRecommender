@@ -1,0 +1,94 @@
+﻿@using Recommender.Web.ViewModels
+@model Recommender.Web.ViewModels.BrowseCubeViewModel
+
+@{
+    ViewBag.Title = "Details of" + Model.Dataset.Name;
+    var chartDisplay = Model.ShouldChartBeDisplayed ? "block" : "none";
+    var groupedDisplay = Model.GroupedChart == null ? "none" : "block";
+    var drilldownDisplay = Model.DrilldownChart == null ? "none" : "block";
+}
+@Scripts.Render("~/bundles/browsecube")
+@Scripts.Render("~/bundles/modaldialog")
+<h2>Browse @Model.Dataset.Name</h2>
+
+@using (Html.BeginForm("ShowChart", "BrowseCube", null, FormMethod.Post))
+{
+    @Html.HiddenFor(m => m.DatasetId)
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true, "", new {@class = "text-danger"})
+        <div class="form-group">
+            <table>
+                <tr>
+                    <td>Measure</td><td>@Html.DropDownListFor(m => m.SelectedMeasureId, Model.Dataset.MeasuresSelectList)</td>
+                </tr>
+                <tr>
+                    <td>X axis Dimension</td><td>@Html.DropDownListFor(m => m.XDimensionId, Model.Dataset.DimensionsSelectList)</td>
+                </tr>
+                <tr>
+                    <td>Legend Dimension</td><td>@Html.DropDownListFor(m => m.LegendDimensionId, Model.Dataset.DimensionsSelectList)</td>
+                </tr>
+                <tr>
+                    <td>Filters</td>
+                    <td><a href="#" id="modalOpen">Apply filters</a></td>
+                </tr>
+                <tr>
+                    <td>Group level hierarchies (slower rendering)</td>
+                    <td>@Html.CheckBoxFor(m => m.Group)</td>
+                </tr>
+            </table>
+        </div>
+        
+        <div id="myModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Apply filters</h2>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        @for (var i = 0; i < Model.Dataset.Filter.Dimensions.Count; i++)
+                        {
+                            var dimension = Model.Dataset.Filter.Dimensions[i];
+                            <div class="floating-box">
+                                <strong>@Html.DisplayFor(m => dimension.DimensionName)</strong><br/>
+                                <a href="#" class='checkAll' data-checked='true'>check/uncheck all</a><br />
+                                @Html.HiddenFor(m => m.Dataset.Filter.Dimensions[i].DimensionId)
+                                @for (var j = 0; j < Model.Dataset.Filter.Dimensions[i].Values.Count; j++)
+                                {
+                                    @Html.CheckBoxFor(m => m.Dataset.Filter.Dimensions[i].Values[j].Checked)
+                                    @Html.HiddenFor(m => m.Dataset.Filter.Dimensions[i].Values[j].Id)
+                                    @Html.DisplayFor(m => m.Dataset.Filter.Dimensions[i].Values[j].Value)
+                                    <br />
+                                }
+                            </div>
+                        }
+                        <p><span class="close btn btn-default">Apply filters</span></p>
+                    </div>
+                    <p></p>
+                </div>
+            </div>
+        </div>
+       
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Show chart" class="btn btn-default"/>
+            </div>
+        </div>
+    </div>
+}
+
+<div style="display: @chartDisplay">
+    <p>@Model.ChartText</p>
+    <script>
+        measureName = @JavaScriptConverter.SerializeObject(Model.MeasureName);
+        //
+        groupedSerializedSeries = @JavaScriptConverter.SerializeObject(Model.GroupedChart?.Series);
+        groupedSerializedCategories = @JavaScriptConverter.SerializeObject(Model.GroupedChart?.Categories);
+        groupedChartTitle = @JavaScriptConverter.SerializeObject(Model.GroupedChart?.ChartTitle);
+        //
+        drilldownSerializedSeries = @JavaScriptConverter.SerializeObject(Model.DrilldownChart?.Series);
+        drilldownSerializedDrilldown = @JavaScriptConverter.SerializeObject(Model.DrilldownChart?.Drilldown);
+        drilldownChartTitle = @JavaScriptConverter.SerializeObject(Model.DrilldownChart?.ChartTitle);
+    </script>
+    <div class="chart-container" id="grouped-chart" style="display: @groupedDisplay"></div>
+    <div id="container" style="height: 400px; margin: 0 auto; min-width: 310px; display: @drilldownDisplay"></div>
+</div>

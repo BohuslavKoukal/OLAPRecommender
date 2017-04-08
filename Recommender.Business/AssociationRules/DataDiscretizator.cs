@@ -31,10 +31,11 @@ namespace Recommender.Business.AssociationRules
                 var currentLeftMargin = (long)Math.Floor(orderedValues[0]);
                 for (int i = 1; i <= binCount; i++)
                 {
+                    var rightMargin = i == binCount ? (long)Math.Ceiling(orderedValues.Last()) : (long) Math.Floor(orderedValues[i*step]);
                     var bin = new DiscretizeBin
                     {
                         LeftMargin = currentLeftMargin,
-                        RightMargin = (long) Math.Floor(orderedValues[i*step])
+                        RightMargin = rightMargin
                     };
                     currentLeftMargin = bin.RightMargin;
                     disc.Bins.Add(bin);

@@ -1,9 +1,8 @@
-﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Recommender2", "Recommender2\Recommender2.csproj", "{4179D4FC-ACC5-4AD6-80DC-20A84015C6DD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Recommender.Web", "Recommender.Web\Recommender.Web.csproj", "{4179D4FC-ACC5-4AD6-80DC-20A84015C6DD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RecommenderTests", "RecommenderTests\RecommenderTests.csproj", "{DE3BCDEE-3A56-4C10-A9BA-06B9D96BDF8C}"
 EndProject
@@ -12,8 +11,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Recommender.Data", "Recommender.Data\Recommender.Data.csproj", "{431B1A94-235E-41CB-862F-296A83481DE5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Recommender.Common", "Recommender.Common\Recommender.Common.csproj", "{381121FA-165B-4909-995B-E45248BE301B}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Recommender.DependencyResolver", "Recommender.DependencyResolver\Recommender.DependencyResolver.csproj", "{A9AC1AE6-2FEC-46A5-9FE8-7F679C8BE1DC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,10 +38,6 @@ Global
 		{381121FA-165B-4909-995B-E45248BE301B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{381121FA-165B-4909-995B-E45248BE301B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{381121FA-165B-4909-995B-E45248BE301B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A9AC1AE6-2FEC-46A5-9FE8-7F679C8BE1DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A9AC1AE6-2FEC-46A5-9FE8-7F679C8BE1DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A9AC1AE6-2FEC-46A5-9FE8-7F679C8BE1DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A9AC1AE6-2FEC-46A5-9FE8-7F679C8BE1DC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
