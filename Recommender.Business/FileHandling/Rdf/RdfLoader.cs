@@ -55,22 +55,22 @@ namespace Recommender.Business.FileHandling.Rdf
             }).ToList();
         }
 
-        public INode GetDsdNode()
+        private INode GetDsdNode()
         {
             return _dsdGraph.GetTriplesWithPredicateObject(RdfConstants.Type, RdfConstants.DsDefinition).Single().Subject;
         }
 
-        public IEnumerable<Triple> GetComponents(INode dsdNode)
+        private IEnumerable<Triple> GetComponents(INode dsdNode)
         {
             return _dsdGraph.GetTriplesWithSubjectPredicate(dsdNode, RdfConstants.Component);
         }
 
-        public IEnumerable<Triple> GetMeasures(IEnumerable<Triple> components)
+        private IEnumerable<Triple> GetMeasures(IEnumerable<Triple> components)
         {
             return GetBlankNodesByPredicate(components, RdfConstants.Measure);
         }
 
-        public IEnumerable<Triple> GetDimensions(IEnumerable<Triple> components)
+        private IEnumerable<Triple> GetDimensions(IEnumerable<Triple> components)
         {
             return GetBlankNodesByPredicate(components, RdfConstants.Dimension);
         }

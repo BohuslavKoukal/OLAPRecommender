@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,7 +14,13 @@ using Recommender.Data.Models;
 
 namespace Recommender.Business.AssociationRules
 {
-    public class AssociationRulesTaskProcessor
+    public interface IAssociationRulesTaskProcessor
+    {
+        void SendTask(MiningTask task, List<Discretization> discretizations, List<EquivalencyClass> eqClasses,
+            int rowCount);
+    }
+
+    public class AssociationRulesTaskProcessor : IAssociationRulesTaskProcessor
     {
         private readonly LispMinerConnector _lmConnector;
         private readonly IDataAccessLayer _data;

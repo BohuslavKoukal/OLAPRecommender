@@ -6,13 +6,15 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Recommender.Business;
+using Recommender.Business.AssociationRules;
 using Recommender.Business.DTO;
-using Recommender.Business.Service;
+using Recommender.Business.GraphService;
+using Recommender.Business.StarSchema;
 using Recommender.Data.DataAccess;
 using Recommender.Data.Models;
-using Recommender2.ControllerEngine;
-using Recommender2.ViewModels;
-using Recommender2.ViewModels.Mappers;
+using Recommender.Web.ControllerEngine;
+using Recommender.Web.ViewModels;
+using Recommender.Web.ViewModels.Mappers;
 using RecommenderTests.Helpers;
 
 namespace RecommenderTests.ControllerEngineTests
@@ -26,6 +28,7 @@ namespace RecommenderTests.ControllerEngineTests
         private Mock<IStarSchemaQuerier> _starSchemaQuerierMock;
         private Mock<IGraphService> _graphServiceMock;
         private Mock<IDimensionTreeBuilder>_treeBuilderMock;
+        private Mock<IAssociationRuleToViewMapper> _ruleToViewMock;
         private readonly BrowseCubeControllerEngine _testee;
 
         public BrowseCubeControllerEngineTest()
@@ -33,7 +36,7 @@ namespace RecommenderTests.ControllerEngineTests
             Setup();
             _testee = new BrowseCubeControllerEngine(_dataMock.Object, _datasetMapperMock.Object, _browseCubeMock.Object,
                 _starSchemaQuerierMock.Object,
-                _graphServiceMock.Object, _treeBuilderMock.Object);
+                _graphServiceMock.Object, _treeBuilderMock.Object, _ruleToViewMock.Object);
         }
 
         private void Setup()
@@ -41,6 +44,7 @@ namespace RecommenderTests.ControllerEngineTests
             _dataMock = new Mock<IDataAccessLayer>();
             _datasetMapperMock = new Mock<IDatasetViewModelMapper>();
             _browseCubeMock = new Mock<IBrowseCubeViewModelMapper>();
+            _ruleToViewMock = new Mock<IAssociationRuleToViewMapper>();
             _starSchemaQuerierMock = new Mock<IStarSchemaQuerier>();
             _graphServiceMock = new Mock<IGraphService>();
             _treeBuilderMock = new Mock<IDimensionTreeBuilder>();
@@ -65,7 +69,7 @@ namespace RecommenderTests.ControllerEngineTests
             _testee.GetDatasets();
             // Assert
             _dataMock.Verify(dm => dm.GetAllDatasets());
-            _datasetMapperMock.Verify(dmm => dmm.Map(It.IsAny<IEnumerable<DatasetDto>>()));
+            _datasetMapperMock.Verify(dmm => dmm.Map(It.IsAny<IEnumerable<Dataset>>()));
         }
 
         [TestMethod]
@@ -77,7 +81,7 @@ namespace RecommenderTests.ControllerEngineTests
             _testee.GetDataset(1);
             // Assert
             _dataMock.Verify(dm => dm.GetDataset(1));
-            _datasetMapperMock.Verify(dmm => dmm.Map(It.IsAny<DatasetDto>()));
+            _datasetMapperMock.Verify(dmm => dmm.Map(It.IsAny<Dataset>(), It.IsAny<FilterViewModel>()));
         }
 
         [TestMethod]
@@ -85,7 +89,7 @@ namespace RecommenderTests.ControllerEngineTests
         {
             // Arrange
             Reset();
-            var tree = TestHelper.CreateDimensionTree("TestDataset");
+            var tree = BusinessLayerTestHelper.CreateDimensionTree("TestDataset");
             _treeBuilderMock.Setup(c => c.ConvertToTree(It.IsAny<int>(), It.IsAny<bool>())).Returns(tree);
             _starSchemaQuerierMock.Setup(c => c.GetValuesOfDimension(It.IsAny<DimensionDto>(), It.IsAny<Column>()))
                 .Returns((DimensionDto dim, Column c) => tree.GetDimensionDto(dim.Id).DimensionValues);
@@ -93,25 +97,20 @@ namespace RecommenderTests.ControllerEngineTests
             _testee.BrowseCube(1);
             // Assert
             _dataMock.Verify(dm => dm.GetDataset(1));
-            _browseCubeMock.Verify(bcm => bcm.Map(It.IsAny<DatasetDto>(), It.IsAny<FilterViewModel>()));
+            _browseCubeMock.Verify(bcm => bcm.Map(It.IsAny<Dataset>(), It.IsAny<FilterViewModel>()));
             _browseCubeMock.Verify(bcm => bcm.Map(It.IsAny<DimensionTree>()));
         }
 
         [TestMethod]
-        public void TestShowChart()
+        public void TestShowChartDefinedManually()
         {
             // Arrange
             Reset();
-            var filters = TestHelper.GetBreadMilkEuropeFiltersAsDictionary();
-            var tree = TestHelper.CreateDimensionTree("TestDataset");
-            _treeBuilderMock.Setup(c => c.ConvertToTree(1, It.IsAny<bool>())).Returns(tree);
-            _dataMock.Setup(c => c.GetDimension(It.IsAny<int>()))
-                .Returns((int id) => new TreeDimensionDto { Name = tree.GetDimensionDto(id).Name, Id = id });
-            _dataMock.Setup(c => c.GetMeasure(1)).Returns(new MeasureDto { Id = 1 });
-            _starSchemaQuerierMock.Setup(c => c.GetValuesOfDimension(It.IsAny<DimensionDto>(), It.IsAny<Column>()))
-                .Returns((DimensionDto dd, Column col) => tree.GetDimensionDto(dd.Id).DimensionValues);
+            var filters = BusinessLayerTestHelper.GetBreadMilkEuropeFiltersAsFilterViewModel();
+            var tree = BusinessLayerTestHelper.CreateDimensionTree("TestDataset");
+            SetupDataLayer(tree);
             // Act
-            _testee.ShowChart(1, 1, 1, 2, filters);
+            _testee.ShowChart(1, 1, 1, 2, true, filters);
             // Assert
             _dataMock.Verify(dm => dm.GetDataset(1));
             _dataMock.Verify(dm => dm.GetMeasure(1));
@@ -124,17 +123,33 @@ namespace RecommenderTests.ControllerEngineTests
                 ef => (ef.Id == 2 && ef.DimensionValues.Count == 1 && ef.DimensionValues[0].Id == 1);
 
             _graphServiceMock.Verify(gs => gs.GetGroupedGraph(tree,
-                It.Is<TreeDimensionDto>(td => td.Id == 1), It.Is<DimensionDto>(d => d.Id == 2),
-                It.Is<MeasureDto>(m => m.Id == 1),
-                It.Is<List<FlatDimensionDto>>(f => hasTwoMembers(f) && breadMilkFilterIsOk(f[0]) && europeFilterIsOk(f[1]))));
+                It.Is<TreeDimensionDto>(td => td.Id == 1), It.Is<TreeDimensionDto>(d => d.Id == 2),
+                It.Is<Measure>(m => m.Id == 1),
+                It.Is<List<FlatDimensionDto>>(f => hasTwoMembers(f) && breadMilkFilterIsOk(f[0]) && europeFilterIsOk(f[1])), It.Is<bool>(b => b)));
 
             _graphServiceMock.Verify(gs => gs.GetDrilldownGraph(tree,
                 It.Is<TreeDimensionDto>(td => td.Id == 1),
-                It.Is<MeasureDto>(m => m.Id == 1),
-                It.Is<List<FlatDimensionDto>>(f => hasTwoMembers(f) && breadMilkFilterIsOk(f[0]) && europeFilterIsOk(f[1]))));
+                It.Is<Measure>(m => m.Id == 1),
+                It.Is<List<FlatDimensionDto>>(f => hasTwoMembers(f) && breadMilkFilterIsOk(f[0]) && europeFilterIsOk(f[1])), It.Is<bool>(b => b == false)));
 
             _browseCubeMock.Verify(bcm => bcm.Map(It.IsAny<GroupedGraphDto>()));
             _browseCubeMock.Verify(bcm => bcm.Map(It.IsAny<DrilldownGraphDto>()));
+        }
+
+        [TestMethod]
+        public void TestShowChartForAssociationRule()
+        {
+
+        }
+
+        private void SetupDataLayer(DimensionTree tree)
+        {
+            _treeBuilderMock.Setup(c => c.ConvertToTree(1, It.IsAny<bool>())).Returns(tree);
+            _dataMock.Setup(c => c.GetDimension(It.IsAny<int>()))
+                .Returns((int id) => new Dimension { Name = tree.GetDimensionDto(id).Name, Id = id });
+            _dataMock.Setup(c => c.GetMeasure(1)).Returns(new Measure { Id = 1 });
+            _starSchemaQuerierMock.Setup(c => c.GetValuesOfDimension(It.IsAny<DimensionDto>(), It.IsAny<Column>()))
+                .Returns((DimensionDto dd, Column col) => tree.GetDimensionDto(dd.Id).DimensionValues);
         }
     }
 }

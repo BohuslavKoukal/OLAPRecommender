@@ -10,7 +10,13 @@ using Recommender.Data.Models;
 
 namespace Recommender.Business.AssociationRules
 {
-    public class DataDiscretizator
+    public interface IDataDiscretizator
+    {
+        List<Discretization> GetDiscretizations(Dataset dataset, int rowCount);
+        List<EquivalencyClass> GetEquivalencyClasses(DimensionTree tree);
+    }
+
+    public class DataDiscretizator :IDataDiscretizator
     {
         private readonly IStarSchemaQuerier _querier;
 

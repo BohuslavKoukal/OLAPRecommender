@@ -175,7 +175,6 @@ namespace Recommender.Business.GraphService
                         filters, new[] {conditionDto}.ToList(), measure)
                 };
             }
-            //var legendValues = _querier.GetValuesOfDimension(legendDimension);
             var leaf = new GroupedGraphXAxisLeafDto
             {
                 Id = xValue.Id,

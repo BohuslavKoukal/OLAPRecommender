@@ -14,9 +14,9 @@ namespace Recommender.Web.Controllers
     {
         private readonly MinedResultsControllerEngine _engine;
         private readonly BrowseCubeControllerEngine _browseCubeEgine;
-        private readonly InputValidations _validations;
+        private readonly IInputValidations _validations;
 
-        public MinedResultsController(MinedResultsControllerEngine engine, BrowseCubeControllerEngine browseCubeEgine, InputValidations validations)
+        public MinedResultsController(MinedResultsControllerEngine engine, BrowseCubeControllerEngine browseCubeEgine, IInputValidations validations)
         {
             _engine = engine;
             _browseCubeEgine = browseCubeEgine;

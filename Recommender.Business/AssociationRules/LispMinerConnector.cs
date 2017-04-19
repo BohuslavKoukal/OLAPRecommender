@@ -26,9 +26,10 @@ namespace Recommender.Business.AssociationRules
             _data = data;
         }
 
-        public bool SendPreprocessing(MiningTask task, XmlDocument preprocessingPmml)
+        public bool SendPreprocessing(MiningTask task, XmlDocument preprocessingPmml, HttpClient client = null)
         {
-            using (var client = new HttpClient())
+            if(client == null) client = new HttpClient();
+            using (client)
             {
                 client.Timeout = TimeSpan.FromMinutes(10);
                 var method = new HttpMethod("PATCH");

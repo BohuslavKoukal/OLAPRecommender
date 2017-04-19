@@ -12,7 +12,14 @@ using Recommender.Data.Models;
 
 namespace Recommender.Business.AssociationRules
 {
-    public class AssociationRuleToViewMapper
+    public interface IAssociationRuleToViewMapper
+    {
+        Tuple<int, int> GetXAndLegendDimensionsId(AssociationRule rule, DimensionTree tree);
+        string GetChartText(AssociationRule rule);
+        IEnumerable<FlatDimensionDto> GetFilterValues(AssociationRule rule);
+    }
+
+    public class AssociationRuleToViewMapper : IAssociationRuleToViewMapper
     {
         private readonly IDataAccessLayer _data;
         private readonly IStarSchemaQuerier _querier;

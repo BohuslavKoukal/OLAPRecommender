@@ -18,16 +18,16 @@ namespace Recommender.Web.ControllerEngine
 {
     public class MinedResultsControllerEngine : ControllerEngineBase
     {
-        private readonly AssociationRulesTaskProcessor _arTaskProcessor;
+        private readonly IAssociationRulesTaskProcessor _arTaskProcessor;
         private readonly IMiningTaskViewModelMapper _taskMapper;
-        private readonly DataDiscretizator _discretizator;
+        private readonly IDataDiscretizator _discretizator;
         private readonly IDimensionTreeBuilder _treeBuilder;
 
         public MinedResultsControllerEngine(IDataAccessLayer data,
             IStarSchemaQuerier starSchemaQuerier,
-            AssociationRulesTaskProcessor arTaskProcessor,
+            IAssociationRulesTaskProcessor arTaskProcessor,
             IMiningTaskViewModelMapper taskMapper,
-            DataDiscretizator discretizator,
+            IDataDiscretizator discretizator,
             IDimensionTreeBuilder treeBuilder)
             : base(data, starSchemaQuerier)
         {

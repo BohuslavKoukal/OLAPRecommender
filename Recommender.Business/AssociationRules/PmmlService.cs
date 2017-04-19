@@ -19,10 +19,6 @@ namespace Recommender.Business.AssociationRules
     {
         private readonly XmlDocument _doc;
         private readonly IConfiguration _configuration;
-        private readonly Tuple<string, string> _xmlns = Tuple.Create("xmlns", "http://www.dmg.org/PMML-4_0");
-        private readonly Tuple<string, string> _xmlnsXsi = Tuple.Create("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
-        private readonly Tuple<string, string> _xmlnsPmml = Tuple.Create("xmlns:pmml", "http://www.dmg.org/PMML-4_0");
-        private readonly Tuple<string, string> _xmlnsSchemalocation = Tuple.Create("xsi:schemaLocation", "http://www.dmg.org/PMML-4_0 http://sewebar.vse.cz/schemas/PMML4.0+GUHA0.1.xsd");
         private readonly Tuple<string, string> _pmml = Tuple.Create("pmml", "http://www.dmg.org/PMML-4_0");
         private readonly Tuple<string, string> _guha = Tuple.Create("guha", "http://keg.vse.cz/ns/GUHA0.1rev1");
 

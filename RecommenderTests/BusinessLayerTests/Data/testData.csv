@@ -1,0 +1,10 @@
+Place;Region;Product;Category;Units
+Czech republic;Europe;Bread;Bakery;20
+Czech republic;Europe;Bun;Bakery;50
+Czech republic;Europe;Milk;Dairy;10
+Slovakia;Europe;Bread;Bakery;10
+Slovakia;Europe;Bun;Bakery;20
+Slovakia;Europe;Milk;Dairy;5
+Russia;Asia;Bread;Bakery;50
+Russia;Asia;Bun;Bakery;80
+Russia;Asia;Milk;Dairy;35

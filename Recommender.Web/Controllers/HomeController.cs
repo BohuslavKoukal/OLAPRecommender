@@ -15,7 +15,7 @@ namespace Recommender.Web.Controllers
 
         public ActionResult About()
         {
-            ViewBag.Message = "About OLAP recommener";
+            ViewBag.Message = "About OLAP Recommener";
             return View();
         }
 

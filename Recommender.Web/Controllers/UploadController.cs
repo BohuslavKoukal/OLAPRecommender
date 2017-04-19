@@ -13,9 +13,9 @@ namespace Recommender.Web.Controllers
     public class UploadController : Controller
     {
         private readonly UploadControllerEngine _controllerEngine;
-        private readonly InputValidations _validations;
+        private readonly IInputValidations _validations;
 
-        public UploadController(UploadControllerEngine controllerEngine, InputValidations validations)
+        public UploadController(UploadControllerEngine controllerEngine, IInputValidations validations)
         {
             _controllerEngine = controllerEngine;
             _validations = validations;

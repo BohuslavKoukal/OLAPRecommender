@@ -33,9 +33,9 @@ namespace Recommender.Data.DataAccess
 
     public class DataAccessLayer : IDataAccessLayer
     {
-        private readonly DbContext _dbContext;
+        private readonly IDbContext _dbContext;
 
-        public DataAccessLayer(DbContext dbContext)
+        public DataAccessLayer(IDbContext dbContext)
         {
             _dbContext = dbContext;
         }

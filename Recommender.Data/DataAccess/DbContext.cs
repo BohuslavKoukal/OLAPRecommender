@@ -15,6 +15,7 @@ namespace Recommender.Data.DataAccess
         DbSet<AssociationRule> AssociationRules { get; set; }
         DbSet<Succedent> Succedents { get; set; }
         DbSet<DimensionValue> DimensionValues { get; set; }
+        int SaveChanges();
     }
 
     [DbConfigurationType(typeof(MySql.Data.Entity.MySqlEFConfiguration))]

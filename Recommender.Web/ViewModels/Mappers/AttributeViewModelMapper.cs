@@ -9,7 +9,15 @@ using Recommender.Data.Models;
 
 namespace Recommender.Web.ViewModels.Mappers
 {
-    public class AttributeViewModelMapper
+    public interface IAttributeViewModelMapper
+    {
+        IEnumerable<DimensionDto> MapToDimensionDtos(List<AttributeViewModel> attributes);
+        IEnumerable<Measure> MapToMeasures(IEnumerable<AttributeViewModel> attributes);
+        IEnumerable<Dimension> MapToDimensions(List<AttributeViewModel> attributes);
+        IEnumerable<DimensionOrMeasureDto> MapToDimensionsAndMeasures(List<AttributeViewModel> attributes);
+    }
+
+    public class AttributeViewModelMapper : IAttributeViewModelMapper
     {
         public IEnumerable<DimensionDto> MapToDimensionDtos(List<AttributeViewModel> attributes)
         {

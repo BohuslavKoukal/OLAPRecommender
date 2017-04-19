@@ -1,0 +1,25 @@
+@prefix qb: <http://purl.org/linked-data/cube#> .
+@prefix observation: <http://www.olaprecommender.com/resource/dataset/retail/observation/> .
+@prefix day:               <http://reference.data.gov.uk/id/gregorian-day/> .
+@prefix month:             <http://reference.data.gov.uk/id/gregorian-month/> .
+@prefix codelist-product:       <http://www.olaprecommender.com/codelist/Product/> .
+@prefix codelist-category:      <http://www.olaprecommender.com/codelist/Category/> .
+@prefix codelist-country:       <http://www.olaprecommender.com/codelist/Country/> .
+@prefix codelist-region:        <http://www.olaprecommender.com/codelist/Region/> .
+@prefix dsd:        <http://www.olaprecommender.com/ontology/dsd/> .	
+
+<http://www.olaprecommender.com/resource/dataset/retail> <http://purl.org/dc/terms/description> "Retail dataset for OLAP Recommender"@en ;
+	<http://purl.org/dc/terms/title> "Retail dataset for OLAP Recommender"@en ;
+	a <http://www.w3.org/ns/dcat#Dataset> , qb:DataSet ;
+	qb:structure dsd:RetailDsd .
+  
+  
+observation:1 a qb:Observation ;
+  dsd:Date day:2016-01-01;
+  dsd:Month month:2016-01;
+  dsd:Product codelist-product:Bread ;
+  dsd:Category codelist-category:Bakery ;
+  dsd:Country codelist-country:CZ ;
+  dsd:Region codelist-region:EU ;
+  dsd:Units 9 ;
+  dsd:Value 180.0 .

@@ -16,12 +16,13 @@ namespace Recommender.Business.StarSchema
         void CreateAndFillDimensionTables(string datasetName, List<Dimension> dimensions, DataTable values);
         void CreateFactTable(Dataset dataset, List<Dimension> dimensions, List<Measure> measures);
         void FillFactTable(string datasetName, List<Dimension> dimensions, List<Measure> measures, DataTable values);
+        void CreateView(Dataset dataset, List<Dimension> dimensions, List<Measure> measures);
     }
 
     public class StarSchemaBuilder : StarSchemaBase, IStarSchemaBuilder
     {
 
-        public StarSchemaBuilder(QueryBuilder queryBuilder, IDataAccessLayer data) 
+        public StarSchemaBuilder(IQueryBuilder queryBuilder, IDataAccessLayer data) 
             : base(queryBuilder, data)
         {
         }
@@ -46,33 +47,6 @@ namespace Recommender.Business.StarSchema
                     }
                 }
             }
-        }
-
-        private List<Dimension> OrderDimensionsTopDown(List<Dimension> dimensions)
-        {
-            var orderedDimensions = new List<Dimension>();
-            while (orderedDimensions.Count != dimensions.Count)
-            {
-                foreach (var dimension in dimensions)
-                {
-                    // Add dimension if its parent is added
-                    // If this dimension is not added yet
-                    if (!orderedDimensions.Select(d => d.Id).Contains(dimension.Id))
-                    {
-                        if (dimension.ParentDimension == null)
-                        {
-                            orderedDimensions.Add(dimension);
-                        }
-                        else
-                        {
-                            // Add dimension only if its parent is already added
-                            if(orderedDimensions.Select(d => d.Id).Contains(dimension.ParentDimension.Id))
-                                orderedDimensions.Add(dimension);
-                        }
-                    }
-                }
-            }
-            return orderedDimensions;
         }
 
         public void CreateFactTable(Dataset dataset, List<Dimension> dimensions, List<Measure> measures)
@@ -118,6 +92,33 @@ namespace Recommender.Business.StarSchema
         #endregion
 
         #region private
+
+        private List<Dimension> OrderDimensionsTopDown(List<Dimension> dimensions)
+        {
+            var orderedDimensions = new List<Dimension>();
+            while (orderedDimensions.Count != dimensions.Count)
+            {
+                foreach (var dimension in dimensions)
+                {
+                    // Add dimension if its parent is added
+                    // If this dimension is not added yet
+                    if (!orderedDimensions.Select(d => d.Id).Contains(dimension.Id))
+                    {
+                        if (dimension.ParentDimension == null)
+                        {
+                            orderedDimensions.Add(dimension);
+                        }
+                        else
+                        {
+                            // Add dimension only if its parent is already added
+                            if (orderedDimensions.Select(d => d.Id).Contains(dimension.ParentDimension.Id))
+                                orderedDimensions.Add(dimension);
+                        }
+                    }
+                }
+            }
+            return orderedDimensions;
+        }
 
         private int GetDimensionId(string tableName, string value, QueryCache cache)
         {

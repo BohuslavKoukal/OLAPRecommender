@@ -19,14 +19,14 @@ namespace Recommender.Web.ControllerEngine
 {
     public class UploadControllerEngine : ControllerEngineBase
     {
-        private readonly AttributeViewModelMapper _attributeMapper;
-        private readonly StarSchemaBuilder _starSchemaBuilder;
+        private readonly IAttributeViewModelMapper _attributeMapper;
+        private readonly IStarSchemaBuilder _starSchemaBuilder;
         private readonly IFileHandler _fileHandler;
-        private readonly DatasetViewModelMapper _datasetMapper;
+        private readonly IDatasetViewModelMapper _datasetMapper;
 
-        public UploadControllerEngine(IDataAccessLayer data, DatasetViewModelMapper datasetMapper,
-            AttributeViewModelMapper attributeMapper, IFileHandler fileHandler,
-            StarSchemaBuilder starSchemaBuilder, StarSchemaQuerier starSchemaQuerier) 
+        public UploadControllerEngine(IDataAccessLayer data, IDatasetViewModelMapper datasetMapper,
+            IAttributeViewModelMapper attributeMapper, IFileHandler fileHandler,
+            IStarSchemaBuilder starSchemaBuilder, IStarSchemaQuerier starSchemaQuerier) 
             : base(data, starSchemaQuerier)
         {
             _attributeMapper = attributeMapper;

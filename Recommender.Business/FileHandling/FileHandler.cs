@@ -23,10 +23,10 @@ namespace Recommender.Business.FileHandling
 
     public class FileHandler : IFileHandler
     {
-        private readonly Configuration _configuration;
-        private readonly CsvHandler _csvHandler;
+        private readonly IConfiguration _configuration;
+        private readonly ICsvHandler _csvHandler;
 
-        public FileHandler(Configuration configuration, CsvHandler csvHandler)
+        public FileHandler(IConfiguration configuration, ICsvHandler csvHandler)
         {
             _configuration = configuration;
             _csvHandler = csvHandler;

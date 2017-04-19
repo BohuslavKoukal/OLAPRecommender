@@ -11,7 +11,17 @@ using Recommender.Web.ViewModels;
 
 namespace Recommender.Web.Validations
 {
-    public class InputValidations
+    public interface IInputValidations
+    {
+        void DatasetNameIsValid(string name);
+        void TaskNameIsValid(string name);
+        void UploadedFileIsValid(HttpPostedFileBase file);
+        List<string> DatatypesAreValid(AttributeViewModel[] attributes, int id, string separator, string dateFormat);
+        void DsdIsValid(HttpPostedFileBase file);
+
+    }
+
+    public class InputValidations : IInputValidations
     {
         private readonly IDataAccessLayer _data;
         private readonly CsvHandler _csvHandler;

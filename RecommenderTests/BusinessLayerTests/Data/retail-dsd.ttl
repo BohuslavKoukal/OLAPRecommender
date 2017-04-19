@@ -1,0 +1,166 @@
+@prefix qb:               <http://purl.org/linked-data/cube#> .
+@prefix rdf:              <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:             <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos:             <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd:              <https://www.w3.org/2001/XMLSchema#> .
+@prefix sdmx-measure:		<http://purl.org/linked-data/sdmx/2009/measure#> .
+
+@prefix recommender:	          <http://www.olaprecommender.com/ontology/dsd/> .
+@prefix codelist-product:       <http://www.olaprecommender.com/codelist/Product/> .
+@prefix codelist-category:      <http://www.olaprecommender.com/codelist/Category/> .
+@prefix codelist-country:       <http://www.olaprecommender.com/codelist/Country/> .
+@prefix codelist-region:        <http://www.olaprecommender.com/codelist/Region/> .
+@prefix codelist:        <http://www.olaprecommender.com/codelist/> .
+@prefix interval:               <http://reference.data.gov.uk/def/intervals/> .	
+
+recommender:retailDsd a qb:DataStructureDefinition ;
+rdfs:label "Data structure definition for retail dataset"@en ;
+qb:component [ qb:dimension recommender:Date],
+               [ qb:dimension recommender:Month],
+               [ qb:dimension recommender:Product],
+               [ qb:dimension recommender:Category],
+               [ qb:dimension recommender:Country],
+               [ qb:dimension recommender:Region],
+               [ qb:measure recommender:Units],
+               [ qb:measure recommender:Value] .
+
+# ----- Component properties -----
+
+recommender:Date a rdf:Property, qb:DimensionProperty;
+    rdfs:label "Date"@en;
+    rdfs:range interval:Interval;
+    .
+
+recommender:DayOfWeek a rdf:Property, qb:DimensionProperty;
+    rdfs:label "DayOfWeek"@en;
+    rdfs:range interval:Interval;
+    .
+
+recommender:Month a rdf:Property, qb:DimensionProperty;
+    rdfs:label "Month"@en;
+    rdfs:range interval:Interval;
+    .
+
+recommender:Product a rdf:Property, qb:DimensionProperty;
+    rdfs:label "Product"@en;
+    rdfs:range skos:Concept ;
+    qb:codeList codelist:Product ;
+    .
+
+recommender:Category a rdf:Property, qb:DimensionProperty;
+    rdfs:label "Category"@en;
+    rdfs:range skos:Concept ;
+    qb:codeList codelist:Category ;
+    .
+
+recommender:Country a rdf:Property, qb:DimensionProperty;
+    rdfs:label "Country"@en;
+    rdfs:range skos:Concept ;
+    qb:codeList codelist:Country ;
+    .
+
+recommender:Region a rdf:Property, qb:DimensionProperty;
+    rdfs:label "Region"@en;
+    rdfs:range skos:Concept ;
+    qb:codeList codelist:Region ;
+    .
+
+recommender:Units  a rdf:Property, qb:MeasureProperty;
+    rdfs:label "Units sold"@en;
+    rdfs:subPropertyOf sdmx-measure:obsValue;
+    rdfs:range xsd:integer ;
+    .
+
+recommender:Value  a rdf:Property, qb:MeasureProperty;
+    rdfs:label "Value of units sold"@en;
+    rdfs:subPropertyOf sdmx-measure:obsValue;
+    rdfs:range xsd:decimal ;
+    .
+    
+    ## Codelists
+
+codelist:Product a skos:ConceptScheme ;
+    rdfs:label "A code list of products sold in shop"@en .
+    
+codelist:Category a skos:ConceptScheme ;
+    rdfs:label "A code list of product categories sold in shop"@en .
+    
+codelist:Country a skos:ConceptScheme ;
+    rdfs:label "A code list of countries where the stores are placed"@en .
+    
+codelist:Region a skos:ConceptScheme ;
+    rdfs:label "A code list of regions where the stores are placed"@en .
+    
+    ## Products
+    
+codelist-product:Bread  a skos:Concept ;
+  skos:prefLabel "Bread"@en ;
+  skos:broader codelist-category:Bakery ;
+  skos:inScheme codelist:Product .
+  
+codelist-product:Bun  a skos:Concept ;
+  skos:prefLabel "Bun"@en ;
+  skos:broader codelist-category:Bakery ;
+  skos:inScheme codelist:Product .
+  
+codelist-product:Milk  a skos:Concept ;
+  skos:prefLabel "Milk"@en ;
+  skos:broader codelist-category:Dairy ;
+  skos:inScheme codelist:Product .  
+  
+codelist-product:Butter  a skos:Concept ;
+  skos:prefLabel "Butter"@en ;
+  skos:broader codelist-category:Dairy ;
+  skos:inScheme codelist:Product .
+  
+codelist-product:Notebook  a skos:Concept ;
+  skos:prefLabel "Notebook"@en ;
+  skos:broader codelist-category:Electronics ;
+  skos:inScheme codelist:Product .
+  
+  ## Categories
+
+codelist-category:Bakery  a skos:Concept ;
+  skos:prefLabel "Bakery"@en ;
+  skos:narrower codelist-product:Bread, codelist-product:Bun ;
+  skos:inScheme codelist:Category .  
+
+codelist-category:Dairy  a skos:Concept ;
+  skos:prefLabel "Dairy"@en ;
+  skos:narrower codelist-product:Milk, codelist-product:Butter ;
+  skos:inScheme codelist:Category .
+  
+codelist-category:Electronics  a skos:Concept ;
+  skos:prefLabel "Electronics"@en ;
+  skos:narrower codelist-product:Notebook ;
+  skos:inScheme codelist:Category .
+    
+  
+  ## Countries
+
+codelist-country:CZ  a skos:Concept ;
+  skos:prefLabel "Czech republic"@en ;
+  skos:broader codelist-region:EU  ;
+  skos:inScheme codelist:Country .  
+ 
+ codelist-country:SK  a skos:Concept ;
+  skos:prefLabel "Slovakia"@en ;
+  skos:broader codelist-region:EU  ;
+  skos:inScheme codelist:Country .
+  
+codelist-country:RU  a skos:Concept ;
+  skos:prefLabel "Russia"@en ;
+  skos:broader codelist-region:AS  ;
+  skos:inScheme codelist:Country . 
+  
+  ## Regions
+  
+codelist-region:EU  a skos:Concept ;
+  skos:prefLabel "Europe"@en ;
+  skos:narrower codelist-country:CZ, codelist-country:CZ ;
+  skos:inScheme codelist:Region .
+  
+codelist-region:AS  a skos:Concept ;
+  skos:prefLabel "Asia"@en ;
+  skos:narrower codelist-country:RU ;
+  skos:inScheme codelist:Region .

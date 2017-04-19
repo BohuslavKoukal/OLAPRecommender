@@ -19,24 +19,21 @@ namespace Recommender.Web.ControllerEngine
         private readonly IBrowseCubeViewModelMapper _browseCubeMapper;
         private readonly IGraphService _graphService;
         private readonly IDimensionTreeBuilder _treeBuilder;
-        //private readonly SubcubeService _subcubeService;
         private readonly IDatasetViewModelMapper _datasetMapper;
-        private readonly AssociationRuleToViewMapper _ruleToViewMapper;
+        private readonly IAssociationRuleToViewMapper _ruleToViewMapper;
 
         public BrowseCubeControllerEngine(IDataAccessLayer data, IDatasetViewModelMapper datasetMapper,
             IBrowseCubeViewModelMapper browseCubeMapper,
             IStarSchemaQuerier starSchemaQuerier, IGraphService graphService,
-            IDimensionTreeBuilder treeBuilder, AssociationRuleToViewMapper ruleToViewMapper) 
+            IDimensionTreeBuilder treeBuilder, IAssociationRuleToViewMapper ruleToViewMapper) 
             : base(data, starSchemaQuerier)
         {
             _browseCubeMapper = browseCubeMapper;
             _graphService = graphService;
             _treeBuilder = treeBuilder;
-            //_subcubeService = subcubeService;
             _datasetMapper = datasetMapper;
             _ruleToViewMapper = ruleToViewMapper;
         }
-
         
         public SingleDatasetViewModel GetDataset(int id)
         {
