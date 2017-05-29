@@ -40,7 +40,7 @@ namespace Recommender.Web.ControllerEngine
             return id == 0 ? new SingleDatasetViewModel() : _datasetMapper.Map(Data.GetDataset(id));
         }
 
-        public SingleDatasetViewModel UploadFile(string datasetName, HttpPostedFileBase fileBase, string separator, bool keepFilePrivate)
+        public SingleDatasetViewModel UploadFile(string userId, string datasetName, HttpPostedFileBase fileBase, string separator, bool keepFilePrivate)
         {
             var file = _fileHandler.SaveFile(fileBase, separator);
             var dataset = new Dataset
@@ -49,7 +49,8 @@ namespace Recommender.Web.ControllerEngine
                 Name = datasetName,
                 CsvFilePath = file.FilePath,
                 KeepFilePrivate = keepFilePrivate,
-                Attributes = file.Attributes?.ToList()
+                Attributes = file.Attributes?.ToList(),
+                UserId = userId
             };
             Data.Insert(dataset);
             return _datasetMapper.Map(dataset);
@@ -64,11 +65,11 @@ namespace Recommender.Web.ControllerEngine
             BuildStarSchema(id, data, dimensions, measures);
         }
 
-        public void CreateDataset(int id, HttpPostedFileBase dsdFile)
+        public void CreateDataset(string userId, int id, HttpPostedFileBase dsdFile)
         {
             var dataset = Data.GetDataset(id);
             var file = _fileHandler.SaveFile(dsdFile, string.Empty);
-            var rdfLoader = new RdfLoader(file.FilePath, Data.GetCsvFilePath(id));
+            var rdfLoader = new RdfLoader(file.FilePath, Data.GetCsvFilePath(userId, id));
             // Check names for Sql safety
             var dimensionDtos = rdfLoader.GetDimensions(dataset.Name).ToList();
             var measureDtos = rdfLoader.GetMeasures(dataset.Name).ToList();
@@ -81,12 +82,13 @@ namespace Recommender.Web.ControllerEngine
         private void BuildStarSchema(int id, DataTable data, List<Dimension> dimensions, List<Measure> measures)
         {
             PopulateDimensionsWithValues(dimensions, data);
-            Data.PopulateDataset(id, measures, dimensions, State.DimensionsAndMeasuresSet);
+            Data.PopulateDataset(id, measures, dimensions);
             var dataset = Data.GetDataset(id);
             _starSchemaBuilder.CreateAndFillDimensionTables(dataset.Name, dataset.Dimensions.ToList(), data);
             _starSchemaBuilder.CreateFactTable(dataset, dataset.Dimensions.ToList(), dataset.Measures.ToList());
             _starSchemaBuilder.FillFactTable(dataset.Name, dimensions, measures, data);
             _starSchemaBuilder.CreateView(dataset, dimensions, measures);
+            Data.ChangeDatasetState(State.DimensionsAndMeasuresSet);
         }
 
         private void PopulateDimensionsWithValues(IEnumerable<Dimension> dimensions, DataTable data)

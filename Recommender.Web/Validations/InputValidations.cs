@@ -13,10 +13,10 @@ namespace Recommender.Web.Validations
 {
     public interface IInputValidations
     {
-        void DatasetNameIsValid(string name);
-        void TaskNameIsValid(string name);
+        void DatasetNameIsValid(string userId, string name);
+        void TaskNameIsValid(string userId, string name);
         void UploadedFileIsValid(HttpPostedFileBase file);
-        List<string> DatatypesAreValid(AttributeViewModel[] attributes, int id, string separator, string dateFormat);
+        List<string> DatatypesAreValid(string userId, AttributeViewModel[] attributes, int id, string separator, string dateFormat);
         void DsdIsValid(HttpPostedFileBase file);
 
     }
@@ -32,17 +32,17 @@ namespace Recommender.Web.Validations
             _csvHandler = handler;
         }
 
-        public void DatasetNameIsValid(string name)
+        public void DatasetNameIsValid(string userId, string name)
         {
-            if (_data.GetDataset(name) != null)
+            if (_data.GetDataset(userId, name) != null)
             {
                 throw new ValidationException($"Dataset {name} already exists.");
             }
         }
 
-        public void TaskNameIsValid(string name)
+        public void TaskNameIsValid(string userId, string name)
         {
-            if (_data.GetMiningTask(name) != null)
+            if (_data.GetMiningTask(userId, name) != null)
             {
                 throw new ValidationException($"Task {name} already exists.");
             }
@@ -61,9 +61,9 @@ namespace Recommender.Web.Validations
             }
         }
 
-        public List<string> DatatypesAreValid(AttributeViewModel[] attributes, int id, string separator, string dateFormat)
+        public List<string> DatatypesAreValid(string userId, AttributeViewModel[] attributes, int id, string separator, string dateFormat)
         {
-            var csvFile = _data.GetCsvFilePath(id);
+            var csvFile = _data.GetCsvFilePath(userId, id);
             var errors = _csvHandler.GetAttributeErrors
                 (csvFile, attributes.Select(a => a.SelectedAttributeType.ToType()).ToArray(), separator, dateFormat);
             return errors.Any() ? GetFirst10Errors(errors) : errors;

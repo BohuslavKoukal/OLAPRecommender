@@ -43,7 +43,7 @@ namespace Recommender.Web.ControllerEngine
                 GetCommensurableDimensions(_treeBuilder.ConvertToTree(id, false)));
         }
 
-        public void MineRules(int datasetId, MiningViewModel model)
+        public void MineRules(string userId, int datasetId, MiningViewModel model)
         {
             var dataset = Data.GetDataset(datasetId);
             var commensurableDimensions = model.CommensurabilityList
@@ -55,12 +55,12 @@ namespace Recommender.Web.ControllerEngine
             var discretizations = _discretizator.GetDiscretizations(dataset, rowCount);
             var dimensionTree = _treeBuilder.ConvertToTree(datasetId, true);
             var equivalencyClasses = _discretizator.GetEquivalencyClasses(dimensionTree);
-            _arTaskProcessor.SendTask(task, discretizations, equivalencyClasses, rowCount);
+            _arTaskProcessor.SendTask(userId, task, discretizations, equivalencyClasses, rowCount);
         }
 
-        public MiningTaskViewModel GetDetails(int taskId)
+        public MiningTaskViewModel GetDetails(string userId, int taskId)
         {
-            var task = Data.GetMiningTask(taskId);
+            var task = Data.GetMiningTask(userId, taskId);
             return _taskMapper.Map(task);
         }
 

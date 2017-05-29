@@ -4,13 +4,16 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using Microsoft.AspNet.Identity;
+using Recommender.Common.Constants;
 using Recommender.Web.ControllerEngine;
 using Recommender.Web.Validations;
 using Recommender.Web.ViewModels;
+using Recommender2.Controllers;
 
 namespace Recommender.Web.Controllers
 {
-    public class UploadController : Controller
+    public class UploadController : BaseController
     {
         private readonly UploadControllerEngine _controllerEngine;
         private readonly IInputValidations _validations;
@@ -21,16 +24,18 @@ namespace Recommender.Web.Controllers
             _validations = validations;
         }
 
+        [Authorize(Roles = Roles.RoleUser)]
         public ActionResult Index()
         {
             return View(_controllerEngine.GetDataset());
         }
 
+        [Authorize(Roles = Roles.RoleUser)]
         public ActionResult UploadFile(string name, HttpPostedFileBase upload, string separator, bool keepFilePrivate)
         {
             try
             {
-                _validations.DatasetNameIsValid(name);
+                _validations.DatasetNameIsValid(User.Identity.GetUserId(), name);
                 _validations.UploadedFileIsValid(upload);
             }
             catch (ValidationException e)
@@ -38,11 +43,11 @@ namespace Recommender.Web.Controllers
                 ModelState.AddModelError("Name", e.Message);
                 return View("Index", _controllerEngine.GetDataset());
             }
-            var viewModel = _controllerEngine.UploadFile(name, upload, separator, keepFilePrivate);
+            var viewModel = _controllerEngine.UploadFile(User.Identity.GetUserId(), name, upload, separator, keepFilePrivate);
             return RedirectToAction("CreateDataset", new { modelId = viewModel.Id, separatorString = separator });
-            //return View("CreateDataset", _controllerEngine.UploadFile(name, upload, separator, keepFilePrivate));
         }
 
+        [Authorize(Roles = Roles.RoleUser)]
         public ActionResult CreateDataset(int modelId, string separatorString)
         {
             var model = _controllerEngine.GetDataset(modelId);
@@ -50,6 +55,7 @@ namespace Recommender.Web.Controllers
             return View("CreateDataset", model);
         }
 
+        [Authorize(Roles = Roles.RoleUser)]
         public ActionResult DefineDimensions(int id, List<string> errors = null)
         {
             if (errors != null)
@@ -64,9 +70,10 @@ namespace Recommender.Web.Controllers
 
 
         [HttpPost]
+        [Authorize(Roles = Roles.RoleUser)]
         public ActionResult CreateDatasetManually(int id, AttributeViewModel[] attributes, string separator, string dateFormat)
         {
-            var errors = _validations.DatatypesAreValid(attributes, id, separator, dateFormat);
+            var errors = _validations.DatatypesAreValid(User.Identity.GetUserId(), attributes, id, separator, dateFormat);
             if (errors.Any())
             {
                 return DefineDimensions(id, errors);
@@ -76,6 +83,7 @@ namespace Recommender.Web.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = Roles.RoleUser)]
         public ActionResult CreateDatasetFromDsd(int id, HttpPostedFileBase upload)
         {
             // check if attributes are valid - what does it mean?
@@ -83,7 +91,7 @@ namespace Recommender.Web.Controllers
             try
             {
                 _validations.DsdIsValid(upload);
-                _controllerEngine.CreateDataset(id, upload);
+                _controllerEngine.CreateDataset(User.Identity.GetUserId(), id, upload);
             }
             catch (ValidationException e)
             {

@@ -20,6 +20,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -28,6 +29,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
@@ -40,6 +42,14 @@
     </Reference>
     <Reference Include="Google.Protobuf, Version=3.0.0.0, Culture=neutral, PublicKeyToken=a7d26565bac4d604, processorArchitecture=MSIL">
       <HintPath>..\packages\Google.Protobuf.3.0.0\lib\net45\Google.Protobuf.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.AspNet.Identity.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Identity.Core.2.2.1\lib\net45\Microsoft.AspNet.Identity.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.AspNet.Identity.EntityFramework, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Identity.EntityFramework.2.2.1\lib\net45\Microsoft.AspNet.Identity.EntityFramework.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="MySql.Data, Version=6.9.9.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
@@ -83,11 +93,20 @@
     <Compile Include="Extensions\DimensionExtension.cs" />
     <Compile Include="Extensions\MeasureExtension.cs" />
     <Compile Include="Extensions\MiningTaskExtension.cs" />
-    <Compile Include="Migrations\201703141427064_Initial.cs" />
-    <Compile Include="Migrations\201703141427064_Initial.Designer.cs">
-      <DependentUpon>201703141427064_Initial.cs</DependentUpon>
+    <Compile Include="Migrations\201705251951444_Initial.cs" />
+    <Compile Include="Migrations\201705251951444_Initial.Designer.cs">
+      <DependentUpon>201705251951444_Initial.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201705261557216_Initial2.cs" />
+    <Compile Include="Migrations\201705261557216_Initial2.Designer.cs">
+      <DependentUpon>201705261557216_Initial2.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201705291706436_UserChange.cs" />
+    <Compile Include="Migrations\201705291706436_UserChange.Designer.cs">
+      <DependentUpon>201705291706436_UserChange.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Models\ApplicationUser.cs" />
     <Compile Include="Models\AssociationRule.cs" />
     <Compile Include="Models\Attribute.cs" />
     <Compile Include="Models\DimensionValue.cs" />
@@ -112,8 +131,14 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201703141427064_Initial.resx">
-      <DependentUpon>201703141427064_Initial.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201705251951444_Initial.resx">
+      <DependentUpon>201705251951444_Initial.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201705261557216_Initial2.resx">
+      <DependentUpon>201705261557216_Initial2.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201705291706436_UserChange.resx">
+      <DependentUpon>201705291706436_UserChange.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -1,0 +1,19 @@
+﻿@model Recommender2.ViewModels.AccountViewModel
+@{
+    Layout = "~/views/shared/_layout.cshtml";
+}
+
+<h2>Log On</h2>
+
+@using (Html.BeginForm("ExternalLogin", "Account"))
+{
+    @Html.AntiForgeryToken()
+
+    <fieldset>
+        <div class="containercontent" style="padding: 10px 20px;">
+            <div class="labelheaderblock">Log on using these providers:</div>
+            <button type="submit" id="btnLinkGoogle" name="provider" value="Facebook" class="submitbutton"><i class="fa fa-google-plus"></i> Facebook</button>
+        </div>
+    </fieldset>
+}
+

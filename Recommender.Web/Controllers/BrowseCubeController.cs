@@ -5,12 +5,15 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
+using Microsoft.AspNet.Identity;
+using Recommender.Common.Constants;
 using Recommender.Web.ControllerEngine;
 using Recommender.Web.ViewModels;
+using Recommender2.Controllers;
 
 namespace Recommender.Web.Controllers
 {
-    public class BrowseCubeController : Controller
+    public class BrowseCubeController : BaseController
     {
         private readonly BrowseCubeControllerEngine _engine;
 
@@ -20,12 +23,14 @@ namespace Recommender.Web.Controllers
         }
 
         // GET: BrowseCube
+        [Authorize(Roles = Roles.RoleUser)]
         public ActionResult Index()
         {
-            return View(_engine.GetDatasets());
+            return View(_engine.GetDatasets(User.Identity.GetUserId()));
         }
 
         // GET: BrowseCube/Details/id
+        [Authorize(Roles = Roles.RoleUser)]
         public ActionResult Details(int id)
         {
             var dataset = _engine.BrowseCube(id);
@@ -37,6 +42,7 @@ namespace Recommender.Web.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = Roles.RoleUser)]
         public ActionResult ShowChart(int ruleId)
         {
             var chart = _engine.ShowChart(ruleId);
@@ -48,6 +54,7 @@ namespace Recommender.Web.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = Roles.RoleUser)]
         public ActionResult ShowChart(int datasetId, BrowseCubeViewModel model)
         {
             var chart = _engine.ShowChart(datasetId, model.SelectedMeasureId, model.XDimensionId, model.LegendDimensionId, model.Group, model.Dataset.Filter);
@@ -59,6 +66,7 @@ namespace Recommender.Web.Controllers
         }
 
         // GET: BrowseCube/Details/id
+        [Authorize(Roles = Roles.RoleUser)]
         public FileResult Download(string file)
         {
             var fileBytes = _engine.GetFile(file);

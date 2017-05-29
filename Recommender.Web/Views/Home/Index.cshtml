@@ -5,7 +5,12 @@
 <div class="jumbotron">
     <h1>OLAP recommender</h1>
     <p class="lead">Browsing your OLAP cube for hours? Still haven't found anything interesting? Let's find trends and abnormalities in your data together! No installation, results in few minutes.</p>
-    <p>@Html.ActionLink("Start now", "Index", "Upload", null, new { @class = "btn btn-primary btn-lg" })</p>
+    <p><iframe width="560" height="315" src="https://www.youtube.com/embed/J5q_uUAZG9o" frameborder="0" allowfullscreen></iframe></p>
+    <p>
+        @(Request.IsAuthenticated 
+        ? Html.ActionLink("Start now", "Index", "Upload", null, new {@class = "btn btn-primary btn-lg"}) 
+              : Html.ActionLink("Log in to start", "Login", "Account", null, new {@class = "btn btn-primary btn-lg"}))
+    </p>
 </div>
 
 <div class="row">

@@ -16,7 +16,7 @@ namespace Recommender.Business.AssociationRules
 {
     public interface IAssociationRulesTaskProcessor
     {
-        void SendTask(MiningTask task, List<Discretization> discretizations, List<EquivalencyClass> eqClasses,
+        void SendTask(string userId, MiningTask task, List<Discretization> discretizations, List<EquivalencyClass> eqClasses,
             int rowCount);
     }
 
@@ -36,12 +36,12 @@ namespace Recommender.Business.AssociationRules
             _pruner = pruner;
         }
 
-        public void SendTask(MiningTask task, List<Discretization> discretizations, List<EquivalencyClass> eqClasses, int rowCount)
+        public void SendTask(string userId, MiningTask task, List<Discretization> discretizations, List<EquivalencyClass> eqClasses, int rowCount)
         {
-            Task.Factory.StartNew(() => SendToLispMinerAsync(task, discretizations, rowCount, eqClasses));
+            Task.Factory.StartNew(() => SendToLispMinerAsync(userId, task, discretizations, rowCount, eqClasses));
         }
 
-        private void SendToLispMinerAsync(MiningTask task,
+        private void SendToLispMinerAsync(string userId, MiningTask task,
             List<Discretization> discretizations, int rowCount, List<EquivalencyClass> eqClasses)
         {
             var service = new PmmlService(_configuration);
@@ -49,14 +49,14 @@ namespace Recommender.Business.AssociationRules
             if (!preprocessed)
             {
                 var preprocessingPmml = service.GetPreprocessingPmml(task, discretizations, rowCount);
-                preprocessed = _lmConnector.SendPreprocessing(task, preprocessingPmml);
+                preprocessed = _lmConnector.SendPreprocessing(userId, task, preprocessingPmml);
             }
             if (preprocessed)
             {
                 var taskPmml = service.GetTaskPmml(task, eqClasses, rowCount);
                 while (true)
                 {
-                    var responseOk = _lmConnector.SendTask(task, taskPmml);
+                    var responseOk = _lmConnector.SendTask(userId, task, taskPmml);
                     if (responseOk)
                     {
                         var resultsFile = _lmConnector.GetTaskResultsFile(task.Name);
@@ -68,13 +68,13 @@ namespace Recommender.Business.AssociationRules
                         }
                         else if (taskState == TaskState.Finished)
                         {
-                            _data.SetTaskState(task.Id, (int) TaskState.Finished);
+                            _data.SetTaskState(userId, task.Id, (int) TaskState.Finished);
                             SaveTaskResults(task.Name, task.DataSet.Id, task.Id);
                             break;
                         }
                         else
                         {
-                            _data.SetTaskState(task.Id, (int)TaskState.Failed, "Task failed due to an unknown reason in Lisp Miner.");
+                            _data.SetTaskState(userId, task.Id, (int)TaskState.Failed, "Task failed due to an unknown reason in Lisp Miner.");
                             break;
                         }
                     }

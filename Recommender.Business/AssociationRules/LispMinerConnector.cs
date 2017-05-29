@@ -26,7 +26,7 @@ namespace Recommender.Business.AssociationRules
             _data = data;
         }
 
-        public bool SendPreprocessing(MiningTask task, XmlDocument preprocessingPmml, HttpClient client = null)
+        public bool SendPreprocessing(string userId, MiningTask task, XmlDocument preprocessingPmml, HttpClient client = null)
         {
             if(client == null) client = new HttpClient();
             using (client)
@@ -44,13 +44,13 @@ namespace Recommender.Business.AssociationRules
                     var responseString = response.Content.ReadAsStringAsync().Result;
                     if (response.StatusCode == HttpStatusCode.InternalServerError || response.StatusCode == HttpStatusCode.NotFound)
                     {
-                        _data.SetTaskState(task.Id, (int)TaskState.Failed, responseString);
+                        _data.SetTaskState(userId, task.Id, (int)TaskState.Failed, responseString);
                         return false;
                     }
                 }
                 catch (TaskCanceledException e)
                 {
-                    _data.SetTaskState(task.Id, (int)TaskState.Failed, "Connection to Lisp Miner timed out after 10 minutes.");
+                    _data.SetTaskState(userId, task.Id, (int)TaskState.Failed, "Connection to Lisp Miner timed out after 10 minutes.");
                     return false;
                 }
                 
@@ -59,7 +59,7 @@ namespace Recommender.Business.AssociationRules
             return true;
         }
 
-        public bool SendTask(MiningTask task, XmlDocument taskPmml)
+        public bool SendTask(string userId, MiningTask task, XmlDocument taskPmml)
         {
             using (var client = new HttpClient())
             {
@@ -71,7 +71,7 @@ namespace Recommender.Business.AssociationRules
                     var responseString = response.Content.ReadAsStringAsync().Result;
                     if (response.StatusCode != HttpStatusCode.OK)
                     {
-                        _data.SetTaskState(task.Id, (int) TaskState.Failed, responseString);
+                        _data.SetTaskState(userId, task.Id, (int) TaskState.Failed, responseString);
                         return false;
                     }
                     else
@@ -82,7 +82,7 @@ namespace Recommender.Business.AssociationRules
                 }
                 catch (TaskCanceledException e)
                 {
-                    _data.SetTaskState(task.Id, (int)TaskState.Failed, "Connection to Lisp Miner timed out after 10 minutes.");
+                    _data.SetTaskState(userId, task.Id, (int)TaskState.Failed, "Connection to Lisp Miner timed out after 10 minutes.");
                     return false;
                 }
                 

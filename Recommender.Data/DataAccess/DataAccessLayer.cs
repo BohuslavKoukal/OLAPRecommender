@@ -13,18 +13,19 @@ namespace Recommender.Data.DataAccess
         void Insert(MiningTask task);
         void Insert(ICollection<AssociationRule> rules);
         void SaveTaskResults(int taskId, ICollection<AssociationRule> rules, int numberOfVerifications, TimeSpan taskDuration);
-        void PopulateDataset(int id, ICollection<Measure> measures, ICollection<Dimension> dimensions, State state);
-        void SetTaskState(int taskId, int state, string failedReason = null);
+        void PopulateDataset(int id, ICollection<Measure> measures, ICollection<Dimension> dimensions);
+        void ChangeDatasetState(State state);
+        void SetTaskState(string userId, int taskId, int state, string failedReason = null);
         void SetPreprocessed(int datasetId);
-        string GetCsvFilePath(int id);
-        List<Dataset> GetAllDatasets();
+        string GetCsvFilePath(string userId, int id);
+        List<Dataset> GetAllDatasets(string userId);
         List<DimensionValue> GetAllDimensionValues(int datasetId);
         List<DimensionValue> GetAllDimValues(int dimensionId);
         List<Measure> GetAllMeasures(int id);
-        Dataset GetDataset(string name);
+        Dataset GetDataset(string userId, string name);
         Dataset GetDataset(int id);
-        MiningTask GetMiningTask(int id);
-        MiningTask GetMiningTask(string name);
+        MiningTask GetMiningTask(string userId, int id);
+        MiningTask GetMiningTask(string userId, string name);
         List<Dimension> GetChildDimensions(int id);
         Dimension GetDimension(int id);
         Measure GetMeasure(int id);
@@ -72,10 +73,9 @@ namespace Recommender.Data.DataAccess
             _dbContext.SaveChanges();
         }
 
-        public void PopulateDataset(int id, ICollection<Measure> measures, ICollection<Dimension> dimensions, State state)
+        public void PopulateDataset(int id, ICollection<Measure> measures, ICollection<Dimension> dimensions)
         {
             var dataset = _dbContext.Datasets.Single(d => d.Id == id);
-            dataset.State = state;
             foreach (var measure in measures)
             {
                 measure.DataSet = dataset;
@@ -89,9 +89,16 @@ namespace Recommender.Data.DataAccess
             _dbContext.SaveChanges();
         }
 
-        public void SetTaskState(int taskId, int state, string failedReason = null)
+        public void ChangeDatasetState(int id, State state)
         {
-            var task = GetMiningTask(taskId);
+            var dataset = _dbContext.Datasets.Single(d => d.Id == id);
+            dataset.State = state;
+            _dbContext.SaveChanges();
+        }
+
+        public void SetTaskState(string userId, int taskId, int state, string failedReason = null)
+        {
+            var task = GetMiningTask(userId, taskId);
             task.TaskState = state;
             task.FailedReason = failedReason;
             _dbContext.SaveChanges();
@@ -104,14 +111,14 @@ namespace Recommender.Data.DataAccess
             _dbContext.SaveChanges();
         }
 
-        public string GetCsvFilePath(int id)
+        public string GetCsvFilePath(string userId, int id)
         {
             return GetDataset(id).CsvFilePath;
         }
 
-        public List<Dataset> GetAllDatasets()
+        public List<Dataset> GetAllDatasets(string userId)
         {
-            return _dbContext.Datasets.ToList();
+            return _dbContext.Datasets.Where(d => d.UserId == userId).ToList();
         }
 
         public List<DimensionValue> GetAllDimensionValues(int datasetId)
@@ -129,9 +136,9 @@ namespace Recommender.Data.DataAccess
             return _dbContext.Measures.Where(dv => dv.DataSet.Id == id).ToList();
         }
 
-        public Dataset GetDataset(string name)
+        public Dataset GetDataset(string userId, string name)
         {
-            return _dbContext.Datasets.SingleOrDefault(d => d.Name == name);
+            return _dbContext.Datasets.SingleOrDefault(d => d.Name == name && d.UserId == userId);
         }
 
         public Dataset GetDataset(int id)
@@ -139,16 +146,16 @@ namespace Recommender.Data.DataAccess
             return _dbContext.Datasets.SingleOrDefault(d => d.Id == id);
         }
 
-        public MiningTask GetMiningTask(int id)
+        public MiningTask GetMiningTask(string userId, int id)
         {
             return _dbContext.MiningTasks
-                .SingleOrDefault(mt => mt.Id == id);
+                .SingleOrDefault(mt => mt.Id == id && mt.DataSet.UserId == userId);
         }
 
-        public MiningTask GetMiningTask(string name)
+        public MiningTask GetMiningTask(string userId, string name)
         {
             return _dbContext.MiningTasks
-                .SingleOrDefault(mt => mt.Name == name);
+                .SingleOrDefault(mt => mt.Name == name && mt.DataSet.UserId == userId);
         }
 
         public List<Dimension> GetChildDimensions(int id)

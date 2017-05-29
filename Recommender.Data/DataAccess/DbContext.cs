@@ -1,6 +1,7 @@
 ﻿using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity.ModelConfiguration.Conventions;
+using Microsoft.AspNet.Identity.EntityFramework;
 using Recommender.Data.Models;
 
 namespace Recommender.Data.DataAccess
@@ -19,13 +20,18 @@ namespace Recommender.Data.DataAccess
     }
 
     [DbConfigurationType(typeof(MySql.Data.Entity.MySqlEFConfiguration))]
-    public class DbContext : System.Data.Entity.DbContext, IDbContext
+    public class DbContext : IdentityDbContext<ApplicationUser>, IDbContext
     {
         public DbContext() : base("DbContext")
         {
             var adapter = (IObjectContextAdapter)this;
             var objectContext = adapter.ObjectContext;
             objectContext.CommandTimeout = 2 * 60;
+        }
+
+        public static DbContext Create()
+        {
+            return new DbContext();
         }
 
         public DbSet<Attribute> Attributes { get; set; }
@@ -39,6 +45,7 @@ namespace Recommender.Data.DataAccess
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
             modelBuilder.Conventions.Remove<PluralizingTableNameConvention>();
             modelBuilder.Entity<AssociationRule>()
                 .HasMany(ar => ar.AntecedentValues)

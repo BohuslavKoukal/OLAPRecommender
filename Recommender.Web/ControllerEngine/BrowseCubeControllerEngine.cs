@@ -42,9 +42,9 @@ namespace Recommender.Web.ControllerEngine
             return _datasetMapper.Map(dataset, GetFilterValues(dimensionTree));
         }
 
-        public DatasetViewModel GetDatasets()
+        public DatasetViewModel GetDatasets(string userId)
         {
-            return _datasetMapper.Map(Data.GetAllDatasets());
+            return _datasetMapper.Map(Data.GetAllDatasets(userId));
         }
 
         public BrowseCubeViewModel BrowseCube(int id)
