@@ -53,9 +53,7 @@ namespace Recommender.Web.ViewModels
                 return FileType.Undefined;
             }
         }
-
-        public bool KeepFilePrivate { get; set; }
-
+        
         public State State { get; set; }
 
         public List<AttributeViewModel> Attributes { get; set; }

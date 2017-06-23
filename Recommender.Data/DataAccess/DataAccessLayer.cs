@@ -14,7 +14,7 @@ namespace Recommender.Data.DataAccess
         void Insert(ICollection<AssociationRule> rules);
         void SaveTaskResults(int taskId, ICollection<AssociationRule> rules, int numberOfVerifications, TimeSpan taskDuration);
         void PopulateDataset(int id, ICollection<Measure> measures, ICollection<Dimension> dimensions);
-        void ChangeDatasetState(State state);
+        void ChangeDatasetState(int id, State state);
         void SetTaskState(string userId, int taskId, int state, string failedReason = null);
         void SetPreprocessed(int datasetId);
         string GetCsvFilePath(string userId, int id);

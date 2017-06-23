@@ -13,17 +13,22 @@ namespace Recommender.Data.Extensions
     {
         public static string GetViewName(this Dataset dataset)
         {
-            return dataset.Name + Constants.String.View;
+            return dataset.GetPrefix() + Constants.String.View;
         }
 
         public static string GetFactTableName(this Dataset dataset)
         {
-            return dataset.Name + Constants.String.FactTable;
+            return dataset.GetPrefix() + Constants.String.FactTable;
         }
 
         public static List<Dimension> GetNonDateDimensions(this Dataset dataset)
         {
             return dataset.Dimensions.Where(d => d.Type.ToType() != typeof(DateTime)).ToList();
+        }
+
+        public static string GetPrefix(this Dataset dataset)
+        {
+            return dataset.UserId.Substring(0, 8) + dataset.Name;
         }
     }
 }

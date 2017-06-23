@@ -31,7 +31,7 @@ namespace Recommender.Web.Controllers
         }
 
         [Authorize(Roles = Roles.RoleUser)]
-        public ActionResult UploadFile(string name, HttpPostedFileBase upload, string separator, bool keepFilePrivate)
+        public ActionResult UploadFile(string name, HttpPostedFileBase upload, string separator)
         {
             try
             {
@@ -43,7 +43,7 @@ namespace Recommender.Web.Controllers
                 ModelState.AddModelError("Name", e.Message);
                 return View("Index", _controllerEngine.GetDataset());
             }
-            var viewModel = _controllerEngine.UploadFile(User.Identity.GetUserId(), name, upload, separator, keepFilePrivate);
+            var viewModel = _controllerEngine.UploadFile(User.Identity.GetUserId(), name, upload, separator);
             return RedirectToAction("CreateDataset", new { modelId = viewModel.Id, separatorString = separator });
         }
 

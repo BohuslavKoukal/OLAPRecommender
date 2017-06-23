@@ -71,7 +71,6 @@ namespace Recommender.Web.ViewModels.Mappers
                 Filter = filterValues,
                 DimensionsSelectList = dimensionSelectList,
                 FilePath = dataset.CsvFilePath,
-                KeepFilePrivate = dataset.KeepFilePrivate,
                 State = dataset.State
             };
         }

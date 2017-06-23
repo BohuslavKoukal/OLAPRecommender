@@ -13,7 +13,7 @@ namespace Recommender.Data.DataAccess
     {
         void CreateTable(string tableName, IEnumerable<Column> columns, IEnumerable<ForeignKey> keys);
 
-        void CreateView(string datasetName, string factTableName, IEnumerable<Dimension> dimensions, IEnumerable<Measure> measures);
+        void CreateView(string prefix, string factTableName, IEnumerable<Dimension> dimensions, IEnumerable<Measure> measures);
 
         /// <summary>
         ///  Insert columns as single row to table
@@ -70,9 +70,9 @@ namespace Recommender.Data.DataAccess
             }
         }
 
-        public void CreateView(string datasetName, string factTableName, IEnumerable<Dimension> orderedDimensions, IEnumerable<Measure> measures)
+        public void CreateView(string prefix, string factTableName, IEnumerable<Dimension> orderedDimensions, IEnumerable<Measure> measures)
         {
-            var selectClause = $"fact.Id AS {datasetName}Id";
+            var selectClause = $"fact.Id AS {prefix}Id";
             var fromClause = factTableName + " fact";
             foreach (var dimension in orderedDimensions)
             {
@@ -97,7 +97,7 @@ namespace Recommender.Data.DataAccess
                 var command = new MySqlCommand
                 {
                     Connection = conn,
-                    CommandText = $@"CREATE VIEW {datasetName}View AS SELECT {selectClause} FROM {fromClause}"
+                    CommandText = $@"CREATE VIEW {prefix}View AS SELECT {selectClause} FROM {fromClause}"
                 };
                 command.ExecuteNonQuery();
                 conn.Close();

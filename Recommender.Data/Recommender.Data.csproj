@@ -105,6 +105,10 @@
     <Compile Include="Migrations\201705291706436_UserChange.Designer.cs">
       <DependentUpon>201705291706436_UserChange.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201706231421497_privatefile.cs" />
+    <Compile Include="Migrations\201706231421497_privatefile.Designer.cs">
+      <DependentUpon>201706231421497_privatefile.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\ApplicationUser.cs" />
     <Compile Include="Models\AssociationRule.cs" />
@@ -139,6 +143,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201705291706436_UserChange.resx">
       <DependentUpon>201705291706436_UserChange.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201706231421497_privatefile.resx">
+      <DependentUpon>201706231421497_privatefile.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

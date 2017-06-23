@@ -23,7 +23,6 @@ namespace Recommender.Data.Models
         public string UserId { get; set; }
         public string Name { get; set; }
         public string CsvFilePath { get; set; }
-        public bool KeepFilePrivate { get; set; }
         public bool Preprocessed { get; set; }
         public State State { get; set; }
 

@@ -29,7 +29,7 @@ namespace Recommender.Business.StarSchema
 
         #region public
 
-        public void CreateAndFillDimensionTables(string datasetName, List<Dimension> dimensions, DataTable values)
+        public void CreateAndFillDimensionTables(string prefix, List<Dimension> dimensions, DataTable values)
         {
             var existingDimensions = new List<int>();
             while (existingDimensions.Count != dimensions.Count)
@@ -41,8 +41,8 @@ namespace Recommender.Business.StarSchema
                     if (!childDimensions.Select(d => d.Id).Except(existingDimensions).Any() &&
                         !existingDimensions.Contains(dimension.Id))
                     {
-                        CreateDimensionTable(datasetName, dimension.Name, dimension.Type.ToType().ToSqlType(), childDimensions.Select(d => d.Name).ToList());
-                        FillDimensionTable(datasetName, dimension, values, childDimensions);
+                        CreateDimensionTable(prefix, dimension.Name, dimension.Type.ToType().ToSqlType(), childDimensions.Select(d => d.Name).ToList());
+                        FillDimensionTable(prefix, dimension, values, childDimensions);
                         existingDimensions.Add(dimension.Id);
                     }
                 }
@@ -57,14 +57,14 @@ namespace Recommender.Business.StarSchema
             foreignKeys.AddRange(rootDimensionNames.Select(dimensionName => new ForeignKey
             {
                 KeyName = dimensionName + Constants.String.Id,
-                Reference = dataset.Name + dimensionName
+                Reference = dataset.GetPrefix() + dimensionName
             }));
             QueryBuilder.CreateTable(dataset.GetFactTableName(), measuresColumns, foreignKeys);
         }
 
         public void CreateView(Dataset dataset, List<Dimension> dimensions, List<Measure> measures)
         {
-            QueryBuilder.CreateView(dataset.Name, dataset.GetFactTableName(), OrderDimensionsTopDown(dimensions), measures);
+            QueryBuilder.CreateView(dataset.GetPrefix(), dataset.GetFactTableName(), OrderDimensionsTopDown(dimensions), measures);
         }       
 
         public void FillFactTable(string datasetName, List<Dimension> dimensions, List<Measure> measures, DataTable values)
@@ -137,7 +137,7 @@ namespace Recommender.Business.StarSchema
                 (QueryBuilder.Select(tableName, new Column { Name = Constants.String.Value, Value = value }).Rows.Cast<DataRow>().First()[0]);
         }
 
-        private void FillDimensionTable(string datasetName, Dimension dimension, DataTable values, List<Dimension> children)
+        private void FillDimensionTable(string prefix, Dimension dimension, DataTable values, List<Dimension> children)
         {
             var distinctValues = values.GetDistinctTable(dimension.Type.ToType(), dimension.Name);
             var allRowsToInsert = new List<List<Column>>();
@@ -154,22 +154,22 @@ namespace Recommender.Business.StarSchema
                 dimensionColumns.AddRange(children.Select(child => new Column
                 {
                     Name = child.Name + Constants.String.Id,
-                    Value = GetDimensionId(datasetName + child.Name, row[child.Name].ToString()).ToString()
+                    Value = GetDimensionId(prefix + child.Name, row[child.Name].ToString()).ToString()
                 }));
                 allRowsToInsert.Add(dimensionColumns);
             }
-            QueryBuilder.Insert(datasetName + dimension.Name, allRowsToInsert);
+            QueryBuilder.Insert(prefix + dimension.Name, allRowsToInsert);
         }
 
-        private void CreateDimensionTable(string datasetName, string dimensionName, string datatype, List<string> childrenNames)
+        private void CreateDimensionTable(string prefix, string dimensionName, string datatype, List<string> childrenNames)
         {
-            var tableName = datasetName + dimensionName;
+            var tableName = prefix + dimensionName;
             var columns = new List<Column> { new Column { Name = Constants.String.Value, Type = datatype } };
             var foreignKeys = new List<ForeignKey>();
             foreignKeys.AddRange(childrenNames.Select(childName => new ForeignKey
             {
                 KeyName = childName + Constants.String.Id,
-                Reference = datasetName + childName
+                Reference = prefix + childName
             }));
             QueryBuilder.CreateTable(tableName, columns, foreignKeys);
         }
