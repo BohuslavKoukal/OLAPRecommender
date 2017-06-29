@@ -24,6 +24,7 @@ namespace Recommender.Data.DataAccess
         ///  Insert columns as multiple rows to table
         /// </summary>
         void Insert(string tableName, List<List<Column>> rows);
+        void Drop(string tableName, string type);
         DataTable Select(string tableName, Column selector);
         DataTable Select(string tableName, List<Column> selectors);
         DataTable Select(string tableName, List<List<Column>> selectors);
@@ -111,6 +112,21 @@ namespace Recommender.Data.DataAccess
             Insert(tableName, columnsString, valuesString);
         }
 
+        public void Drop(string tableName, string type)
+        {
+            using (var conn = _dbConnection.GetConnection())
+            {
+                conn.Open();
+                var command = new MySqlCommand
+                {
+                    Connection = conn,
+                    CommandText = $@"SET FOREIGN_KEY_CHECKS=0; DROP {type} {tableName}; SET FOREIGN_KEY_CHECKS=1;"
+                };
+                command.ExecuteNonQuery();
+                conn.Close();
+            }
+        }
+
         private string GetColumnsString(IEnumerable<Column> columns)
         {
             var columnsString = "(";
@@ -166,6 +182,8 @@ namespace Recommender.Data.DataAccess
                 }
             }
         }
+
+
 
         private string GetMultipleValuesString(IEnumerable<IEnumerable<Column>> rows)
         {

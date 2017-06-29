@@ -35,7 +35,7 @@ namespace Recommender.Web.Controllers
         {
             try
             {
-                _validations.DatasetNameIsValid(User.Identity.GetUserId(), name);
+                _validations.DatasetNameIsValid(Identity, name);
                 _validations.UploadedFileIsValid(upload);
             }
             catch (ValidationException e)
@@ -43,7 +43,7 @@ namespace Recommender.Web.Controllers
                 ModelState.AddModelError("Name", e.Message);
                 return View("Index", _controllerEngine.GetDataset());
             }
-            var viewModel = _controllerEngine.UploadFile(User.Identity.GetUserId(), name, upload, separator);
+            var viewModel = _controllerEngine.UploadFile(Identity, name, upload, separator);
             return RedirectToAction("CreateDataset", new { modelId = viewModel.Id, separatorString = separator });
         }
 
@@ -73,7 +73,7 @@ namespace Recommender.Web.Controllers
         [Authorize(Roles = Roles.RoleUser)]
         public ActionResult CreateDatasetManually(int id, AttributeViewModel[] attributes, string separator, string dateFormat)
         {
-            var errors = _validations.DatatypesAreValid(User.Identity.GetUserId(), attributes, id, separator, dateFormat);
+            var errors = _validations.DatatypesAreValid(Identity, attributes, id, separator, dateFormat);
             if (errors.Any())
             {
                 return DefineDimensions(id, errors);
@@ -86,12 +86,10 @@ namespace Recommender.Web.Controllers
         [Authorize(Roles = Roles.RoleUser)]
         public ActionResult CreateDatasetFromDsd(int id, HttpPostedFileBase upload)
         {
-            // check if attributes are valid - what does it mean?
-            // validovat datatypes - kdyz nejsou validni, vratit viewcko
             try
             {
                 _validations.DsdIsValid(upload);
-                _controllerEngine.CreateDataset(User.Identity.GetUserId(), id, upload);
+                _controllerEngine.CreateDataset(Identity, id, upload);
             }
             catch (ValidationException e)
             {
@@ -106,6 +104,13 @@ namespace Recommender.Web.Controllers
             return RedirectToAction("Index", "BrowseCube");
         }
 
-
+        [Authorize(Roles = Roles.RoleUser)]
+        public ActionResult Delete(int id)
+        {
+            var name = _controllerEngine.GetDatasetName(id);
+            _controllerEngine.DeleteDataset(id);
+            return RedirectToAction("Index", "BrowseCube", new { notification = $"Dataset {name} succesfully deleted."});
+        }
+        
     }
 }

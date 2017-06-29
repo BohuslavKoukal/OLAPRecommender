@@ -17,6 +17,8 @@ namespace Recommender.Data.DataAccess
         void ChangeDatasetState(int id, State state);
         void SetTaskState(string userId, int taskId, int state, string failedReason = null);
         void SetPreprocessed(int datasetId);
+        void DeleteDataset(int id);
+        void DeleteTask(string userId, int id);
         string GetCsvFilePath(string userId, int id);
         List<Dataset> GetAllDatasets(string userId);
         List<DimensionValue> GetAllDimensionValues(int datasetId);
@@ -108,6 +110,62 @@ namespace Recommender.Data.DataAccess
         {
             var dataset = GetDataset(datasetId);
             dataset.Preprocessed = true;
+            _dbContext.SaveChanges();
+        }
+
+        public void DeleteDataset(int id)
+        {
+            var dataset = GetDataset(id);
+            _dbContext.Attributes.RemoveRange(dataset.Attributes);
+            _dbContext.SaveChanges();
+            RemoveDimensions(dataset.Dimensions);
+            RemoveMeasures(dataset.Measures);
+            RemoveTasks(dataset.MiningTasks);
+            _dbContext.Datasets.Remove(dataset);
+            _dbContext.SaveChanges();
+        }
+
+        public void DeleteTask(string userId, int id)
+        {
+            var task = GetMiningTask(userId, id);
+            DeleteAssociationRules(task);
+            _dbContext.MiningTasks.Remove(task);
+            _dbContext.SaveChanges();
+        }
+
+        private void DeleteAssociationRules(MiningTask task)
+        {
+            _dbContext.AssociationRules.RemoveRange(task.AssociationRules);
+            _dbContext.SaveChanges();
+        }
+
+        private void RemoveDimensions(ICollection<Dimension> dimensions)
+        {
+            foreach (var dimension in dimensions)
+            {
+                _dbContext.DimensionValues.RemoveRange(dimension.DimensionValues);
+            }
+            _dbContext.Dimensions.RemoveRange(dimensions);
+            _dbContext.SaveChanges();
+        }
+
+        private void RemoveMeasures(ICollection<Measure> measures)
+        {
+            foreach (var measure in measures)
+            {
+                _dbContext.Succedents.RemoveRange(measure.Succedents);
+            }
+            _dbContext.Measures.RemoveRange(measures);
+            _dbContext.SaveChanges();
+        }
+
+        private void RemoveTasks(ICollection<MiningTask> tasks)
+        {
+            foreach (var task in tasks)
+            {
+                DeleteAssociationRules(task);
+            }
+            _dbContext.MiningTasks.RemoveRange(tasks);
             _dbContext.SaveChanges();
         }
 

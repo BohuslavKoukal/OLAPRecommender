@@ -7,7 +7,7 @@
 <h2>Data sets</h2>
 <p style="color: green">@Model.Notification</p>
 <table class="table, table-bordered">
-    <tr><th>Name</th><th>Action</th><th>Task</th><th>State</th></tr>
+    <tr><th>Name</th><th>Action</th><th>Task</th><th>State</th><th>Action</th></tr>
         @foreach (var dataset in Model.Datasets.Where(d => d.State >= State.DimensionsAndMeasuresSet))
         {
             var taskCount = dataset.MiningTasks.Count;
@@ -26,6 +26,12 @@
                         <span style="color: @dataset.MiningTasks[0].TaskState.GetColor();">@dataset.MiningTasks[0].TaskState.ToUserFriendlyString()</span>
                     }
                 </td>
+                <td>
+                    @if (taskCount > 0)
+                    {
+                        @Html.ActionLink("Delete task", "Delete", "MinedResults", new { id = dataset.MiningTasks[0].Id }, new { onclick = "return confirm('Are you sure you wish to delete this task and its results?');" });
+                    }
+                </td>
             </tr>
             
             if (taskCount > 1)
@@ -35,7 +41,7 @@
                     <tr>
                         <td>@Html.ActionLink(dataset.MiningTasks[i].Name, "Details", "MinedResults", new { id = dataset.MiningTasks[i].Id }, null)</td>
                         <td style="color: @dataset.MiningTasks[i].TaskState.GetColor();">@dataset.MiningTasks[i].TaskState.ToUserFriendlyString()</td>
-
+                        <td>@Html.ActionLink("Delete task", "Delete", "MinedResults", new { id = dataset.MiningTasks[i].Id }, null)</td>
                     </tr>
                 }
             }

@@ -8,18 +8,18 @@
 }
 
 <h2>Data sets</h2>
-
+<p style="color: green">@Model.Notification</p>
 <table class="table, table-bordered">
-    <tr><th>Name</th><th>State</th><th>File</th><th>Dimensions</th><th>Measures</th></tr>
+    <tr><th>Name</th><th>State</th><th>File</th><th>Dimensions</th><th>Measures</th><th>Action</th></tr>
     @foreach (var dataset in Model.Datasets.Where(d => d.State >= State.DimensionsAndMeasuresSet))
     {
         <tr>
-            <td class="col-md-3">@Html.ActionLink(dataset.Name, "Details", new { id = dataset.Id })</td>
+            <td class="col-md-5">@Html.ActionLink(dataset.Name, "Details", new { id = dataset.Id })</td>
             <td>Dimensions and measures defined</td>
             
-            <td class="col-md-3">@Html.ActionLink(dataset.FileName, "Download", new { file = dataset.FilePath })</td>
+            <td class="col-md-5">@Html.ActionLink(dataset.FileName, "Download", new { file = dataset.FilePath })</td>
 
-            <td class="col-md-3">
+            <td class="col-md-5">
                 <ul>
                     @foreach (var dimension in dataset.Dimensions)
                     {
@@ -27,12 +27,17 @@
                     }
                 </ul >
             </td>
-            <td class="col-md-3">
+            <td class="col-md-5">
                 <ul>
                     @foreach (var measure in dataset.Measures)
                     {
                         <li>@measure.Name (@measure.Type.ToUserFriendlyName())</li>
                     }
+                </ul>
+            </td>
+            <td class="col-md-5">
+                <ul>
+                    @Html.ActionLink("Delete", "Delete", "Upload", new { id = dataset.Id }, new { onclick = "return confirm('Are you sure you wish to delete this dataset? All tasks related to this dataset will be also deleted.');" })
                 </ul>
             </td>
         </tr>

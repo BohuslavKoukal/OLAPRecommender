@@ -5,12 +5,9 @@ using System.Web;
 using Recommender.Business;
 using Recommender.Business.AssociationRules;
 using Recommender.Business.DTO;
-using Recommender.Business.GraphService;
 using Recommender.Business.StarSchema;
-using Recommender.Common.Enums;
 using Recommender.Data.DataAccess;
 using Recommender.Data.Extensions;
-using Recommender.Data.Models;
 using Recommender.Web.ViewModels;
 using Recommender.Web.ViewModels.Mappers;
 
@@ -67,6 +64,16 @@ namespace Recommender.Web.ControllerEngine
         public List<CommensurabilityViewModel> GetCommensurableDimensions(DimensionTree tree)
         {
             return _taskMapper.GetCommensurableDimensions(tree);
+        }
+
+        public void DeleteTask(string userId, int id)
+        {
+            Data.DeleteTask(userId, id);
+        }
+
+        public string GetTaskName(string userId, int id)
+        {
+            return Data.GetMiningTask(userId, id).Name;
         }
 
     }

@@ -29,8 +29,9 @@ namespace Recommender.Web.Controllers
         [Authorize(Roles = Roles.RoleUser)]
         public ActionResult Index(string notification = null)
         {
-            var model = _browseCubeEgine.GetDatasets(User.Identity.GetUserId());
+            var model = _browseCubeEgine.GetDatasets(Identity);
             model.Notification = notification;
+            Response.AddHeader("Refresh", "15");
             return View(model);
         }
 
@@ -51,14 +52,14 @@ namespace Recommender.Web.Controllers
         {
             try
             {
-                _validations.TaskNameIsValid(User.Identity.GetUserId(), model.TaskName);
+                _validations.TaskNameIsValid(Identity, model.TaskName);
             }
             catch (ValidationException e)
             {
                 ModelState.AddModelError("Name", e.Message);
                 return View("Mine", _engine.GetMiningViewModel(model.Id));
             }
-            _engine.MineRules(User.Identity.GetUserId(), model.Id, model);
+            _engine.MineRules(Identity, model.Id, model);
             var modelNotification =
                 "Your task was succesfully sent to LispMiner. You can see its state below.";
             return RedirectToAction("Index", new { notification = modelNotification });
@@ -67,8 +68,20 @@ namespace Recommender.Web.Controllers
         [Authorize(Roles = Roles.RoleUser)]
         public ActionResult Details(int id)
         {
-            return View(_engine.GetDetails(User.Identity.GetUserId(), id));
+            return View(_engine.GetDetails(Identity, id));
         }
+
+        [Authorize(Roles = Roles.RoleUser)]
+        public ActionResult Delete(int id)
+        {
+            var taskName = _engine.GetTaskName(Identity, id);
+            _engine.DeleteTask(Identity, id);
+            var modelNotification =
+                $"Task {taskName} was succesfully deleted.";
+            return RedirectToAction("Index", new { notification = modelNotification });
+        }
+
+        
 
     }
 }

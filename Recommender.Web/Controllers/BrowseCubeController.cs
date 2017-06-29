@@ -24,9 +24,11 @@ namespace Recommender.Web.Controllers
 
         // GET: BrowseCube
         [Authorize(Roles = Roles.RoleUser)]
-        public ActionResult Index()
+        public ActionResult Index(string notification = null)
         {
-            return View(_engine.GetDatasets(User.Identity.GetUserId()));
+            var model = _engine.GetDatasets(Identity);
+            model.Notification = notification;
+            return View(model);
         }
 
         // GET: BrowseCube/Details/id
@@ -65,12 +67,13 @@ namespace Recommender.Web.Controllers
             return View("Details", chart);
         }
 
-        // GET: BrowseCube/Details/id
         [Authorize(Roles = Roles.RoleUser)]
         public FileResult Download(string file)
         {
             var fileBytes = _engine.GetFile(file);
             return File(fileBytes, System.Net.Mime.MediaTypeNames.Application.Octet, Path.GetFileName(file));
         }
+
+        
     }
 }

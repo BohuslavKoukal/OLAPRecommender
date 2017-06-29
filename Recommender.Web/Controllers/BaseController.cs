@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
+using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Recommender.Business.Authorization;
 
@@ -38,5 +39,7 @@ namespace Recommender2.Controllers
                 _userManager = value;
             }
         }
+
+        protected string Identity => User.Identity.GetUserId();
     }
 }

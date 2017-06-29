@@ -98,6 +98,8 @@ namespace Recommender.Web.ControllerEngine
             };
         }
 
+        
+
         private List<FlatDimensionDto> GetFilters(FilterViewModel filter)
         {
             var ret = new List<FlatDimensionDto>();

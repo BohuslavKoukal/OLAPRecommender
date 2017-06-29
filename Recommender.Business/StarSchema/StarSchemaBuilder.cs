@@ -15,8 +15,9 @@ namespace Recommender.Business.StarSchema
     {
         void CreateAndFillDimensionTables(string datasetName, List<Dimension> dimensions, DataTable values);
         void CreateFactTable(Dataset dataset, List<Dimension> dimensions, List<Measure> measures);
-        void FillFactTable(string datasetName, List<Dimension> dimensions, List<Measure> measures, DataTable values);
+        void FillFactTable(string prefix, List<Dimension> dimensions, List<Measure> measures, DataTable values);
         void CreateView(Dataset dataset, List<Dimension> dimensions, List<Measure> measures);
+        void DropAllTables(string prefix, List<Dimension> dimensions);
     }
 
     public class StarSchemaBuilder : StarSchemaBase, IStarSchemaBuilder
@@ -67,7 +68,7 @@ namespace Recommender.Business.StarSchema
             QueryBuilder.CreateView(dataset.GetPrefix(), dataset.GetFactTableName(), OrderDimensionsTopDown(dimensions), measures);
         }       
 
-        public void FillFactTable(string datasetName, List<Dimension> dimensions, List<Measure> measures, DataTable values)
+        public void FillFactTable(string prefix, List<Dimension> dimensions, List<Measure> measures, DataTable values)
         {
             var queryCache = new QueryCache();
             var allRows = new List<List<Column>>();
@@ -82,11 +83,21 @@ namespace Recommender.Business.StarSchema
                 var dimensionColumns = dimensions.Where(d => d.ParentDimension == null).Select(dimension => new Column
                 {
                     Name = dimension.Name + Constants.String.Id,
-                    Value = GetDimensionId(datasetName + dimension.Name, row[dimension.Name].ToString(dimension.Type.ToType()), queryCache).ToString()
+                    Value = GetDimensionId(prefix + dimension.Name, row[dimension.Name].ToString(dimension.Type.ToType()), queryCache).ToString()
                 }).ToList();
                 allRows.Add(dimensionColumns.Concat(measureColumns).ToList());
             }
-            QueryBuilder.Insert(datasetName + Constants.String.FactTable, allRows);
+            QueryBuilder.Insert(prefix + Constants.String.FactTable, allRows);
+        }
+
+        public void DropAllTables(string prefix, List<Dimension> dimensions)
+        {
+            foreach (var dimension in dimensions)
+            {
+                QueryBuilder.Drop(prefix + dimension.Name, "TABLE");
+            }
+            QueryBuilder.Drop(prefix + Constants.String.FactTable, "TABLE");
+            QueryBuilder.Drop(prefix + Constants.String.View, "VIEW");
         }
 
         #endregion

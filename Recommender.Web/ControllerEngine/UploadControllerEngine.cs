@@ -92,6 +92,18 @@ namespace Recommender.Web.ControllerEngine
             Data.ChangeDatasetState(id, State.DimensionsAndMeasuresSet);
         }
 
+        public void DeleteDataset(int datasetId)
+        {
+            var dataset = Data.GetDataset(datasetId);
+            _starSchemaBuilder.DropAllTables(dataset.GetPrefix(), dataset.Dimensions.ToList());
+            Data.DeleteDataset(datasetId);
+        }
+
+        public string GetDatasetName(int datasetId)
+        {
+            return Data.GetDataset(datasetId).Name;
+        }
+
         private void PopulateDimensionsWithValues(IEnumerable<Dimension> dimensions, DataTable data)
         {
             foreach (var dimension in dimensions)
