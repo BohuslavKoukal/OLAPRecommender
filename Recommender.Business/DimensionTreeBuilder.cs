@@ -5,6 +5,7 @@ using Recommender.Business.DTO;
 using Recommender.Business.StarSchema;
 using Recommender.Common.Helpers;
 using Recommender.Data.DataAccess;
+using Recommender.Data.Extensions;
 using Recommender.Data.Models;
 
 namespace Recommender.Business
@@ -12,7 +13,7 @@ namespace Recommender.Business
     public interface IDimensionTreeBuilder
     {
         DimensionTree ConvertToTree(int datasetId, bool populate = false);
-        DimensionTree ConvertToTree(IEnumerable<Dimension> dimensions, bool populate = false);
+        DimensionTree ConvertToTree(IEnumerable<Dimension> dimensions, string prefix, bool populate = false);
         List<SelectListItem> ConvertTreeToSelectList(DimensionTree tree);
     }
 
@@ -31,13 +32,14 @@ namespace Recommender.Business
 
         public DimensionTree ConvertToTree(int datasetId, bool populate = false)
         {
-            return ConvertToTree(_data.GetDataset(datasetId).Dimensions.ToList(), populate);
+            var dataset = _data.GetDataset(datasetId);
+            return ConvertToTree(dataset.Dimensions.ToList(), dataset.GetPrefix(), populate);
         }
 
-        public DimensionTree ConvertToTree(IEnumerable<Dimension> dimensions, bool populate = false)
+        public DimensionTree ConvertToTree(IEnumerable<Dimension> dimensions, string prefix, bool populate = false)
         {
             var dimensionList = dimensions.ToList();
-            var dimensionTree = new DimensionTree(dimensionList.First().DataSet.Name);
+            var dimensionTree = new DimensionTree(dimensionList.First().DataSet.Name, prefix);
             while (dimensionTree.Count != dimensionList.Count)
             {
                 foreach (var dimension in dimensionList)
@@ -49,7 +51,8 @@ namespace Recommender.Business
                         Name = dimension.Name,
                         ParentId = dimension.ParentDimension?.Id,
                         DatasetName = dimension.DataSet.Name,
-                        Type = dimension.Type.ToType()
+                        Type = dimension.Type.ToType(),
+                        Prefix = prefix
                     };
                     if (!dimensionTree.Contains(dimToAdd))
                     {

@@ -8,6 +8,7 @@ using Recommender.Business.DTO;
 using Recommender.Business.StarSchema;
 using Recommender.Common.Constants;
 using Recommender.Data.DataAccess;
+using Recommender.Data.Extensions;
 using Recommender.Data.Models;
 
 namespace Recommender.Business.AssociationRules
@@ -85,7 +86,8 @@ namespace Recommender.Business.AssociationRules
                     Id = dimension.Id,
                     Name = dimension.Name,
                     DimensionValues = new List<DimensionValueDto>(),
-                    DatasetName = rule.MiningTask.DataSet.Name
+                    DatasetName = rule.MiningTask.DataSet.Name,
+                    Prefix = rule.MiningTask.DataSet.GetPrefix()
                 };
                 var allValues = _data.GetAllDimValues(dimension.Id);
                 var dimValue = allValues.Single(dv => dv.Value == condition.Value);

@@ -13,12 +13,12 @@ namespace Recommender.Data.Extensions
     {
         public static string GetViewName(this Dataset dataset)
         {
-            return dataset.GetPrefix() + Constants.String.View;
+            return dataset.GetPrefix() + dataset.Name + Constants.String.View;
         }
 
         public static string GetFactTableName(this Dataset dataset)
         {
-            return dataset.GetPrefix() + Constants.String.FactTable;
+            return dataset.GetPrefix() + dataset.Name + Constants.String.FactTable;
         }
 
         public static List<Dimension> GetNonDateDimensions(this Dataset dataset)
@@ -28,7 +28,7 @@ namespace Recommender.Data.Extensions
 
         public static string GetPrefix(this Dataset dataset)
         {
-            return dataset.UserId.Substring(0, 8) + dataset.Name;
+            return dataset.UserId.Substring(0, 8);
         }
     }
 }

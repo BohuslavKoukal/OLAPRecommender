@@ -38,7 +38,7 @@ namespace Recommender.Business.AssociationRules
         {
             XmlDocument doc = new XmlDocument();
             var pmml = GetSchemaDefinition(doc);
-            GetHeaders(pmml, doc, task.DataSet.Name + "metabase", task.DataSet.Name + "view");
+            GetHeaders(pmml, doc, task.DataSet.GetPrefix() + task.DataSet.Name + "metabase", task.DataSet.GetPrefix() + task.DataSet.Name + "view");
             CreateMiningBuildTask(pmml, doc, task);
             CreateDataDictionary(pmml, doc, task);
             CreateTransformationDictionary(pmml, doc, task, discretizations, rowCount);
@@ -58,7 +58,7 @@ namespace Recommender.Business.AssociationRules
         {
             XmlDocument doc = new XmlDocument();
             var pmml = GetSchemaDefinition(doc);
-            GetHeaders(pmml, doc, task.DataSet.Name + "metabase", task.DataSet.Name + "view");
+            GetHeaders(pmml, doc, task.DataSet.GetPrefix() + task.DataSet.Name + "metabase", task.DataSet.GetPrefix() + task.DataSet.Name + "view");
             var gam = GetGuhaAssociationModel(task, doc, pmml);
             var ts = GetTaskSetting(doc, gam);
             GetLispMinerExtension(doc, ts);
@@ -349,7 +349,7 @@ namespace Recommender.Business.AssociationRules
             var extension = (XmlElement)mbt.AppendChild(doc.CreateElement("Extension"));
             extension.SetAttribute("name", "DatabaseDictionary");
             var table = (XmlElement)extension.AppendChild(doc.CreateElement("Table"));
-            table.SetAttribute("name", task.DataSet.Name + "view");
+            table.SetAttribute("name", $"{task.DataSet.GetPrefix()}{task.DataSet.Name}view");
             var columns = (XmlElement)table.AppendChild(doc.CreateElement("Columns"));
             foreach (var dimension in task.DataSet.GetNonDateDimensions())
             {
@@ -359,10 +359,10 @@ namespace Recommender.Business.AssociationRules
             {
                 CreateMiningBuildTaskColumn(columns, doc, measure.GetQualifiedName(), measure.Type.ToLispName());
             }
-            CreateMiningBuildTaskColumn(columns, doc, $"{task.DataSet.Name}Id", "integer");
+            CreateMiningBuildTaskColumn(columns, doc, $"{task.DataSet.GetPrefix()}{task.DataSet.Name}Id", "integer");
             var pk = (XmlElement)table.AppendChild(doc.CreateElement("PrimaryKey"));
             var pkColumn = (XmlElement)pk.AppendChild(doc.CreateElement("Column"));
-            pkColumn.SetAttribute("name", $"{task.DataSet.Name}Id");
+            pkColumn.SetAttribute("name", $"{task.DataSet.GetPrefix()}{task.DataSet.Name}Id");
             pkColumn.SetAttribute("primaryKeyPosition", "0");
         }
 
@@ -386,7 +386,7 @@ namespace Recommender.Business.AssociationRules
             {
                 CreateDataDictionaryDataField(dd, doc, measure.GetQualifiedName(), measure.Type.ToLispName(), "continuous");
             }
-            CreateDataDictionaryDataField(dd, doc, $"{task.DataSet.Name}Id", "integer", "continuous");
+            CreateDataDictionaryDataField(dd, doc, $"{task.DataSet.GetPrefix()}{task.DataSet.Name}Id", "integer", "continuous");
         }
 
         private void CreateDataDictionaryDataField(XmlElement dataDictionary, XmlDocument doc, string name, string type, string optype)
@@ -415,7 +415,7 @@ namespace Recommender.Business.AssociationRules
                 }
             }
             // Id
-            var idInlineTable = SetupInlineTable(td, doc, $"{task.DataSet.Name}Id", "string", "ordinal");
+            var idInlineTable = SetupInlineTable(td, doc, $"{task.DataSet.GetPrefix()}{task.DataSet.Name}Id", "string", "ordinal");
             for (int i = 1; i <= rowCount; i++)
             {
                 var row = idInlineTable.AppendChild(doc.CreateElement("row"));
@@ -533,6 +533,8 @@ namespace Recommender.Business.AssociationRules
             var taskState = _doc.SelectNodes("//*[local-name()='TaskState']").Cast<XmlNode>().Single().InnerText;
             if(taskState == "Solved")
                 return TaskState.Finished;
+            if (taskState == "Interrupted")
+                return TaskState.Interrupted;
             if (taskState == "Running")
                 return TaskState.Started;
             return TaskState.Failed;

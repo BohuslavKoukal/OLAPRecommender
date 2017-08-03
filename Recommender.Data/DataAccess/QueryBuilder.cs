@@ -78,7 +78,7 @@ namespace Recommender.Data.DataAccess
             foreach (var dimension in orderedDimensions)
             {
                 selectClause += $", {dimension.Name}.{Constants.String.Value} AS {dimension.GetQualifiedNameValue()}";
-                fromClause += $" JOIN {dimension.TableName} {dimension.Name} ON ";
+                fromClause += $" JOIN {prefix}{dimension.Name} {dimension.Name} ON ";
                 if (dimension.ParentDimension == null)
                 {
                     fromClause += $"fact.{dimension.IdName} = {dimension.Name}.Id";

@@ -6,16 +6,18 @@ namespace Recommender.Business.DTO
 {
     public class DimensionTree
     {
-        public DimensionTree(string datasetName)
+        public DimensionTree(string datasetName, string prefix)
         {
             RootDimensions = new List<TreeDimensionDto>();
             DatasetName = datasetName;
+            Prefix = prefix;
         }
 
         public List<TreeDimensionDto> RootDimensions { get; set; }
         public string DatasetName { get; set; }
+        public string Prefix { get; set; }
         public int Count => GetDimensionIds().Count();
-        public string FactTableName => DatasetName + Constants.String.FactTable;
+        public string FactTableName => Prefix + DatasetName + Constants.String.FactTable;
 
         public TreeDimensionDto GetDimensionDto(int id)
         {

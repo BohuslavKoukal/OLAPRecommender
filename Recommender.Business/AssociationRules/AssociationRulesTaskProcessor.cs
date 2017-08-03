@@ -68,6 +68,12 @@ namespace Recommender.Business.AssociationRules
                             SaveTaskResults(task.Name, task.DataSet.Id, task.Id);
                             break;
                         }
+                        else if (taskState == TaskState.Interrupted)
+                        {
+                            _data.SetTaskState(userId, task.Id, (int)TaskState.Interrupted, "Hypotheses count too high, define higher Lift or Base to obtain less rules.");
+                            SaveTaskResults(task.Name, task.DataSet.Id, task.Id);
+                            break;
+                        }
                         else
                         {
                             _data.SetTaskState(userId, task.Id, (int)TaskState.Failed, "Task failed due to an unknown reason in Lisp Miner.");

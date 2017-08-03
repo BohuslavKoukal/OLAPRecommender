@@ -10,11 +10,13 @@ namespace Recommender.Business.DTO
     public abstract class DimensionDto : DimensionOrMeasureDto
     {
         public string DatasetName { get; set; }
-        public string TableName => DatasetName + Name;
+        public string Prefix { get; set; }
+        public string TableName => Prefix + DatasetName + Name;
         public string IdName => Name + Constants.String.Id;
         public List<DimensionValueDto> DimensionValues { get; set; }
         public DimensionDto ParentDimension { get; set; }
         public FilledFrom FilledFrom { get; set; }
+        
 
         public void Populate(IEnumerable<DimensionValueDto> dimensionValues)
         {

@@ -24,7 +24,8 @@
     {
         Started = 1,
         Finished = 2,
-        Failed = 3
+        Failed = 3,
+        Interrupted = 4
     }
 
     public enum Sign

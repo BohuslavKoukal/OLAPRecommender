@@ -13,11 +13,11 @@ namespace Recommender.Business.StarSchema
 {
     public interface IStarSchemaBuilder
     {
-        void CreateAndFillDimensionTables(string datasetName, List<Dimension> dimensions, DataTable values);
+        void CreateAndFillDimensionTables(string prefix, string datasetName, List<Dimension> dimensions, DataTable values);
         void CreateFactTable(Dataset dataset, List<Dimension> dimensions, List<Measure> measures);
-        void FillFactTable(string prefix, List<Dimension> dimensions, List<Measure> measures, DataTable values);
+        void FillFactTable(string prefix, string datasetName, List<Dimension> dimensions, List<Measure> measures, DataTable values);
         void CreateView(Dataset dataset, List<Dimension> dimensions, List<Measure> measures);
-        void DropAllTables(string prefix, List<Dimension> dimensions);
+        void DropAllTables(string prefix, string datasetName, List<Dimension> dimensions);
     }
 
     public class StarSchemaBuilder : StarSchemaBase, IStarSchemaBuilder
@@ -30,7 +30,7 @@ namespace Recommender.Business.StarSchema
 
         #region public
 
-        public void CreateAndFillDimensionTables(string prefix, List<Dimension> dimensions, DataTable values)
+        public void CreateAndFillDimensionTables(string prefix, string datasetName, List<Dimension> dimensions, DataTable values)
         {
             var existingDimensions = new List<int>();
             while (existingDimensions.Count != dimensions.Count)
@@ -42,8 +42,8 @@ namespace Recommender.Business.StarSchema
                     if (!childDimensions.Select(d => d.Id).Except(existingDimensions).Any() &&
                         !existingDimensions.Contains(dimension.Id))
                     {
-                        CreateDimensionTable(prefix, dimension.Name, dimension.Type.ToType().ToSqlType(), childDimensions.Select(d => d.Name).ToList());
-                        FillDimensionTable(prefix, dimension, values, childDimensions);
+                        CreateDimensionTable(prefix, datasetName, dimension.Name, dimension.Type.ToType().ToSqlType(), childDimensions.Select(d => d.Name).ToList());
+                        FillDimensionTable(prefix, datasetName, dimension, values, childDimensions);
                         existingDimensions.Add(dimension.Id);
                     }
                 }
@@ -58,17 +58,17 @@ namespace Recommender.Business.StarSchema
             foreignKeys.AddRange(rootDimensionNames.Select(dimensionName => new ForeignKey
             {
                 KeyName = dimensionName + Constants.String.Id,
-                Reference = dataset.GetPrefix() + dimensionName
+                Reference = dataset.GetPrefix() + dataset.Name + dimensionName
             }));
             QueryBuilder.CreateTable(dataset.GetFactTableName(), measuresColumns, foreignKeys);
         }
 
         public void CreateView(Dataset dataset, List<Dimension> dimensions, List<Measure> measures)
         {
-            QueryBuilder.CreateView(dataset.GetPrefix(), dataset.GetFactTableName(), OrderDimensionsTopDown(dimensions), measures);
+            QueryBuilder.CreateView(dataset.GetPrefix() + dataset.Name, dataset.GetFactTableName(), OrderDimensionsTopDown(dimensions), measures);
         }       
 
-        public void FillFactTable(string prefix, List<Dimension> dimensions, List<Measure> measures, DataTable values)
+        public void FillFactTable(string prefix, string datasetName, List<Dimension> dimensions, List<Measure> measures, DataTable values)
         {
             var queryCache = new QueryCache();
             var allRows = new List<List<Column>>();
@@ -83,21 +83,21 @@ namespace Recommender.Business.StarSchema
                 var dimensionColumns = dimensions.Where(d => d.ParentDimension == null).Select(dimension => new Column
                 {
                     Name = dimension.Name + Constants.String.Id,
-                    Value = GetDimensionId(prefix + dimension.Name, row[dimension.Name].ToString(dimension.Type.ToType()), queryCache).ToString()
+                    Value = GetDimensionId(prefix + datasetName + dimension.Name, row[dimension.Name].ToString(dimension.Type.ToType()), queryCache).ToString()
                 }).ToList();
                 allRows.Add(dimensionColumns.Concat(measureColumns).ToList());
             }
-            QueryBuilder.Insert(prefix + Constants.String.FactTable, allRows);
+            QueryBuilder.Insert(prefix + datasetName + Constants.String.FactTable, allRows);
         }
 
-        public void DropAllTables(string prefix, List<Dimension> dimensions)
+        public void DropAllTables(string prefix, string datasetName, List<Dimension> dimensions)
         {
             foreach (var dimension in dimensions)
             {
-                QueryBuilder.Drop(prefix + dimension.Name, "TABLE");
+                QueryBuilder.Drop(prefix + datasetName + dimension.Name, "TABLE");
             }
-            QueryBuilder.Drop(prefix + Constants.String.FactTable, "TABLE");
-            QueryBuilder.Drop(prefix + Constants.String.View, "VIEW");
+            QueryBuilder.Drop(prefix + datasetName + Constants.String.FactTable, "TABLE");
+            QueryBuilder.Drop(prefix + datasetName + Constants.String.View, "VIEW");
         }
 
         #endregion
@@ -148,7 +148,7 @@ namespace Recommender.Business.StarSchema
                 (QueryBuilder.Select(tableName, new Column { Name = Constants.String.Value, Value = value }).Rows.Cast<DataRow>().First()[0]);
         }
 
-        private void FillDimensionTable(string prefix, Dimension dimension, DataTable values, List<Dimension> children)
+        private void FillDimensionTable(string prefix, string datasetName, Dimension dimension, DataTable values, List<Dimension> children)
         {
             var distinctValues = values.GetDistinctTable(dimension.Type.ToType(), dimension.Name);
             var allRowsToInsert = new List<List<Column>>();
@@ -165,22 +165,22 @@ namespace Recommender.Business.StarSchema
                 dimensionColumns.AddRange(children.Select(child => new Column
                 {
                     Name = child.Name + Constants.String.Id,
-                    Value = GetDimensionId(prefix + child.Name, row[child.Name].ToString()).ToString()
+                    Value = GetDimensionId(prefix + datasetName + child.Name, row[child.Name].ToString()).ToString()
                 }));
                 allRowsToInsert.Add(dimensionColumns);
             }
-            QueryBuilder.Insert(prefix + dimension.Name, allRowsToInsert);
+            QueryBuilder.Insert(prefix + datasetName + dimension.Name, allRowsToInsert);
         }
 
-        private void CreateDimensionTable(string prefix, string dimensionName, string datatype, List<string> childrenNames)
+        private void CreateDimensionTable(string prefix, string datasetName, string dimensionName, string datatype, List<string> childrenNames)
         {
-            var tableName = prefix + dimensionName;
+            var tableName = prefix + datasetName + dimensionName;
             var columns = new List<Column> { new Column { Name = Constants.String.Value, Type = datatype } };
             var foreignKeys = new List<ForeignKey>();
             foreignKeys.AddRange(childrenNames.Select(childName => new ForeignKey
             {
                 KeyName = childName + Constants.String.Id,
-                Reference = prefix + childName
+                Reference = prefix + datasetName + childName
             }));
             QueryBuilder.CreateTable(tableName, columns, foreignKeys);
         }

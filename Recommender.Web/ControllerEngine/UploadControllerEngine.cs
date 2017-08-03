@@ -85,9 +85,9 @@ namespace Recommender.Web.ControllerEngine
             Data.PopulateDataset(id, measures, dimensions);
             var dataset = Data.GetDataset(id);
             var prefix = dataset.GetPrefix();
-            _starSchemaBuilder.CreateAndFillDimensionTables(prefix, dataset.Dimensions.ToList(), data);
+            _starSchemaBuilder.CreateAndFillDimensionTables(prefix, dataset.Name, dataset.Dimensions.ToList(), data);
             _starSchemaBuilder.CreateFactTable(dataset, dataset.Dimensions.ToList(), dataset.Measures.ToList());
-            _starSchemaBuilder.FillFactTable(prefix, dimensions, measures, data);
+            _starSchemaBuilder.FillFactTable(prefix, dataset.Name, dimensions, measures, data);
             _starSchemaBuilder.CreateView(dataset, dimensions, measures);
             Data.ChangeDatasetState(id, State.DimensionsAndMeasuresSet);
         }
@@ -95,7 +95,7 @@ namespace Recommender.Web.ControllerEngine
         public void DeleteDataset(int datasetId)
         {
             var dataset = Data.GetDataset(datasetId);
-            _starSchemaBuilder.DropAllTables(dataset.GetPrefix(), dataset.Dimensions.ToList());
+            _starSchemaBuilder.DropAllTables(dataset.GetPrefix(), dataset.Name, dataset.Dimensions.ToList());
             Data.DeleteDataset(datasetId);
         }
 
@@ -111,7 +111,6 @@ namespace Recommender.Web.ControllerEngine
                 dimension.DimensionValues = StarSchemaHelper.GetDimensionValues(dimension, data);
             }
         }
-
 
     }
 }

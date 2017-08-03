@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.Mvc;
 using Recommender.Business;
 using Recommender.Common.Enums;
+using Recommender.Data.Extensions;
 using Recommender.Data.Models;
 
 namespace Recommender.Web.ViewModels.Mappers
@@ -40,7 +41,7 @@ namespace Recommender.Web.ViewModels.Mappers
             List<SelectListItem> dimensionSelectList;
             if (dataset.State >= State.DimensionsAndMeasuresSet)
             {
-                var dimensionTree = _treeBuilder.ConvertToTree(dataset.Dimensions?.ToList());
+                var dimensionTree = _treeBuilder.ConvertToTree(dataset.Dimensions?.ToList(), dataset.GetPrefix());
                 dimensionSelectList = _treeBuilder.ConvertTreeToSelectList(dimensionTree);
             }
             else
