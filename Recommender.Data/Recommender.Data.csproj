@@ -109,6 +109,10 @@
     <Compile Include="Migrations\201706231421497_privatefile.Designer.cs">
       <DependentUpon>201706231421497_privatefile.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201802251000524_DatasetPreprocessed.cs" />
+    <Compile Include="Migrations\201802251000524_DatasetPreprocessed.Designer.cs">
+      <DependentUpon>201802251000524_DatasetPreprocessed.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\ApplicationUser.cs" />
     <Compile Include="Models\AssociationRule.cs" />
@@ -146,6 +150,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201706231421497_privatefile.resx">
       <DependentUpon>201706231421497_privatefile.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201802251000524_DatasetPreprocessed.resx">
+      <DependentUpon>201802251000524_DatasetPreprocessed.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

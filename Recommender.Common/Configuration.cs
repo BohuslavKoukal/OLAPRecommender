@@ -7,7 +7,7 @@ namespace Recommender.Common
     {
         string GetFilesLocation();
         string GetPmmlFilesLocation();
-        string GetMinerId();
+        //string GetMinerId();
         string GetCubeDatabaseConnectionString();
         string GetLispMinerServer();
     }
@@ -24,10 +24,10 @@ namespace Recommender.Common
             return WebConfigurationManager.AppSettings["PmmlFilesLocation"];
         }
 
-        public string GetMinerId()
-        {
-            return WebConfigurationManager.AppSettings["MinerId"];
-        }
+        //public string GetMinerId()
+        //{
+        //    return WebConfigurationManager.AppSettings["MinerId"];
+        //}
 
         public string GetCubeDatabaseConnectionString()
         {

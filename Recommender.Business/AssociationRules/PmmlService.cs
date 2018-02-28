@@ -53,6 +53,26 @@ namespace Recommender.Business.AssociationRules
             return document;
         }
 
+        #region MinerIdRegistration
+
+        public static string GetMinerId(string minerXml)
+        {
+            try
+            {
+                XmlDocument xmlDoc = new XmlDocument();
+                xmlDoc.LoadXml(minerXml);
+                var response = xmlDoc.SelectNodes("//*[local-name()='response']")[0];
+                return response.Attributes["id"].InnerText;
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+        }
+
+        #endregion
+
+
         #region MiningTask
         private XmlDocument GetMiningTaskPmml(MiningTask task, List<EquivalencyClass> eqClasses, int rowCount)
         {

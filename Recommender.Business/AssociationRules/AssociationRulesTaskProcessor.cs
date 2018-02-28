@@ -41,18 +41,40 @@ namespace Recommender.Business.AssociationRules
             List<Discretization> discretizations, int rowCount, List<EquivalencyClass> eqClasses)
         {
             var service = new PmmlService(_configuration);
-            var preprocessed = task.DataSet.Preprocessed;
-            if (!preprocessed)
+            var minerId = task.DataSet.MinerId;
+            bool? preprocessed = null;
+            if (minerId == null)
             {
-                var preprocessingPmml = service.GetPreprocessingPmml(task, discretizations, rowCount);
+                preprocessed = false;
+                var minerIdResponse = _lmConnector.GetMinerId(userId, task);
+                var newMinerId = PmmlService.GetMinerId(minerIdResponse);
+                if (newMinerId == null)
+                {
+                    _data.SetTaskState(userId, task.Id, (int) TaskState.Failed,
+                        "OLAP Recommender was unable to obtain miner id from LISP Miner. Response: " + minerIdResponse);
+                    return;
+                }
+                else
+                {
+                    task.DataSet.MinerId = newMinerId;
+                    _data.SetMinerId(userId, task.DataSet.Id, newMinerId);
+                }
+            }
+            if (preprocessed == null)
+            {
+                preprocessed = task.DataSet.Preprocessed;
+            }
+            var preprocessingPmml = service.GetPreprocessingPmml(task, discretizations, rowCount);
+            if ((bool) !preprocessed)
+            {
                 preprocessed = _lmConnector.SendPreprocessing(userId, task, preprocessingPmml);
             }
-            if (preprocessed)
+            if ((bool) preprocessed)
             {
                 var taskPmml = service.GetTaskPmml(task, eqClasses, rowCount);
                 while (true)
                 {
-                    var responseOk = _lmConnector.SendTask(userId, task, taskPmml);
+                    var responseOk = _lmConnector.SendTask(userId, task, taskPmml, preprocessingPmml);
                     if (responseOk)
                     {
                         var resultsFile = _lmConnector.GetTaskResultsFile(task.Name);

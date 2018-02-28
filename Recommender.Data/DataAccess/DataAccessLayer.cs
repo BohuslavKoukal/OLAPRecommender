@@ -16,6 +16,7 @@ namespace Recommender.Data.DataAccess
         void PopulateDataset(int id, ICollection<Measure> measures, ICollection<Dimension> dimensions);
         void ChangeDatasetState(int id, State state);
         void SetTaskState(string userId, int taskId, int state, string failedReason = null);
+        void SetMinerId(string userId, int datasetId, string minerId);
         void SetPreprocessed(int datasetId);
         void DeleteDataset(int id);
         void DeleteTask(string userId, int id);
@@ -103,6 +104,14 @@ namespace Recommender.Data.DataAccess
             var task = GetMiningTask(userId, taskId);
             task.TaskState = state;
             task.FailedReason = failedReason;
+            _dbContext.SaveChanges();
+        }
+
+        public void SetMinerId(string userId, int datasetId, string minerId)
+        {
+            var dataset = _dbContext.Datasets.Single(d => d.Id == datasetId);
+            dataset.MinerId = minerId;
+            dataset.Preprocessed = false;
             _dbContext.SaveChanges();
         }
 

@@ -77,12 +77,20 @@ namespace Recommender.Web.ControllerEngine
             var measure = Data.GetMeasure(selectedMeasureId);
             var dimensionTree = _treeBuilder.ConvertToTree(id, true);
             GroupedChartViewModel groupedChart = null;
-            if (legendDimensionId != 0)
+            DrilldownChartViewModel drilldownChart = null;
+            if (legendDimensionId != 0 && xDimensionId != legendDimensionId)
             {
                 groupedChart = GetGroupedChart(dimensionTree, dimensionTree.GetDimensionDto(xDimensionId),
                 dimensionTree.GetDimensionDto(legendDimensionId), measure, filters, group);
             }
-            var drilldownChart = GetDrilldownChart(dimensionTree, dimensionTree.GetDimensionDto(xDimensionId), measure, filters, requireDrilldownChart);
+            if (legendDimensionId == 0)
+            {
+                drilldownChart = GetDrilldownChart(dimensionTree, dimensionTree.GetDimensionDto(xDimensionId), measure, filters, requireDrilldownChart);
+            }
+            if (xDimensionId == legendDimensionId)
+            {
+                drilldownChart = GetDrilldownChart(dimensionTree, dimensionTree.GetDimensionDto(xDimensionId), measure, filters, true);
+            }
             var filterValues = GetFilterValues(id);
             return new BrowseCubeViewModel
             {
